@@ -88,7 +88,7 @@ const modules = [
     id: "debit-probable-ef-ec",
     category: "plomberie",
     title: "Débit probable EF & EC",
-    status: "draft",
+    status: "ready",
     // Ce module utilise le nouveau calculateur basé sur le fichier JSON apparels_ef_ec.json.
     calculator: "debit-probable-ef-ec",
     source: ["Calcul débit Pb EF-EC- NEW.xls"],
