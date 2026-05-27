@@ -1,0 +1,1603 @@
+const categories = [
+  { id: "overview", label: "Vue d'ensemble" },
+  { id: "hydraulique", label: "Hydraulique" },
+  { id: "aeraulique", label: "Aeraulique" },
+  { id: "plomberie", label: "Plomberie" },
+  { id: "thermique", label: "Thermique" },
+  { id: "ventilation", label: "Ventilation" },
+  { id: "fluides", label: "Gaz, vapeur, air" },
+  { id: "quantitatifs", label: "Quantitatifs" },
+  { id: "utilitaires", label: "Utilitaires" },
+  { id: "bibliotheque", label: "Bibliotheque Excel" }
+];
+
+const modules = [
+  {
+    id: "fluides-ddv",
+    category: "hydraulique",
+    title: "Debit - diametre - vitesse",
+    status: "ready",
+    calculator: "ddv",
+    source: ["Programmes/Chaufferie/Calcul pratique Fluides.xls", "DIM ALIM EF.xlsm"],
+    description: "Predimensionnement rapide d'une conduite ou d'un reseau par debit, vitesse et diametre."
+  },
+  {
+    id: "reseau-hydraulique",
+    category: "hydraulique",
+    title: "Reseau hydraulique chauffage",
+    status: "ready",
+    calculator: "hydraulic",
+    source: ["Reseau hydraulique/Réseau hydraulique_model_V01.xls", "Programmes/Chaufferie/Calcul pratique Fluides.xls"],
+    description: "Debit d'eau, diametre theorique, reference tube et vitesse reelle a partir de la puissance."
+  },
+  {
+    id: "circulateur",
+    category: "hydraulique",
+    title: "Point d'equilibre circulateur",
+    status: "draft",
+    calculator: "pump",
+    source: ["Programmes/Chaufferie/circulateur.xls"],
+    description: "Premiere base pour croiser courbe constructeur et courbe reseau."
+  },
+  {
+    id: "vase",
+    category: "hydraulique",
+    title: "Vase d'expansion chauffage",
+    status: "ready",
+    calculator: "vessel",
+    source: ["Programmes/Chaufferie/vase.xls", "Vase d'expansion/Calcul capacité vase d'expension.xls"],
+    description: "Capacite minimale, pressions de gonflage et volume de dilatation."
+  },
+  {
+    id: "gaine-air",
+    category: "aeraulique",
+    title: "Gaine circulaire et rectangulaire",
+    status: "ready",
+    calculator: "duct",
+    source: ["Réseau Aéraulique/Réseau aéraulique_model_V01.xls", "Aéraulique/Réseau aéraulique_model_V01.xls"],
+    description: "Diametre circulaire, largeur rectangulaire et surface d'isolation de gaine."
+  },
+  {
+    id: "debit-air-gaine",
+    category: "aeraulique",
+    title: "Debit d'air dans gaine",
+    status: "ready",
+    calculator: "ductFlow",
+    source: ["Aéraulique/DEBIT D'AIR DANS GAINE.xls"],
+    description: "Debit d'air en fonction du diametre de gaine circulaire et de la vitesse d'air."
+  },
+  {
+    id: "pdc-air",
+    category: "aeraulique",
+    title: "Pertes de charge air",
+    status: "ready",
+    calculator: "ductPressure",
+    source: ["Réseau Aéraulique/Tableur aeraulique vierge.xls", "Réseau Aéraulique/Réseau aéraulique_model_V01.xls"],
+    description: "Calcul par troncons: vitesse, diametre equivalent, j, jL, singularites et perte totale."
+  },
+  {
+    id: "plomberie-debits",
+    category: "plomberie",
+    title: "Debit probable EF/ECS",
+    status: "ready",
+    calculator: "plumbing",
+    source: ["Programmes/Divers/150106 Calcul débit Pb EF-EC- NEW.xls", "Calcul débit Pb EF-EC- NEW.xls"],
+    description: "Somme des debits de base et coefficient de simultaneite pour reseaux sanitaires."
+  },
+  {
+    id: "evacuations",
+    category: "plomberie",
+    title: "Evacuations EU/EV/EP",
+    status: "backlog",
+    calculator: "plumbing",
+    source: ["Programmes/SanitEvac - Dimentionnement évacuations/Calcul débit évacuations DTU60-11-2013-Annexes.xls"],
+    description: "A reprendre depuis les annexes DTU 60.11: debits, chutes, collecteurs et EP."
+  },
+  {
+    id: "psychro",
+    category: "thermique",
+    title: "Psychrometrie air humide",
+    status: "ready",
+    calculator: "psychro",
+    source: ["Programmes/PsychrometricPr.xls", "Programmes/Divers/Psychro annexe.xls"],
+    description: "Humidite specifique, point de rosee, enthalpie et masse volumique approchee."
+  },
+  {
+    id: "deperditions",
+    category: "thermique",
+    title: "Deperditions et bilan chaud/froid",
+    status: "backlog",
+    calculator: "thermal",
+    source: ["Déperdition et froid/Déperdition.xls", "Calculs thermiques/Bilan thermique simplifié.xls"],
+    description: "Gros module a reconstruire avec pieces, parois, coefficients U et bilan final."
+  },
+  {
+    id: "coef-u",
+    category: "thermique",
+    title: "Bibliotheque coefficients U",
+    status: "draft",
+    calculator: "thermal",
+    source: ["Programmes/Divers/Feuilles de Coef U.xls", "Programmes/Déperditions/Feuilles de Coef U.xls"],
+    description: "Tables de parois et vitrages a transformer en base de donnees consultable."
+  },
+  {
+    id: "vmc-hygro",
+    category: "ventilation",
+    title: "VMC hygro collectif",
+    status: "backlog",
+    calculator: "duct",
+    source: ["Ventilation/Dimensionnement hygro.xls", "Ventilation/Rapid_ MI-2.16.xlsx"],
+    description: "A migrer apres validation des bouches, colonnes et avis techniques sources."
+  },
+  {
+    id: "desenfumage",
+    category: "ventilation",
+    title: "Desenfumage",
+    status: "backlog",
+    calculator: "duct",
+    source: ["Désenfumage/Débit de désenfumage.xls"],
+    description: "Calculs de debits et surfaces utiles a isoler dans un module dedie."
+  },
+  {
+    id: "gaz",
+    category: "fluides",
+    title: "Debit gaz et puissance",
+    status: "ready",
+    calculator: "gas",
+    source: ["Programmes/Chaufferie/calcul gaz coll.xls", "Gaz/Détermination tuyauterie gaz.xls"],
+    description: "Conversion puissance, PCI, rendement et debit gaz de reference."
+  },
+  {
+    id: "vapeur",
+    category: "fluides",
+    title: "Vapeur saturee",
+    status: "backlog",
+    calculator: "gas",
+    source: ["Programmes/TechVapor/TechVaporFR.xls", "Vapeur/Détermination tuyauterie Vapeur.xls"],
+    description: "Tables vapeur et dimensionnement a migrer depuis TechVapor."
+  },
+  {
+    id: "air-comprime",
+    category: "fluides",
+    title: "Tuyauterie air comprime",
+    status: "ready",
+    calculator: "compressedAir",
+    source: ["Air Comprimé/Détermination tuyauterie air comprimé.xls", "Programmes/PdcAirComprimé/Biblio air comprimé.xls"],
+    description: "Diametre conseille, longueur equivalente, vitesse et perte de pression reelle."
+  },
+  {
+    id: "calorifuge",
+    category: "quantitatifs",
+    title: "Surface de calorifuge",
+    status: "ready",
+    calculator: "insulation",
+    source: ["Calorifuge/CALORIFUGE.xls", "Surface tuyauteries/Calcul surface.xls"],
+    description: "Surface au metre lineaire, accessoires et quantitatif d'isolant."
+  },
+  {
+    id: "poids-gaine",
+    category: "quantitatifs",
+    title: "Poids de gaine et metrer",
+    status: "draft",
+    calculator: "duct",
+    source: ["GABRIEL/Feuilles de calcul/Poids gaine rectangulaire.xls", "GABRIEL/Feuilles de calcul/Métrés Tubes EC-EF (1).xls"],
+    description: "Quantitatifs reseaux, poids et surfaces a brancher sur les modules reseau."
+  },
+  {
+    id: "conversions-unites",
+    category: "utilitaires",
+    title: "Conversions d'unites",
+    status: "ready",
+    calculator: "conversion",
+    source: ["Conversions/tableau de conversion.xls", "Convertisseur.xls", "Programmes/Chaufferie/conversion.xls"],
+    description: "Convertisseur transverse: longueurs, surfaces, volumes, masses, pressions, energies, puissances, angles et temperatures."
+  },
+  {
+    id: "bibliotheque",
+    category: "bibliotheque",
+    title: "Catalogue des fichiers Excel",
+    status: "draft",
+    calculator: "library",
+    source: ["Dossier Soft etude JM"],
+    description: "Index vivant des classeurs: outils generiques, notes de calcul, fabricants et archives projet."
+  }
+];
+
+const calculators = {
+  ddv: { label: "Debit / diametre / vitesse", render: renderDdv },
+  hydraulic: { label: "Reseau hydraulique", render: renderHydraulic },
+  pump: { label: "Circulateur", render: renderPump },
+  vessel: { label: "Vase d'expansion", render: renderVessel },
+  duct: { label: "Gaine aeraulique", render: renderDuct },
+  ductFlow: { label: "Debit air dans gaine", render: renderDuctFlow },
+  ductPressure: { label: "Pertes de charge air", render: renderDuctPressure },
+  plumbing: { label: "Debit plomberie", render: renderPlumbing },
+  psychro: { label: "Psychrometrie", render: renderPsychro },
+  thermal: { label: "Bilan thermique", render: renderThermal },
+  gas: { label: "Debit gaz", render: renderGas },
+  compressedAir: { label: "Tuyauterie air comprime", render: renderCompressedAir },
+  insulation: { label: "Calorifuge", render: renderInsulation },
+  conversion: { label: "Conversions d'unites", render: renderConversion },
+  library: { label: "Bibliotheque", render: renderLibrary }
+};
+
+const pipeTables = {
+  acier: [
+    { ref: "DN15 - 17.2 x 2", d: 13.2 },
+    { ref: "DN20 - 21.3 x 2.3", d: 16.7 },
+    { ref: "DN25 - 26.9 x 2.3", d: 22.3 },
+    { ref: "DN32 - 33.7 x 2.9", d: 27.9 },
+    { ref: "DN40 - 42.4 x 2.9", d: 36.6 },
+    { ref: "DN50 - 60.3 x 3.2", d: 53.9 },
+    { ref: "DN65 - 76.1 x 3.2", d: 69.7 },
+    { ref: "DN80 - 88.9 x 3.2", d: 82.5 },
+    { ref: "DN100 - 114.3 x 3.6", d: 107.1 }
+  ],
+  cuivre: [
+    { ref: "Cu 12/14", d: 12 },
+    { ref: "Cu 14/16", d: 14 },
+    { ref: "Cu 16/18", d: 16 },
+    { ref: "Cu 20/22", d: 20 },
+    { ref: "Cu 26/28", d: 26 },
+    { ref: "Cu 32/35", d: 32 },
+    { ref: "Cu 40/42", d: 40 },
+    { ref: "Cu 50/52", d: 50 },
+    { ref: "Cu 60/64", d: 60 }
+  ],
+  per: [
+    { ref: "PER 12 x 1.1", d: 9.8 },
+    { ref: "PER 16 x 1.5", d: 13 },
+    { ref: "PER 20 x 1.9", d: 16.2 },
+    { ref: "PER 25 x 2.3", d: 20.4 },
+    { ref: "PER 32 x 2.9", d: 26.2 },
+    { ref: "PER 40 x 3.7", d: 32.6 },
+    { ref: "PER 50 x 4.6", d: 40.8 },
+    { ref: "PER 63 x 5.8", d: 51.4 }
+  ]
+};
+
+const ductPressureDiameters = [60, 80, 100, 125, 160, 200, 250, 315, 355, 400, 450, 500, 560, 630, 710, 800, 900, 1000, 1120, 1250];
+
+const ductPressureMaterials = [
+  { value: "acier_galva", label: "acier galvanise", roughness: 0.15 },
+  { value: "spirale", label: "conduit agrafe spirale", roughness: 0.5 },
+  { value: "acier_inox", label: "acier inoxydable", roughness: 0.05 },
+  { value: "acier_noir", label: "acier noir lamine", roughness: 0.1 },
+  { value: "aluminium", label: "aluminium", roughness: 0.002 },
+  { value: "flexible", label: "flexible", roughness: 3 },
+  { value: "plastique", label: "mat. plastique", roughness: 0.002 },
+  { value: "beton_lisse", label: "beton lisse", roughness: 0.55 },
+  { value: "beton_brut", label: "beton brut de decoffrage", roughness: 2 },
+  { value: "brique", label: "paroi de brique", roughness: 2 },
+  { value: "tole_rivee", label: "tole d'acier rivee", roughness: 2 }
+];
+
+const ductPressureRows = [
+  { flow: 1800, length: 12, shape: "round", diameter: 315, width: 600, height: 300, fixed: 0, zeta: 0.8 },
+  { flow: 1200, length: 8, shape: "rect", diameter: 250, width: 500, height: 250, fixed: 0, zeta: 1.2 },
+  { flow: 800, length: 10, shape: "round", diameter: 250, width: 400, height: 200, fixed: 0, zeta: 0.6 },
+  { flow: 0, length: 0, shape: "round", diameter: 200, width: 300, height: 200, fixed: 0, zeta: 0 },
+  { flow: 0, length: 0, shape: "round", diameter: 200, width: 300, height: 200, fixed: 0, zeta: 0 },
+  { flow: 0, length: 0, shape: "round", diameter: 200, width: 300, height: 200, fixed: 0, zeta: 0 }
+];
+
+const compressedAirPipes = [
+  { nominal: 15, retained: 20, outer: 21.3, thickness: 2.6, inner: 16.1, inch: '1/2"' },
+  { nominal: 20, retained: 25, outer: 26.9, thickness: 2.6, inner: 21.7, inch: '3/4"' },
+  { nominal: 25, retained: 32, outer: 33.7, thickness: 3.2, inner: 27.3, inch: '1"' },
+  { nominal: 32, retained: 40, outer: 42.4, thickness: 3.2, inner: 36, inch: '1 1/4"' },
+  { nominal: 40, retained: 50, outer: 48.3, thickness: 3.2, inner: 41.9, inch: '1 1/2"' },
+  { nominal: 50, retained: 65, outer: 60.3, thickness: 3.6, inner: 53.1, inch: '2"' },
+  { nominal: 65, retained: 85, outer: 76.1, thickness: 3.6, inner: 68.9, inch: '2 1/2"' },
+  { nominal: 80, retained: 100, outer: 88.9, thickness: 4, inner: 80.9, inch: '3"' },
+  { nominal: 100, retained: 125, outer: 114.3, thickness: 4.5, inner: 105.3, inch: '4"' },
+  { nominal: 125, retained: 150, outer: 139.7, thickness: 4.5, inner: 130.7, inch: '5"' },
+  { nominal: 150, retained: 200, outer: 168.3, thickness: 4.5, inner: 159.3, inch: '6"' },
+  { nominal: 200, retained: 250, outer: 219.1, thickness: 6.3, inner: 206.5, inch: '8"' },
+  { nominal: 250, retained: 300, outer: 273, thickness: 6.3, inner: 260.4, inch: '10"' }
+];
+
+const compressedAirEquivalentLengths = {
+  20: { globe: 0.6, tee: 0.5, elbow: 0.6, longElbow: 0.6, valve: 0.3 },
+  25: { globe: 0.6, tee: 0.6, elbow: 0.5, longElbow: 0.3, valve: 0.3 },
+  32: { globe: 0.9, tee: 0.75, elbow: 0.55, longElbow: 0.4, valve: 0.4 },
+  40: { globe: 1.2, tee: 0.9, elbow: 0.6, longElbow: 0.5, valve: 0.5 },
+  50: { globe: 2, tee: 1.5, elbow: 0.7, longElbow: 0.6, valve: 0.85 },
+  65: { globe: 2.5, tee: 2, elbow: 0.9, longElbow: 0.7, valve: 1.1 },
+  85: { globe: 4.3788, tee: 3.0909, elbow: 1.2364, longElbow: 0.9788, valve: 1.9576 },
+  100: { globe: 6, tee: 4, elbow: 1.5, longElbow: 1.2, valve: 2.7 },
+  125: { globe: 8.5, tee: 5.5, elbow: 1.8, longElbow: 1.5, valve: 4 },
+  150: { globe: 11, tee: 7, elbow: 2.1, longElbow: 1.8, valve: 5 },
+  200: { globe: 16, tee: 10, elbow: 2.7, longElbow: 2.5, valve: 7 },
+  250: { globe: 21, tee: 15, elbow: 3.4, longElbow: 3, valve: 9 },
+  300: { globe: 21, tee: 15, elbow: 3.4, longElbow: 3, valve: 9 }
+};
+
+const conversionGroups = {
+  length: {
+    label: "Distances",
+    base: "m",
+    units: [
+      { id: "m", label: "metre (m)", factor: 1 },
+      { id: "km", label: "kilometre (km)", factor: 1000 },
+      { id: "cm", label: "centimetre (cm)", factor: 0.01 },
+      { id: "mm", label: "millimetre (mm)", factor: 0.001 },
+      { id: "in", label: "pouce (in)", factor: 0.0254 },
+      { id: "ft", label: "pied (ft)", factor: 0.3048 },
+      { id: "yd", label: "yard (yd)", factor: 0.9144 },
+      { id: "mile", label: "mile terrestre", factor: 1609.347 },
+      { id: "nmi", label: "mile nautique international", factor: 1851.99 },
+      { id: "ua", label: "unite astronomique", factor: 1.496e11 },
+      { id: "al", label: "annee lumiere", factor: 9.461e15 },
+      { id: "ang", label: "angstrom", factor: 1e-10 }
+    ]
+  },
+  area: {
+    label: "Surfaces",
+    base: "m2",
+    units: [
+      { id: "m2", label: "metre carre (m2)", factor: 1 },
+      { id: "km2", label: "kilometre carre (km2)", factor: 1e6 },
+      { id: "cm2", label: "centimetre carre (cm2)", factor: 0.0001 },
+      { id: "ha", label: "hectare (ha)", factor: 10000 },
+      { id: "are", label: "are (a)", factor: 100 },
+      { id: "acre", label: "acre", factor: 4046.86 },
+      { id: "mile2", label: "mile carre", factor: 2.59e6 },
+      { id: "yd2", label: "yard carre", factor: 0.8361 },
+      { id: "ft2", label: "pied carre", factor: 0.0929 },
+      { id: "in2", label: "pouce carre", factor: 0.00064516 },
+      { id: "barn", label: "barn", factor: 1e-28 }
+    ]
+  },
+  volume: {
+    label: "Volumes",
+    base: "m3",
+    units: [
+      { id: "m3", label: "metre cube (m3)", factor: 1 },
+      { id: "l", label: "litre", factor: 0.001 },
+      { id: "dm3", label: "decimetre cube (dm3)", factor: 0.001 },
+      { id: "cm3", label: "centimetre cube (cm3)", factor: 1e-6 },
+      { id: "usgal", label: "gallon US", factor: 0.003785 },
+      { id: "ukgal", label: "gallon UK", factor: 0.004546 },
+      { id: "usbbl", label: "baril US", factor: 0.159 },
+      { id: "ukbbl", label: "baril UK", factor: 0.164 },
+      { id: "cuyd", label: "yard cube", factor: 0.765 },
+      { id: "cuft", label: "pied cube", factor: 0.02833 },
+      { id: "cuin", label: "pouce cube", factor: 0.00001639 },
+      { id: "uspint", label: "pinte US", factor: 0.000473 },
+      { id: "ukpint", label: "pinte UK", factor: 0.000568 },
+      { id: "usbushel", label: "bushel US", factor: 0.03524 },
+      { id: "ukbushel", label: "bushel UK", factor: 0.03636 }
+    ]
+  },
+  mass: {
+    label: "Masses",
+    base: "kg",
+    units: [
+      { id: "kg", label: "kilogramme (kg)", factor: 1 },
+      { id: "t", label: "tonne", factor: 1000 },
+      { id: "g", label: "gramme (g)", factor: 0.001 },
+      { id: "mg", label: "milligramme (mg)", factor: 0.000001 },
+      { id: "longton", label: "long ton", factor: 1016.05 },
+      { id: "shortton", label: "short ton", factor: 907.2 },
+      { id: "lb", label: "livre US", factor: 0.4536 },
+      { id: "oz", label: "once US", factor: 0.02835 },
+      { id: "grain", label: "grain", factor: 0.00006481 },
+      { id: "quintal", label: "quintal", factor: 100 },
+      { id: "carat", label: "carat", factor: 0.0002 },
+      { id: "u", label: "unite masse atomique", factor: 1.66053e-27 }
+    ]
+  },
+  pressure: {
+    label: "Pressions",
+    base: "Pa",
+    units: [
+      { id: "pa", label: "pascal (Pa)", factor: 1 },
+      { id: "kpa", label: "kilopascal (kPa)", factor: 1000 },
+      { id: "bar", label: "bar", factor: 100000 },
+      { id: "mbar", label: "millibar (mbar)", factor: 100 },
+      { id: "atm", label: "atmosphere (atm)", factor: 101325 },
+      { id: "mmhg", label: "mm Hg / torr", factor: 133.3 },
+      { id: "mmce", label: "mmCE", factor: 9.80665 },
+      { id: "mce", label: "mCE", factor: 9806.65 }
+    ]
+  },
+  energy: {
+    label: "Energies",
+    base: "J",
+    units: [
+      { id: "j", label: "joule (J)", factor: 1 },
+      { id: "kj", label: "kilojoule (kJ)", factor: 1000 },
+      { id: "erg", label: "erg", factor: 1e-7 },
+      { id: "cal", label: "calorie thermochimique", factor: 4.184 },
+      { id: "calit", label: "calorie IT", factor: 4.1868 },
+      { id: "kcal", label: "kilocalorie", factor: 4184 },
+      { id: "wh", label: "wattheure (Wh)", factor: 3600 },
+      { id: "kwh", label: "kilowattheure (kWh)", factor: 3.6e6 },
+      { id: "th", label: "thermie", factor: 4.18e6 },
+      { id: "cvh", label: "chevalheure", factor: 2.648e6 },
+      { id: "btu", label: "BTU", factor: 1055 },
+      { id: "ev", label: "electronvolt", factor: 1.602e-19 },
+      { id: "frigorie", label: "frigorie", factor: 4180 }
+    ]
+  },
+  power: {
+    label: "Puissances",
+    base: "W",
+    units: [
+      { id: "w", label: "watt (W)", factor: 1 },
+      { id: "kw", label: "kilowatt (kW)", factor: 1000 },
+      { id: "cv", label: "cheval-vapeur (cv)", factor: 735.5 },
+      { id: "frigh", label: "frigorie par heure", factor: 1.161 },
+      { id: "kcalh", label: "kcal/h", factor: 1.163 },
+      { id: "btuh", label: "BTU/h", factor: 0.293071 }
+    ]
+  },
+  angle: {
+    label: "Angles",
+    base: "degre",
+    units: [
+      { id: "deg", label: "degre", factor: 1 },
+      { id: "rad", label: "radian", factor: 180 / Math.PI },
+      { id: "grad", label: "grade", factor: 0.9 },
+      { id: "min", label: "minute", factor: 1 / 60 },
+      { id: "sec", label: "seconde", factor: 1 / 3600 }
+    ]
+  },
+  temperature: {
+    label: "Temperatures",
+    base: "C",
+    units: [
+      { id: "c", label: "Celsius (deg C)" },
+      { id: "f", label: "Fahrenheit (deg F)" },
+      { id: "k", label: "Kelvin (K)" }
+    ]
+  }
+};
+
+const conversionReferences = [
+  ["Distances", "1 in = 25,4 mm", "1 ft = 0,3048 m", "1 mile = 1,609347 km"],
+  ["Surfaces", "1 ha = 10 000 m2", "1 acre = 0,404686 ha", "1 sq ft = 0,0929 m2"],
+  ["Volumes", "1 litre = 1e-3 m3", "1 US gal = 3,785e-3 m3", "1 cu ft = 28,33 l"],
+  ["Masses", "1 pound = 0,4536 kg", "1 ounce = 28,35 g", "1 quintal = 100 kg"],
+  ["Energies", "1 kWh = 3,6e6 J", "1 BTU = 1,055e3 J", "1 kcal = 4184 J"],
+  ["Pressions", "1 atm = 1,01325 bar", "1 mm Hg = 133,3 Pa", "1 Pa = 1e-5 bar"],
+  ["Puissances", "1 cv = 735,5 W", "1 frigorie/h = 1,161 W", "1 kcal/h = 1,163 W"],
+  ["Temperatures", "deg F = 1,8 x deg C + 32", "K = deg C + 273,15", ""]
+];
+
+const apparatus = [
+  { id: "evier", label: "Evier", flow: 0.2 },
+  { id: "lavabo", label: "Lavabo", flow: 0.2 },
+  { id: "douche", label: "Douche", flow: 0.2 },
+  { id: "baignoire", label: "Baignoire", flow: 0.33 },
+  { id: "wc", label: "WC reservoir", flow: 0.12 },
+  { id: "laveLinge", label: "Lave-linge", flow: 0.2 },
+  { id: "laveVaisselle", label: "Lave-vaisselle", flow: 0.1 },
+  { id: "robinet", label: "Robinet puisage", flow: 0.33 },
+  { id: "urinoir", label: "Urinoir", flow: 0.15 }
+];
+
+const state = {
+  category: "overview",
+  query: "",
+  selectedModule: modules[0].id,
+  currentCalculator: "ddv",
+  report: []
+};
+
+const $ = (selector) => document.querySelector(selector);
+const fmt = (value, digits = 2) => Number.isFinite(value) ? value.toLocaleString("fr-FR", { maximumFractionDigits: digits }) : "-";
+const mm = (value) => `${fmt(value, 1)} mm`;
+const m3h = (value) => `${fmt(value, 2)} m3/h`;
+const lps = (value) => `${fmt(value, 3)} l/s`;
+
+function init() {
+  renderCategories();
+  renderCalculatorSelect();
+  bindShellEvents();
+  updateMetrics();
+  render();
+}
+
+function bindShellEvents() {
+  $("#searchInput").addEventListener("input", (event) => {
+    state.query = event.target.value.trim().toLowerCase();
+    render();
+  });
+
+  $("#resetButton").addEventListener("click", () => {
+    state.category = "overview";
+    state.query = "";
+    state.selectedModule = modules[0].id;
+    state.currentCalculator = modules[0].calculator;
+    $("#searchInput").value = "";
+    render();
+  });
+
+  $("#calculatorSelect").addEventListener("change", (event) => {
+    state.currentCalculator = event.target.value;
+    $("#calculatorTitle").textContent = calculators[state.currentCalculator].label;
+    calculators[state.currentCalculator].render();
+  });
+
+  $("#copyReport").addEventListener("click", async () => {
+    const text = $("#reportOutput").textContent;
+    try {
+      await navigator.clipboard.writeText(text);
+      $("#copyReport").textContent = "Copie";
+      window.setTimeout(() => $("#copyReport").textContent = "Copier", 1200);
+    } catch {
+      $("#copyReport").textContent = "Selectionner";
+      window.setTimeout(() => $("#copyReport").textContent = "Copier", 1200);
+    }
+  });
+}
+
+function renderCategories() {
+  const nav = $("#categoryNav");
+  nav.innerHTML = categories.map((category) => {
+    const count = category.id === "overview"
+      ? modules.length
+      : modules.filter((module) => module.category === category.id).length;
+    return `
+      <button class="nav-button" type="button" data-category="${category.id}">
+        <span class="nav-icon" aria-hidden="true"></span>
+        <span>${category.label}</span>
+        <span class="nav-count">${count}</span>
+      </button>
+    `;
+  }).join("");
+
+  nav.querySelectorAll("button").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.category = button.dataset.category;
+      render();
+    });
+  });
+}
+
+function renderCalculatorSelect() {
+  const select = $("#calculatorSelect");
+  select.innerHTML = Object.entries(calculators)
+    .map(([id, calc]) => `<option value="${id}">${calc.label}</option>`)
+    .join("");
+}
+
+function updateMetrics() {
+  $("#metricModules").textContent = modules.length;
+  $("#metricCalculators").textContent = Object.keys(calculators).length;
+  $("#metricSources").textContent = new Set(modules.flatMap((module) => module.source)).size;
+}
+
+function render() {
+  document.querySelectorAll(".nav-button").forEach((button) => {
+    button.classList.toggle("is-active", button.dataset.category === state.category);
+  });
+
+  const category = categories.find((item) => item.id === state.category);
+  $("#workspaceTitle").textContent = category ? category.label : "Vue d'ensemble";
+
+  const filtered = modules.filter((module) => {
+    const inCategory = state.category === "overview" || module.category === state.category;
+    const haystack = `${module.title} ${module.description} ${module.source.join(" ")}`.toLowerCase();
+    return inCategory && (!state.query || haystack.includes(state.query));
+  });
+
+  $("#moduleCount").textContent = filtered.length;
+  renderModules(filtered);
+
+  if (!filtered.find((module) => module.id === state.selectedModule) && filtered[0]) {
+    state.selectedModule = filtered[0].id;
+  }
+
+  const selected = modules.find((module) => module.id === state.selectedModule) || filtered[0] || modules[0];
+  if (selected && selected.calculator !== state.currentCalculator) {
+    state.currentCalculator = selected.calculator;
+  }
+
+  $("#calculatorSelect").value = state.currentCalculator;
+  $("#calculatorTitle").textContent = calculators[state.currentCalculator].label;
+  calculators[state.currentCalculator].render();
+}
+
+function renderModules(filtered) {
+  const list = $("#moduleList");
+  if (!filtered.length) {
+    list.innerHTML = `<div class="empty-state">Aucun module ne correspond au filtre.</div>`;
+    return;
+  }
+
+  list.innerHTML = filtered.map((module) => `
+    <button class="module-card ${module.id === state.selectedModule ? "is-selected" : ""}" type="button" data-module="${module.id}">
+      <div class="module-meta">
+        <span class="status-pill ${module.status}">${statusLabel(module.status)}</span>
+        <span class="source-chip">${categoryLabel(module.category)}</span>
+      </div>
+      <h4>${module.title}</h4>
+      <p>${module.description}</p>
+      <div class="module-meta">
+        ${module.source.slice(0, 2).map((source) => `<span class="source-chip">${source}</span>`).join("")}
+      </div>
+    </button>
+  `).join("");
+
+  list.querySelectorAll(".module-card").forEach((button) => {
+    button.addEventListener("click", () => {
+      const module = modules.find((item) => item.id === button.dataset.module);
+      state.selectedModule = module.id;
+      state.currentCalculator = module.calculator;
+      render();
+    });
+  });
+}
+
+function statusLabel(status) {
+  return {
+    ready: "utilisable",
+    draft: "a fiabiliser",
+    backlog: "a migrer"
+  }[status] || status;
+}
+
+function categoryLabel(id) {
+  return categories.find((category) => category.id === id)?.label || id;
+}
+
+function wrapForm(inner, note = "Predimensionnement: resultats a valider avec les feuilles Excel sources avant usage contractuel.") {
+  $("#calculatorMount").innerHTML = `
+    <form class="calc-form" id="calcForm">
+      ${inner}
+      <p class="calc-note">${note}</p>
+    </form>
+  `;
+  $("#calcForm").addEventListener("input", runCurrentCalculator);
+  $("#calcForm").addEventListener("change", runCurrentCalculator);
+  runCurrentCalculator();
+}
+
+function field(id, label, value, unit = "", type = "number", attrs = "") {
+  return `
+    <div class="form-field">
+      <label for="${id}">${label}${unit ? ` (${unit})` : ""}</label>
+      <input id="${id}" name="${id}" type="${type}" value="${value}" ${attrs}>
+    </div>
+  `;
+}
+
+function selectField(id, label, options) {
+  return `
+    <div class="form-field">
+      <label for="${id}">${label}</label>
+      <select id="${id}" name="${id}">
+        ${options.map((option) => `<option value="${option.value}">${option.label}</option>`).join("")}
+      </select>
+    </div>
+  `;
+}
+
+function value(id) {
+  const input = document.getElementById(id);
+  return input ? Number(input.value.replace(",", ".")) : 0;
+}
+
+function selectValue(id) {
+  return document.getElementById(id)?.value;
+}
+
+function result(items) {
+  return `
+    <div class="result-grid">
+      ${items.map((item) => `
+        <div class="result-item">
+          <span>${item.label}</span>
+          <strong>${item.value}</strong>
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
+
+function setResults(items, title) {
+  const output = document.getElementById("calcResults");
+  if (output) output.innerHTML = result(items);
+  const summary = `${title}\n${items.map((item) => `- ${item.label}: ${item.value}`).join("\n")}`;
+  state.report = [summary, ...state.report.filter((item) => item !== summary)].slice(0, 6);
+  $("#reportOutput").textContent = state.report.join("\n\n");
+}
+
+function runCurrentCalculator() {
+  const runners = {
+    ddv: calculateDdv,
+    hydraulic: calculateHydraulic,
+    pump: calculatePump,
+    vessel: calculateVessel,
+    duct: calculateDuct,
+    ductFlow: calculateDuctFlow,
+    ductPressure: calculateDuctPressure,
+    plumbing: calculatePlumbing,
+    psychro: calculatePsychro,
+    thermal: calculateThermal,
+    gas: calculateGas,
+    compressedAir: calculateCompressedAir,
+    insulation: calculateInsulation,
+    conversion: calculateConversion,
+    library: calculateLibrary
+  };
+  runners[state.currentCalculator]?.();
+}
+
+function renderDdv() {
+  wrapForm(`
+    <div class="form-grid">
+      ${selectField("ddvMode", "Grandeur a calculer", [
+        { value: "diameter", label: "Diametre depuis debit + vitesse" },
+        { value: "flow", label: "Debit depuis diametre + vitesse" },
+        { value: "velocity", label: "Vitesse depuis debit + diametre" }
+      ])}
+      ${selectField("ddvUnit", "Unite debit", [
+        { value: "m3h", label: "m3/h" },
+        { value: "ls", label: "l/s" },
+        { value: "lh", label: "l/h" }
+      ])}
+      ${field("ddvFlow", "Debit", "2.4")}
+      ${field("ddvVelocity", "Vitesse", "1.2", "m/s")}
+      ${field("ddvDiameter", "Diametre interieur", "26", "mm")}
+    </div>
+    <div id="calcResults"></div>
+  `);
+}
+
+function calculateDdv() {
+  const mode = selectValue("ddvMode");
+  const unit = selectValue("ddvUnit");
+  const flowInput = value("ddvFlow");
+  const velocity = value("ddvVelocity");
+  const diameter = value("ddvDiameter");
+  const flowM3s = unit === "ls" ? flowInput / 1000 : unit === "lh" ? flowInput / 3600000 : flowInput / 3600;
+  const dM = diameter / 1000;
+  const area = Math.PI * Math.pow(dM, 2) / 4;
+
+  if (mode === "diameter") {
+    const d = Math.sqrt((4 * flowM3s) / (Math.PI * velocity)) * 1000;
+    setResults([
+      { label: "Diametre theorique", value: mm(d) },
+      { label: "Section", value: `${fmt(flowM3s / velocity, 5)} m2` },
+      { label: "Debit equivalent", value: m3h(flowM3s * 3600) },
+      { label: "Vitesse retenue", value: `${fmt(velocity, 2)} m/s` }
+    ], "Debit - diametre - vitesse");
+    return;
+  }
+
+  if (mode === "flow") {
+    const q = area * velocity;
+    setResults([
+      { label: "Debit", value: m3h(q * 3600) },
+      { label: "Debit", value: lps(q * 1000) },
+      { label: "Section", value: `${fmt(area, 5)} m2` },
+      { label: "Diametre", value: mm(diameter) }
+    ], "Debit - diametre - vitesse");
+    return;
+  }
+
+  const v = flowM3s / area;
+  setResults([
+    { label: "Vitesse", value: `${fmt(v, 2)} m/s` },
+    { label: "Debit", value: m3h(flowM3s * 3600) },
+    { label: "Section", value: `${fmt(area, 5)} m2` },
+    { label: "Diametre", value: mm(diameter) }
+  ], "Debit - diametre - vitesse");
+}
+
+function renderHydraulic() {
+  wrapForm(`
+    <div class="form-grid">
+      ${field("hydPower", "Puissance", "45", "kW")}
+      ${field("hydDelta", "Delta T", "15", "K")}
+      ${field("hydVelocity", "Vitesse cible", "0.8", "m/s")}
+      ${selectField("hydMaterial", "Tube", [
+        { value: "acier", label: "Acier" },
+        { value: "cuivre", label: "Cuivre" },
+        { value: "per", label: "PER" }
+      ])}
+    </div>
+    <div id="calcResults"></div>
+  `);
+}
+
+function calculateHydraulic() {
+  const power = value("hydPower");
+  const deltaT = value("hydDelta");
+  const velocity = value("hydVelocity");
+  const material = selectValue("hydMaterial");
+  const flowM3h = power * 0.86 / deltaT;
+  const flowM3s = flowM3h / 3600;
+  const theoreticalDiameter = Math.sqrt((4 * flowM3s) / (Math.PI * velocity)) * 1000;
+  const selected = selectPipe(material, theoreticalDiameter);
+  const realVelocity = selected ? flowM3s / (Math.PI * Math.pow(selected.d / 1000, 2) / 4) : NaN;
+
+  setResults([
+    { label: "Debit chauffage", value: m3h(flowM3h) },
+    { label: "Debit", value: `${fmt(flowM3h * 1000, 0)} l/h` },
+    { label: "Diametre theorique", value: mm(theoreticalDiameter) },
+    { label: "Reference proposee", value: selected ? selected.ref : "hors table" },
+    { label: "Diametre interieur retenu", value: selected ? mm(selected.d) : "-" },
+    { label: "Vitesse reelle", value: `${fmt(realVelocity, 2)} m/s` }
+  ], "Reseau hydraulique chauffage");
+}
+
+function selectPipe(material, minDiameter) {
+  return pipeTables[material].find((pipe) => pipe.d >= minDiameter) || pipeTables[material].at(-1);
+}
+
+function renderPump() {
+  wrapForm(`
+    <div class="form-grid">
+      ${field("pumpQ1", "Point 1 debit", "0", "m3/h")}
+      ${field("pumpP1", "Point 1 HMT", "55", "kPa")}
+      ${field("pumpQ2", "Point 2 debit", "4", "m3/h")}
+      ${field("pumpP2", "Point 2 HMT", "42", "kPa")}
+      ${field("pumpQ3", "Point 3 debit", "8", "m3/h")}
+      ${field("pumpP3", "Point 3 HMT", "10", "kPa")}
+      ${field("pumpK", "Coefficient reseau", "1.2", "kPa/(m3/h)2")}
+    </div>
+    <div id="calcResults"></div>
+  `, "Courbe approchee par interpolation quadratique. A comparer au fichier circulateur.xls avant selection materiel.");
+}
+
+function calculatePump() {
+  const points = [
+    [value("pumpQ1"), value("pumpP1")],
+    [value("pumpQ2"), value("pumpP2")],
+    [value("pumpQ3"), value("pumpP3")]
+  ];
+  const k = value("pumpK");
+  let bestQ = 0;
+  let bestGap = Infinity;
+  let bestPump = 0;
+  let bestNetwork = 0;
+  for (let q = 0; q <= 20; q += 0.02) {
+    const pump = lagrange(points, q);
+    const network = k * q * q;
+    const gap = Math.abs(pump - network);
+    if (gap < bestGap) {
+      bestGap = gap;
+      bestQ = q;
+      bestPump = pump;
+      bestNetwork = network;
+    }
+  }
+  setResults([
+    { label: "Debit equilibre", value: m3h(bestQ) },
+    { label: "Pression pompe", value: `${fmt(bestPump, 1)} kPa` },
+    { label: "Perte reseau", value: `${fmt(bestNetwork, 1)} kPa` },
+    { label: "Ecart residuel", value: `${fmt(bestGap, 2)} kPa` }
+  ], "Point d'equilibre circulateur");
+}
+
+function lagrange(points, x) {
+  return points.reduce((sum, [xi, yi], i) => {
+    const basis = points.reduce((product, [xj], j) => i === j ? product : product * ((x - xj) / (xi - xj)), 1);
+    return sum + yi * basis;
+  }, 0);
+}
+
+function renderVessel() {
+  wrapForm(`
+    <div class="form-grid">
+      ${field("vesVolume", "Volume installation", "1200", "l")}
+      ${field("vesTemp", "Temperature max", "80", "deg C")}
+      ${field("vesHeight", "Hauteur statique", "12", "m")}
+      ${field("vesValve", "Soupape", "3", "bar")}
+      ${field("vesReserve", "Marge minimale", "0.3", "bar")}
+      ${field("vesSafety", "Coefficient securite", "1.1")}
+    </div>
+    <div id="calcResults"></div>
+  `);
+}
+
+function calculateVessel() {
+  const volume = value("vesVolume");
+  const temp = value("vesTemp");
+  const height = value("vesHeight");
+  const valve = value("vesValve");
+  const reserve = value("vesReserve");
+  const safety = value("vesSafety");
+  const expansion = expansionCoefficient(temp);
+  const vd = volume * expansion;
+  const p0 = Math.max(height / 10 + reserve, 0.8);
+  const pMax = Math.max(valve - 0.5, p0 + 0.4);
+  const efficiency = 1 - ((p0 + 1) / (pMax + 1));
+  const capacity = vd / efficiency * safety;
+  setResults([
+    { label: "Coefficient dilatation", value: fmt(expansion, 4) },
+    { label: "Volume dilate", value: `${fmt(vd, 1)} l` },
+    { label: "Pression gonflage mini", value: `${fmt(p0, 2)} bar` },
+    { label: "Pression finale retenue", value: `${fmt(pMax, 2)} bar` },
+    { label: "Rendement vase", value: `${fmt(efficiency * 100, 1)} %` },
+    { label: "Capacite mini", value: `${fmt(capacity, 0)} l` }
+  ], "Vase d'expansion chauffage");
+}
+
+function expansionCoefficient(temp) {
+  const table = [
+    [20, 0],
+    [40, 0.0078],
+    [50, 0.0121],
+    [60, 0.0171],
+    [70, 0.0228],
+    [80, 0.029],
+    [90, 0.0359],
+    [100, 0.0434]
+  ];
+  if (temp <= 20) return 0;
+  for (let i = 1; i < table.length; i += 1) {
+    const [t2, e2] = table[i];
+    const [t1, e1] = table[i - 1];
+    if (temp <= t2) return e1 + ((temp - t1) / (t2 - t1)) * (e2 - e1);
+  }
+  return table.at(-1)[1];
+}
+
+function renderDuct() {
+  wrapForm(`
+    <div class="form-grid">
+      ${field("ductFlow", "Debit air", "1800", "m3/h")}
+      ${field("ductVelocity", "Vitesse cible", "5", "m/s")}
+      ${field("ductHeight", "Hauteur rectangulaire", "400", "mm")}
+      ${field("ductLength", "Longueur", "18", "m")}
+      ${field("ductCoef", "Coefficient accessoires", "1.2")}
+      ${field("ductInsulation", "Epaisseur isolant", "25", "mm")}
+    </div>
+    <div id="calcResults"></div>
+  `);
+}
+
+function calculateDuct() {
+  const flow = value("ductFlow") / 3600;
+  const velocity = value("ductVelocity");
+  const height = value("ductHeight") / 1000;
+  const length = value("ductLength");
+  const coef = value("ductCoef");
+  const insulation = value("ductInsulation") / 1000;
+  const area = flow / velocity;
+  const diameter = Math.sqrt((4 * area) / Math.PI);
+  const width = area / height;
+  const circSurface = Math.PI * (diameter + 2 * insulation) * length * coef;
+  const rectSurface = 2 * (height + width + 4 * insulation) * length * coef;
+  setResults([
+    { label: "Section utile", value: `${fmt(area, 3)} m2` },
+    { label: "Diametre circulaire", value: mm(diameter * 1000) },
+    { label: "Largeur rectangulaire", value: mm(width * 1000) },
+    { label: "Format rectangulaire", value: `${fmt(value("ductHeight"), 0)} x ${fmt(width * 1000, 0)} mm` },
+    { label: "Surface iso circulaire", value: `${fmt(circSurface, 1)} m2` },
+    { label: "Surface iso rectangulaire", value: `${fmt(rectSurface, 1)} m2` }
+  ], "Gaine aeraulique");
+}
+
+function renderDuctFlow() {
+  const diameters = [125, 160, 200, 250, 315, 355, 400, 450, 500, 560, 630, 710];
+  wrapForm(`
+    <div class="form-grid">
+      ${selectField("ductFlowDiameter", "Diametre gaine circulaire", diameters.map((d) => ({ value: String(d), label: `${d} mm` })))}
+      ${field("ductFlowVelocity", "Vitesse d'air", "5", "m/s", "number", "step=\"0.5\" min=\"0\"")}
+      ${field("ductFlowWidth", "Largeur rectangulaire optionnelle", "600", "mm")}
+      ${field("ductFlowHeight", "Hauteur rectangulaire optionnelle", "300", "mm")}
+    </div>
+    <div id="calcResults"></div>
+    <div class="lookup-table" aria-label="Table rapide des debits">
+      <div class="lookup-head">Diametre</div>
+      <div class="lookup-head">4 m/s</div>
+      <div class="lookup-head">5 m/s</div>
+      <div class="lookup-head">6 m/s</div>
+      <div class="lookup-head">8 m/s</div>
+      <div class="lookup-head">10 m/s</div>
+      <div class="lookup-head">12 m/s</div>
+      ${diameters.map((diameter) => {
+        const section = Math.PI * Math.pow(diameter / 1000, 2) / 4;
+        const flows = [4, 5, 6, 8, 10, 12].map((velocity) => fmt(section * velocity * 3600, 0));
+        return `
+          <span>${diameter} mm</span>
+          ${flows.map((flow) => `<span>${flow}</span>`).join("")}
+        `;
+      }).join("")}
+    </div>
+  `, "Module repris depuis Aéraulique/DEBIT D'AIR DANS GAINE.xls. Le tableau rapide reproduit les debits m3/h pour les diametres standards.");
+}
+
+function calculateDuctFlow() {
+  const diameter = value("ductFlowDiameter");
+  const velocity = value("ductFlowVelocity");
+  const width = value("ductFlowWidth") / 1000;
+  const height = value("ductFlowHeight") / 1000;
+  const circularSection = Math.PI * Math.pow(diameter / 1000, 2) / 4;
+  const circularFlow = circularSection * velocity * 3600;
+  const rectangularSection = width * height;
+  const rectangularFlow = rectangularSection * velocity * 3600;
+
+  setResults([
+    { label: "Section circulaire", value: `${fmt(circularSection, 5)} m2` },
+    { label: "Debit circulaire", value: `${fmt(circularFlow, 0)} m3/h` },
+    { label: "Debit circulaire", value: `${fmt(circularFlow / 3600 * 1000, 2)} l/s` },
+    { label: "Diametre retenu", value: mm(diameter) },
+    { label: "Section rectangulaire", value: `${fmt(rectangularSection, 3)} m2` },
+    { label: "Debit rectangulaire", value: `${fmt(rectangularFlow, 0)} m3/h` }
+  ], "Debit d'air dans gaine");
+}
+
+function renderDuctPressure() {
+  wrapForm(`
+    <div class="form-grid">
+      ${field("pdcTemp", "Temperature air", "20", "deg C")}
+      ${field("pdcHumidity", "Humidite absolue", "7", "g/kg air sec")}
+      ${field("pdcPressure", "Pression atmospherique", "101.325", "kPa")}
+      ${selectField("pdcMaterial", "Materiau / rugosite", ductPressureMaterials)}
+    </div>
+    <div class="segment-table" aria-label="Troncons perte de charge air">
+      <div class="segment-head">Rep.</div>
+      <div class="segment-head">Debit</div>
+      <div class="segment-head">Long.</div>
+      <div class="segment-head">Forme</div>
+      <div class="segment-head">Diam.</div>
+      <div class="segment-head">Larg.</div>
+      <div class="segment-head">Haut.</div>
+      <div class="segment-head">PDC fixe</div>
+      <div class="segment-head">d</div>
+      ${ductPressureRows.map((row, index) => `
+        <strong>T${index + 1}</strong>
+        <input id="pdcFlow${index}" type="number" min="0" step="10" value="${row.flow}" aria-label="Debit troncon ${index + 1}">
+        <input id="pdcLength${index}" type="number" min="0" step="0.5" value="${row.length}" aria-label="Longueur troncon ${index + 1}">
+        <select id="pdcShape${index}" aria-label="Forme troncon ${index + 1}">
+          <option value="round" ${row.shape === "round" ? "selected" : ""}>circ.</option>
+          <option value="rect" ${row.shape === "rect" ? "selected" : ""}>rect.</option>
+        </select>
+        <select id="pdcDiameter${index}" aria-label="Diametre troncon ${index + 1}">
+          ${ductPressureDiameters.map((diameter) => `<option value="${diameter}" ${diameter === row.diameter ? "selected" : ""}>${diameter}</option>`).join("")}
+        </select>
+        <input id="pdcWidth${index}" type="number" min="0" step="10" value="${row.width}" aria-label="Largeur troncon ${index + 1}">
+        <input id="pdcHeight${index}" type="number" min="0" step="10" value="${row.height}" aria-label="Hauteur troncon ${index + 1}">
+        <input id="pdcFixed${index}" type="number" min="0" step="1" value="${row.fixed}" aria-label="PDC fixe troncon ${index + 1}">
+        <input id="pdcZeta${index}" type="number" min="0" step="0.1" value="${row.zeta}" aria-label="Coefficient d troncon ${index + 1}">
+      `).join("")}
+    </div>
+    <div id="calcResults"></div>
+    <div class="segment-output" id="pdcRowsOutput"></div>
+  `, "Calcul reconstruit depuis la structure du tableur PDC: j = lambda x rho x v2 / 2D, jL, pdc fixe et d x rho x v2 / 2. Diametre rectangulaire equivalent selon la formule usuelle des gaines.");
+}
+
+function calculateDuctPressure() {
+  const air = moistAir(value("pdcTemp"), value("pdcHumidity"), value("pdcPressure"));
+  const material = ductPressureMaterials.find((item) => item.value === selectValue("pdcMaterial")) || ductPressureMaterials[0];
+  const roughnessM = material.roughness / 1000;
+  const rows = [];
+
+  ductPressureRows.forEach((_, index) => {
+    const flow = value(`pdcFlow${index}`);
+    const length = value(`pdcLength${index}`);
+    if (flow <= 0 || length < 0) return;
+
+    const shape = selectValue(`pdcShape${index}`);
+    const diameter = value(`pdcDiameter${index}`) / 1000;
+    const width = value(`pdcWidth${index}`) / 1000;
+    const height = value(`pdcHeight${index}`) / 1000;
+    const fixed = value(`pdcFixed${index}`);
+    const zeta = value(`pdcZeta${index}`);
+    const q = flow / 3600;
+    const area = shape === "round" ? Math.PI * Math.pow(diameter, 2) / 4 : width * height;
+    if (area <= 0) return;
+
+    const velocity = q / area;
+    const equivalentDiameter = shape === "round" ? diameter : equivalentRoundDuct(width, height);
+    const reynolds = air.density * velocity * equivalentDiameter / air.viscosity;
+    const lambda = frictionFactor(reynolds, roughnessM, equivalentDiameter);
+    const dynamicPressure = air.density * Math.pow(velocity, 2) / 2;
+    const j = lambda * dynamicPressure / equivalentDiameter;
+    const linear = j * length;
+    const singular = zeta * dynamicPressure;
+    const total = linear + fixed + singular;
+
+    rows.push({
+      index: index + 1,
+      flow,
+      length,
+      shape,
+      velocity,
+      equivalentDiameter,
+      reynolds,
+      lambda,
+      dynamicPressure,
+      j,
+      linear,
+      fixed,
+      zeta,
+      singular,
+      total
+    });
+  });
+
+  const totals = rows.reduce((acc, row) => {
+    acc.length += row.length;
+    acc.linear += row.linear;
+    acc.fixed += row.fixed;
+    acc.singular += row.singular;
+    acc.total += row.total;
+    acc.maxVelocity = Math.max(acc.maxVelocity, row.velocity);
+    acc.maxJ = Math.max(acc.maxJ, row.j);
+    return acc;
+  }, { length: 0, linear: 0, fixed: 0, singular: 0, total: 0, maxVelocity: 0, maxJ: 0 });
+
+  const output = document.getElementById("pdcRowsOutput");
+  if (output) output.innerHTML = renderDuctPressureRows(rows);
+
+  setResults([
+    { label: "PDC totale reseau", value: `${fmt(totals.total, 1)} Pa` },
+    { label: "PDC lineaire jL", value: `${fmt(totals.linear, 1)} Pa` },
+    { label: "PDC ponctuelle fixe", value: `${fmt(totals.fixed, 1)} Pa` },
+    { label: "PDC singuliere d rv2/2", value: `${fmt(totals.singular, 1)} Pa` },
+    { label: "Longueur totale", value: `${fmt(totals.length, 1)} m` },
+    { label: "Vitesse max", value: `${fmt(totals.maxVelocity, 2)} m/s` },
+    { label: "j max", value: `${fmt(totals.maxJ, 3)} Pa/m` },
+    { label: "Air / rugosite", value: `${fmt(air.density, 3)} kg/m3 / ${fmt(material.roughness, 3)} mm` }
+  ], "Pertes de charge air");
+}
+
+function renderDuctPressureRows(rows) {
+  if (!rows.length) {
+    return `<div class="empty-state">Saisir au moins un troncon avec debit et longueur.</div>`;
+  }
+
+  return `
+    <div class="result-table">
+      <div class="result-head">Rep.</div>
+      <div class="result-head">v</div>
+      <div class="result-head">D eq.</div>
+      <div class="result-head">Re</div>
+      <div class="result-head">lambda</div>
+      <div class="result-head">j</div>
+      <div class="result-head">jL</div>
+      <div class="result-head">dyn.</div>
+      <div class="result-head">sing.</div>
+      <div class="result-head">total</div>
+      ${rows.map((row) => `
+        <strong>T${row.index}</strong>
+        <span>${fmt(row.velocity, 2)} m/s</span>
+        <span>${fmt(row.equivalentDiameter * 1000, 0)} mm</span>
+        <span>${fmt(row.reynolds, 0)}</span>
+        <span>${fmt(row.lambda, 4)}</span>
+        <span>${fmt(row.j, 3)}</span>
+        <span>${fmt(row.linear, 1)}</span>
+        <span>${fmt(row.dynamicPressure, 1)}</span>
+        <span>${fmt(row.singular, 1)}</span>
+        <strong>${fmt(row.total, 1)} Pa</strong>
+      `).join("")}
+    </div>
+  `;
+}
+
+function moistAir(tempC, humidityGKg, pressureKPa) {
+  const t = tempC + 273.15;
+  const w = Math.max(humidityGKg, 0) / 1000;
+  const pressure = pressureKPa * 1000;
+  const specificVolume = 287.05 * t * (1 + 1.6078 * w) / pressure;
+  const density = 1 / specificVolume;
+  const viscosity = 1.716e-5 * Math.pow(t / 273.15, 1.5) * ((273.15 + 110.4) / (t + 110.4));
+  return { density, viscosity, specificVolume };
+}
+
+function equivalentRoundDuct(widthM, heightM) {
+  if (widthM <= 0 || heightM <= 0) return 0;
+  return 1.3 * Math.pow(widthM * heightM, 0.625) / Math.pow(widthM + heightM, 0.25);
+}
+
+function frictionFactor(reynolds, roughnessM, diameterM) {
+  if (!Number.isFinite(reynolds) || reynolds <= 0 || diameterM <= 0) return 0;
+  if (reynolds < 2300) return 64 / reynolds;
+  const relativeRoughness = roughnessM / diameterM;
+  const term = Math.pow(relativeRoughness / 3.7, 1.11) + 6.9 / reynolds;
+  return Math.pow(-1.8 * Math.log10(term), -2);
+}
+
+function renderPlumbing() {
+  wrapForm(`
+    <div class="apparatus-grid">
+      ${apparatus.map((item) => `
+        <div class="apparatus-row">
+          <strong>${item.label}</strong>
+          <span>${fmt(item.flow, 2)} l/s unitaire</span>
+          <input id="app-${item.id}" type="number" min="0" step="1" value="${item.id === "lavabo" ? 4 : item.id === "douche" ? 2 : item.id === "wc" ? 3 : 0}">
+        </div>
+      `).join("")}
+    </div>
+    <div class="form-grid">
+      ${field("plumbVelocity", "Vitesse cible", "1.5", "m/s")}
+      ${selectField("plumbMaterial", "Tube", [
+        { value: "cuivre", label: "Cuivre" },
+        { value: "per", label: "PER" },
+        { value: "acier", label: "Acier" }
+      ])}
+    </div>
+    <div id="calcResults"></div>
+  `);
+}
+
+function calculatePlumbing() {
+  let totalFlow = 0;
+  let count = 0;
+  apparatus.forEach((item) => {
+    const qty = Number(document.getElementById(`app-${item.id}`)?.value || 0);
+    count += qty;
+    totalFlow += qty * item.flow;
+  });
+  const simultaneity = count <= 5 ? 1 : 0.8 / Math.sqrt(Math.max(count - 1, 1));
+  const probable = totalFlow * simultaneity;
+  const velocity = value("plumbVelocity");
+  const theoreticalDiameter = Math.sqrt((4 * probable / 1000) / (Math.PI * velocity)) * 1000;
+  const selected = selectPipe(selectValue("plumbMaterial"), theoreticalDiameter);
+  const realVelocity = selected ? (probable / 1000) / (Math.PI * Math.pow(selected.d / 1000, 2) / 4) : NaN;
+  setResults([
+    { label: "Nombre appareils", value: fmt(count, 0) },
+    { label: "Debit brut", value: lps(totalFlow) },
+    { label: "Coefficient simultaneite", value: fmt(simultaneity, 3) },
+    { label: "Debit probable", value: lps(probable) },
+    { label: "Diametre theorique", value: mm(theoreticalDiameter) },
+    { label: "Reference proposee", value: selected ? selected.ref : "hors table" },
+    { label: "Vitesse reelle", value: `${fmt(realVelocity, 2)} m/s` }
+  ], "Debit probable plomberie");
+}
+
+function renderPsychro() {
+  wrapForm(`
+    <div class="form-grid">
+      ${field("psyTemp", "Temperature seche", "25", "deg C")}
+      ${field("psyRh", "Humidite relative", "50", "%")}
+      ${field("psyPressure", "Pression atmospherique", "101.325", "kPa")}
+      ${field("psyFlow", "Debit air", "1000", "m3/h")}
+    </div>
+    <div id="calcResults"></div>
+  `);
+}
+
+function calculatePsychro() {
+  const t = value("psyTemp");
+  const rh = value("psyRh") / 100;
+  const pressure = value("psyPressure");
+  const flow = value("psyFlow");
+  const pws = 0.61078 * Math.exp((17.2694 * t) / (t + 237.3));
+  const pv = rh * pws;
+  const w = 0.62198 * pv / (pressure - pv);
+  const h = 1.006 * t + w * (2501 + 1.86 * t);
+  const alpha = Math.log(rh) + (17.2694 * t) / (237.3 + t);
+  const dew = (237.3 * alpha) / (17.2694 - alpha);
+  const density = (pressure * 1000) / (287.05 * (t + 273.15) * (1 + 1.6078 * w));
+  setResults([
+    { label: "Pression vapeur saturante", value: `${fmt(pws, 3)} kPa` },
+    { label: "Humidite specifique", value: `${fmt(w * 1000, 2)} g/kg air sec` },
+    { label: "Point de rosee", value: `${fmt(dew, 1)} deg C` },
+    { label: "Enthalpie", value: `${fmt(h, 1)} kJ/kg air sec` },
+    { label: "Masse volumique", value: `${fmt(density, 3)} kg/m3` },
+    { label: "Debit massique", value: `${fmt(flow * density, 0)} kg/h` }
+  ], "Psychrometrie");
+}
+
+function renderThermal() {
+  wrapForm(`
+    <div class="form-grid">
+      ${field("thermArea", "Surface paroi", "85", "m2")}
+      ${field("thermU", "Coefficient U", "0.32", "W/m2.K")}
+      ${field("thermDelta", "Delta temperature", "28", "K")}
+      ${field("thermAirFlow", "Renouvellement air", "180", "m3/h")}
+    </div>
+    <div id="calcResults"></div>
+  `, "Module simplifie en attente de migration piece par piece depuis les feuilles de deperditions.");
+}
+
+function calculateThermal() {
+  const wall = value("thermArea") * value("thermU") * value("thermDelta");
+  const air = 0.34 * value("thermAirFlow") * value("thermDelta");
+  setResults([
+    { label: "Deperdition paroi", value: `${fmt(wall, 0)} W` },
+    { label: "Deperdition air neuf", value: `${fmt(air, 0)} W` },
+    { label: "Total", value: `${fmt(wall + air, 0)} W` },
+    { label: "Total", value: `${fmt((wall + air) / 1000, 2)} kW` }
+  ], "Bilan thermique simplifie");
+}
+
+function renderGas() {
+  wrapForm(`
+    <div class="form-grid">
+      ${field("gasPower", "Puissance utile totale", "240", "kW")}
+      ${field("gasPci", "PCI gaz", "10.5", "kWh/m3")}
+      ${field("gasEfficiency", "Rendement", "92", "%")}
+      ${field("gasDiversity", "Coefficient foisonnement", "1")}
+    </div>
+    <div id="calcResults"></div>
+  `);
+}
+
+function calculateGas() {
+  const power = value("gasPower");
+  const pci = value("gasPci");
+  const efficiency = value("gasEfficiency") / 100;
+  const diversity = value("gasDiversity");
+  const absorbed = power / efficiency;
+  const flow = absorbed / pci * diversity;
+  setResults([
+    { label: "Puissance absorbee", value: `${fmt(absorbed, 1)} kW` },
+    { label: "Debit gaz", value: `${fmt(flow, 2)} m3/h` },
+    { label: "Debit gaz", value: `${fmt(flow * 1000 / 3600, 2)} l/s` },
+    { label: "Energie horaire", value: `${fmt(flow * pci, 1)} kWh/h` }
+  ], "Debit gaz");
+}
+
+function renderCompressedAir() {
+  wrapForm(`
+    <div class="form-grid">
+      ${field("airFlow", "Debit", "27", "m3/h")}
+      ${field("airTemp", "Temperature d'utilisation", "20", "deg C")}
+      ${field("airPressureEff", "Pression effective origine", "10", "bar")}
+      ${field("airPressureMin", "Pression effective minimum", "9.75", "bar")}
+      ${field("airLength", "Longueur de tuyauterie", "51", "m")}
+      ${selectField("airPipe", "Diametre retenu", compressedAirPipes.map((pipe) => ({
+        value: String(pipe.nominal),
+        label: `DN${pipe.nominal} / Ø ${pipe.retained} / int. ${pipe.inner} mm`
+      })))}
+      ${field("airLongElbows", "Coudes grand rayon", "4", "u", "number", "min=\"0\" step=\"1\"")}
+      ${field("airElbows", "Coudes rayon moyen", "5", "u", "number", "min=\"0\" step=\"1\"")}
+      ${field("airTees", "Tes", "7", "u", "number", "min=\"0\" step=\"1\"")}
+      ${field("airValves", "Vannes", "2", "u", "number", "min=\"0\" step=\"1\"")}
+      ${field("airGlobes", "Robinets a soupape", "0", "u", "number", "min=\"0\" step=\"1\"")}
+    </div>
+    <div id="calcResults"></div>
+    <div class="result-table tube-output" id="airPipeOutput"></div>
+  `, "Module repris depuis Air Comprimé/Détermination tuyauterie air comprimé.xls. La perte est calculee avec la formule empirique du classeur, puis controlee avec le diametre retenu.");
+}
+
+function calculateCompressedAir() {
+  const flow = value("airFlow");
+  const temp = value("airTemp");
+  const pressureEff = value("airPressureEff");
+  const pressureMin = value("airPressureMin");
+  const pressureAbs = pressureEff + 1.013;
+  const admissibleLoss = Math.max(pressureEff - pressureMin, 0.001);
+  const selected = compressedAirPipes.find((pipe) => pipe.nominal === Number(selectValue("airPipe"))) || compressedAirPipes[0];
+  const equivalents = compressedAirEquivalentLengths[selected.retained] || compressedAirEquivalentLengths[20];
+  const accessoryLength =
+    value("airLongElbows") * equivalents.longElbow +
+    value("airElbows") * equivalents.elbow +
+    value("airTees") * equivalents.tee +
+    value("airValves") * equivalents.valve +
+    value("airGlobes") * equivalents.globe;
+  const equivalentLength = value("airLength") + accessoryLength;
+  const diameterTheory = compressedAirTheoreticalDiameter(flow, equivalentLength, pressureAbs, admissibleLoss);
+  const recommended = compressedAirPipes.find((pipe) => pipe.inner >= diameterTheory) || compressedAirPipes.at(-1);
+  const realLoss = compressedAirPressureLoss(flow, equivalentLength, pressureAbs, selected.inner);
+  const realLossRecommended = compressedAirPressureLoss(flow, equivalentLength, pressureAbs, recommended.inner);
+  const density = compressedAirDensity(pressureAbs, temp);
+  const actualFlowM3h = flow * (1.013 / pressureAbs) * ((temp + 273.15) / 293.15);
+  const velocity = actualFlowM3h / 3600 / (Math.PI * Math.pow(selected.inner / 1000, 2) / 4);
+  const status = realLoss <= admissibleLoss ? "OK" : "A augmenter";
+  const output = document.getElementById("airPipeOutput");
+  if (output) output.innerHTML = renderCompressedAirPipeOutput(selected, recommended, equivalents);
+
+  setResults([
+    { label: "Diametre theorique", value: mm(diameterTheory) },
+    { label: "Diametre conseille", value: `DN${recommended.nominal} / Ø ${recommended.retained}` },
+    { label: "Diametre retenu", value: `DN${selected.nominal} / int. ${fmt(selected.inner, 1)} mm` },
+    { label: "Longueur equivalente", value: `${fmt(equivalentLength, 1)} m` },
+    { label: "Dont accessoires", value: `${fmt(accessoryLength, 1)} m` },
+    { label: "Perte admissible", value: `${fmt(admissibleLoss, 3)} bar` },
+    { label: "Perte reelle retenue", value: `${fmt(realLoss, 3)} bar` },
+    { label: "Perte avec diam. conseille", value: `${fmt(realLossRecommended, 3)} bar` },
+    { label: "Vitesse estimee", value: `${fmt(velocity, 2)} m/s` },
+    { label: "Controle", value: status },
+    { label: "Pression absolue", value: `${fmt(pressureAbs, 3)} bar` },
+    { label: "Masse volumique", value: `${fmt(density, 2)} kg/m3` }
+  ], "Tuyauterie air comprime");
+}
+
+function compressedAirTheoreticalDiameter(flowM3h, lengthM, pressureAbsBar, lossBar) {
+  if (flowM3h <= 0 || lengthM <= 0 || pressureAbsBar <= 0 || lossBar <= 0) return 0;
+  return Math.pow(89.9 * Math.pow(flowM3h, 1.85) * lengthM / (pressureAbsBar * lossBar), 1 / 5);
+}
+
+function compressedAirPressureLoss(flowM3h, lengthM, pressureAbsBar, innerDiameterMm) {
+  if (flowM3h <= 0 || lengthM <= 0 || pressureAbsBar <= 0 || innerDiameterMm <= 0) return 0;
+  return 89.9 * Math.pow(flowM3h, 1.85) * lengthM / (pressureAbsBar * Math.pow(innerDiameterMm, 5));
+}
+
+function compressedAirDensity(pressureAbsBar, tempC) {
+  return pressureAbsBar * 100000 / (287.05 * (tempC + 273.15));
+}
+
+function renderCompressedAirPipeOutput(selected, recommended, equivalents) {
+  return `
+    <div class="result-head">Tube</div>
+    <div class="result-head">DN</div>
+    <div class="result-head">Ø ext.</div>
+    <div class="result-head">Ep.</div>
+    <div class="result-head">Ø int.</div>
+    <div class="result-head">Pouce</div>
+    <strong>Retenu</strong>
+    <span>${selected.nominal}</span>
+    <span>${fmt(selected.outer, 1)}</span>
+    <span>${fmt(selected.thickness, 1)}</span>
+    <span>${fmt(selected.inner, 1)}</span>
+    <span>${selected.inch}</span>
+    <strong>Conseille</strong>
+    <span>${recommended.nominal}</span>
+    <span>${fmt(recommended.outer, 1)}</span>
+    <span>${fmt(recommended.thickness, 1)}</span>
+    <span>${fmt(recommended.inner, 1)}</span>
+    <span>${recommended.inch}</span>
+    <div class="result-head">Eq. accessoire</div>
+    <span>Coude GR ${fmt(equivalents.longElbow, 2)} m</span>
+    <span>Coude ${fmt(equivalents.elbow, 2)} m</span>
+    <span>Te ${fmt(equivalents.tee, 2)} m</span>
+    <span>Vanne ${fmt(equivalents.valve, 2)} m</span>
+    <span>Soupape ${fmt(equivalents.globe, 2)} m</span>
+  `;
+}
+
+function renderInsulation() {
+  wrapForm(`
+    <div class="form-grid">
+      ${field("insDext", "Diametre exterieur tube", "60.3", "mm")}
+      ${field("insThickness", "Epaisseur isolant", "30", "mm")}
+      ${field("insLength", "Longueur", "120", "m")}
+      ${field("insCoef", "Coefficient accessoires", "1.15")}
+    </div>
+    <div id="calcResults"></div>
+  `);
+}
+
+function calculateInsulation() {
+  const d = (value("insDext") + 2 * value("insThickness")) / 1000;
+  const areaPerM = Math.PI * d;
+  const total = areaPerM * value("insLength") * value("insCoef");
+  setResults([
+    { label: "Diametre exterieur isole", value: mm(d * 1000) },
+    { label: "Surface par ml", value: `${fmt(areaPerM, 3)} m2/ml` },
+    { label: "Longueur corrigee", value: `${fmt(value("insLength") * value("insCoef"), 1)} m` },
+    { label: "Surface totale", value: `${fmt(total, 1)} m2` }
+  ], "Surface de calorifuge");
+}
+
+function renderConversion() {
+  wrapForm(`
+    <div class="form-grid">
+      ${selectField("convFamily", "Famille", Object.entries(conversionGroups).map(([value, group]) => ({ value, label: group.label })))}
+      ${field("convValue", "Valeur a convertir", "1", "", "number", "step=\"any\"")}
+      ${selectField("convFrom", "Unite source", [])}
+      ${selectField("convTo", "Unite cible", [])}
+    </div>
+    <div id="calcResults"></div>
+    <div class="conversion-reference">
+      <div class="result-head">Famille</div>
+      <div class="result-head">Reference 1</div>
+      <div class="result-head">Reference 2</div>
+      <div class="result-head">Reference 3</div>
+      ${conversionReferences.map((row) => row.map((cell, index) => index === 0 ? `<strong>${cell}</strong>` : `<span>${cell}</span>`).join("")).join("")}
+    </div>
+  `, "Module repris depuis Conversions/tableau de conversion.xls, complete avec les unites courantes deja presentes dans les autres classeurs.");
+}
+
+function calculateConversion() {
+  const family = selectValue("convFamily") || "length";
+  const group = conversionGroups[family];
+  populateConversionUnits(family);
+  const amount = value("convValue");
+  const from = group.units.find((unit) => unit.id === selectValue("convFrom")) || group.units[0];
+  const to = group.units.find((unit) => unit.id === selectValue("convTo")) || group.units[1] || group.units[0];
+
+  if (family === "temperature") {
+    const celsius = toCelsius(amount, from.id);
+    const converted = fromCelsius(celsius, to.id);
+    setResults([
+      { label: "Valeur convertie", value: `${formatConversion(converted)} ${to.label}` },
+      { label: "Valeur en Celsius", value: `${formatConversion(celsius)} deg C` },
+      { label: "Formule", value: temperatureFormula(from.id, to.id) },
+      { label: "Source", value: "Conversions/tableau de conversion.xls" }
+    ], "Conversions d'unites");
+    return;
+  }
+
+  const baseValue = amount * from.factor;
+  const converted = baseValue / to.factor;
+  const factor = from.factor / to.factor;
+  setResults([
+    { label: "Valeur convertie", value: `${formatConversion(converted)} ${to.label}` },
+    { label: `Valeur base (${group.base})`, value: `${formatConversion(baseValue)} ${group.base}` },
+    { label: "Facteur source -> cible", value: formatConversion(factor) },
+    { label: "Facteur inverse", value: formatConversion(1 / factor) }
+  ], "Conversions d'unites");
+}
+
+function populateConversionUnits(family) {
+  const group = conversionGroups[family];
+  const fromSelect = document.getElementById("convFrom");
+  const toSelect = document.getElementById("convTo");
+  if (!group || !fromSelect || !toSelect) return;
+
+  const currentFrom = fromSelect.value;
+  const currentTo = toSelect.value;
+  const options = group.units.map((unit) => `<option value="${unit.id}">${unit.label}</option>`).join("");
+  fromSelect.innerHTML = options;
+  toSelect.innerHTML = options;
+
+  const defaults = {
+    length: ["in", "mm"],
+    area: ["acre", "ha"],
+    volume: ["l", "m3"],
+    mass: ["lb", "kg"],
+    pressure: ["bar", "pa"],
+    energy: ["kwh", "j"],
+    power: ["cv", "w"],
+    angle: ["rad", "deg"],
+    temperature: ["c", "f"]
+  };
+  const ids = group.units.map((unit) => unit.id);
+  const [defaultFrom, defaultTo] = defaults[family] || [ids[0], ids[1] || ids[0]];
+  fromSelect.value = ids.includes(currentFrom) ? currentFrom : defaultFrom;
+  toSelect.value = ids.includes(currentTo) ? currentTo : defaultTo;
+}
+
+function formatConversion(value) {
+  if (!Number.isFinite(value)) return "-";
+  const abs = Math.abs(value);
+  if (abs > 0 && (abs < 0.000001 || abs >= 1000000000)) return value.toExponential(6).replace(".", ",");
+  return value.toLocaleString("fr-FR", { maximumFractionDigits: 8 });
+}
+
+function toCelsius(value, unit) {
+  if (unit === "f") return (value - 32) / 1.8;
+  if (unit === "k") return value - 273.15;
+  return value;
+}
+
+function fromCelsius(value, unit) {
+  if (unit === "f") return value * 1.8 + 32;
+  if (unit === "k") return value + 273.15;
+  return value;
+}
+
+function temperatureFormula(from, to) {
+  if (from === "c" && to === "f") return "deg F = 1,8 x deg C + 32";
+  if (from === "c" && to === "k") return "K = deg C + 273,15";
+  if (from === "f" && to === "c") return "deg C = (deg F - 32) / 1,8";
+  if (from === "k" && to === "c") return "deg C = K - 273,15";
+  return "conversion via deg C";
+}
+
+function renderLibrary() {
+  const byCategory = categories
+    .filter((category) => category.id !== "overview")
+    .map((category) => {
+      const count = modules.filter((module) => module.category === category.id).length;
+      return { category, count };
+    });
+  wrapForm(`
+    <div class="result-grid">
+      ${byCategory.map(({ category, count }) => `
+        <div class="result-item">
+          <span>${category.label}</span>
+          <strong>${count} modules</strong>
+        </div>
+      `).join("")}
+    </div>
+    <div id="calcResults"></div>
+  `, "Le catalogue complet pourra etre genere automatiquement depuis les 161 classeurs quand la structure produit sera stabilisee.");
+}
+
+function calculateLibrary() {
+  const ready = modules.filter((module) => module.status === "ready").length;
+  const draft = modules.filter((module) => module.status === "draft").length;
+  const backlog = modules.filter((module) => module.status === "backlog").length;
+  setResults([
+    { label: "Modules utilisables", value: fmt(ready, 0) },
+    { label: "Modules a fiabiliser", value: fmt(draft, 0) },
+    { label: "Modules a migrer", value: fmt(backlog, 0) },
+    { label: "Sources referencees", value: fmt(new Set(modules.flatMap((module) => module.source)).size, 0) }
+  ], "Bibliotheque Excel");
+}
+
+init();
