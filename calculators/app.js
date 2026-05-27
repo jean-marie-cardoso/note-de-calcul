@@ -328,6 +328,7 @@ const conversionGroups = {
       { id: "yd", label: "yard (yd)", factor: 0.9144 },
       { id: "mile", label: "mile terrestre", factor: 1609.347 },
       { id: "nmi", label: "mile nautique international", factor: 1851.99 },
+      { id: "nmi_uk", label: "mile nautique anglais", factor: 1853.19 },
       { id: "ua", label: "unite astronomique", factor: 1.496e11 },
       { id: "al", label: "annee lumiere", factor: 9.461e15 },
       { id: "ang", label: "angstrom", factor: 1e-10 }
@@ -358,6 +359,8 @@ const conversionGroups = {
       { id: "l", label: "litre", factor: 0.001 },
       { id: "dm3", label: "decimetre cube (dm3)", factor: 0.001 },
       { id: "cm3", label: "centimetre cube (cm3)", factor: 1e-6 },
+      { id: "tonneau_mer", label: "tonneau de mer", factor: 1.44 },
+      { id: "tonneau_jauge", label: "tonneau de jauge", factor: 2.832 },
       { id: "usgal", label: "gallon US", factor: 0.003785 },
       { id: "ukgal", label: "gallon UK", factor: 0.004546 },
       { id: "usbbl", label: "baril US", factor: 0.159 },
@@ -457,9 +460,9 @@ const conversionGroups = {
 };
 
 const conversionReferences = [
-  ["Distances", "1 in = 25,4 mm", "1 ft = 0,3048 m", "1 mile = 1,609347 km"],
+  ["Distances", "1 in = 25,4 mm", "1 mile nautique UK = 1,85319 km", "1 mile = 1,609347 km"],
   ["Surfaces", "1 ha = 10 000 m2", "1 acre = 0,404686 ha", "1 sq ft = 0,0929 m2"],
-  ["Volumes", "1 litre = 1e-3 m3", "1 US gal = 3,785e-3 m3", "1 cu ft = 28,33 l"],
+  ["Volumes", "1 litre = 1e-3 m3", "1 tonneau de mer = 1,44 m3", "1 tonneau de jauge = 2,832 m3"],
   ["Masses", "1 pound = 0,4536 kg", "1 ounce = 28,35 g", "1 quintal = 100 kg"],
   ["Energies", "1 kWh = 3,6e6 J", "1 BTU = 1,055e3 J", "1 kcal = 4184 J"],
   ["Pressions", "1 atm = 1,01325 bar", "1 mm Hg = 133,3 Pa", "1 Pa = 1e-5 bar"],
