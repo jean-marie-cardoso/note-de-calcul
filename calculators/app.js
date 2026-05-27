@@ -85,6 +85,16 @@ const modules = [
     description: "Somme des debits de base et coefficient de simultaneite pour reseaux sanitaires."
   },
   {
+    id: "debit-probable-ef-ec",
+    category: "plomberie",
+    title: "Débit probable EF & EC",
+    status: "draft",
+    // Ce module utilise le nouveau calculateur basé sur le fichier JSON apparels_ef_ec.json.
+    calculator: "debit-probable-ef-ec",
+    source: ["Calcul débit Pb EF-EC- NEW.xls"],
+    description: "Calcul instantané probable en fonction des appareils sanitaires et des WC."
+  },
+  {
     id: "evacuations",
     category: "plomberie",
     title: "Evacuations EU/EV/EP",
@@ -218,7 +228,9 @@ const calculators = {
   compressedAir: { label: "Tuyauterie air comprime", render: renderCompressedAir },
   insulation: { label: "Calorifuge", render: renderInsulation },
   conversion: { label: "Conversions d'unites", render: renderConversion },
-  library: { label: "Bibliotheque", render: renderLibrary }
+  library: { label: "Bibliotheque", render: renderLibrary },
+  // Nouveau calculateur pour le débit probable EF & EC
+  "debit-probable-ef-ec": { label: "Débit probable EF & EC", render: renderDebitProbableEfEc }
 };
 
 const pipeTables = {
@@ -478,6 +490,35 @@ const apparatus = [
   { id: "urinoir", label: "Urinoir", flow: 0.15 }
 ];
 
+// --- Définition des appareils et WC pour le calcul du débit probable EF & EC ---
+// Ces données proviennent de l'extraction du classeur Excel « Calcul débit Pb EF‑EC ».
+const apparelsEfEc = [
+  { name: "évier - timbre office", index: 0.2 },
+  { name: "Lavabo", index: 0.2 },
+  { name: "bidet", index: 0.2 },
+  { name: "baignoire", index: 0.33 },
+  { name: "douche", index: 0.2 },
+  { name: "urinoir avec robinet individuel", index: 0.15 },
+  { name: "urinoir à action siphonique", index: 0.5 },
+  { name: "lavabo collectif (0,05 l/s par jet)", index: 0.05 },
+  { name: "poste d'eau, robinet 1/2", index: 0.33 },
+  { name: "poste d'eau, robinet 3/4", index: 0.42 },
+  { name: "lavabo collectif (0,05 l/s par jet)", index: 0.05 },
+  { name: "lave-mains", index: 0.1 },
+  { name: "bac à laver", index: 0.33 },
+  { name: "MAL le linge (Compter pour une MAL)", index: 0.2 },
+  { name: "MAL la vaiselle (Compter pour une MAL)", index: 0.1 },
+  { name: "Equipements Restaurant-cuisine collective", index: 1.08 },
+  { name: "robinet de plonge (mélangeur 3/4)", index: 0.75 },
+  { name: "robinet de plonge (mélangeur1/2 )", index: 0.33 },
+  { name: "MAL semi-automatique 10 à 150 couverts", index: 0.5 },
+  { name: "MAL semi-automatique 151 à 300 couverts", index: 0.5 },
+  { name: "MAL automatique 300 à 1500 couverts", index: 0.7 },
+  { name: "MAL automatique 1500 à 2000 couverts", index: 1.0 }
+];
+
+const wcFlushEfEc = { name: "WC avec robinet de chasse", index: 1.5 };
+
 const state = {
   category: "overview",
   query: "",
@@ -722,7 +763,9 @@ function runCurrentCalculator() {
     compressedAir: calculateCompressedAir,
     insulation: calculateInsulation,
     conversion: calculateConversion,
-    library: calculateLibrary
+    library: calculateLibrary,
+    // Ajout du runner pour le nouveau module EF & EC
+    "debit-probable-ef-ec": calculateDebitProbableEfEc
   };
   runners[state.currentCalculator]?.();
 }
@@ -1460,6 +1503,79 @@ function calculateInsulation() {
     { label: "Longueur corrigee", value: `${fmt(value("insLength") * value("insCoef"), 1)} m` },
     { label: "Surface totale", value: `${fmt(total, 1)} m2` }
   ], "Surface de calorifuge");
+}
+
+// ---------------------------------------------------------------------------
+// Module : Débit probable EF & EC
+// Interface et calcul du débit instantané probable en utilisant les données
+// extraites du tableur « Calcul débit Pb EF‑EC ». La logique reprend la
+// formulation utilisée dans les feuilles Excel et s'appuie sur la constante
+// apparelsEfEc et wcFlushEfEc définies en haut du fichier.
+
+function renderDebitProbableEfEc() {
+  // Génère un formulaire avec une ligne par appareil sanitaire plus un champ pour les WC à robinet de chasse.
+  wrapForm(`
+    <div class="apparatus-grid">
+      ${apparelsEfEc.map((item, index) => `
+        <div class="apparatus-row">
+          <strong>${item.name}</strong>
+          <span>${fmt(item.index, 2)} l/s unitaire</span>
+          <input id="efec-${index}" type="number" min="0" step="1" value="0">
+        </div>
+      `).join("")}
+      <div class="apparatus-row">
+        <strong>${wcFlushEfEc.name}</strong>
+        <span>${fmt(wcFlushEfEc.index, 2)} l/s unitaire</span>
+        <input id="efec-wc" type="number" min="0" step="1" value="0">
+      </div>
+    </div>
+    <div id="calcResults"></div>
+  `);
+}
+
+function calculateDebitProbableEfEc() {
+  // Somme des débits unitaires pour les appareils sanitaires (hors WC)
+  let sumSanit = 0;
+  let countSanit = 0;
+  apparelsEfEc.forEach((item, index) => {
+    const qty = Number(document.getElementById(`efec-${index}`)?.value || 0);
+    if (!Number.isFinite(qty) || qty <= 0) return;
+    sumSanit += qty * item.index;
+    countSanit += qty;
+  });
+  // Calcul du coefficient de simultanéité (standard) pour les sanitaires
+  let coeffSimulSanit = 1;
+  if (countSanit >= 3) {
+    coeffSimulSanit = 0.8 / Math.sqrt(countSanit - 1);
+  }
+  const debitSanit = sumSanit * coeffSimulSanit;
+
+  // Traitement des WC à robinet de chasse (groupés par tranches)
+  const wcCount = Number(document.getElementById("efec-wc")?.value || 0);
+  let wcGroup = 0;
+  if (wcCount >= 1 && wcCount < 4) {
+    wcGroup = 1;
+  } else if (wcCount >= 4 && wcCount < 13) {
+    wcGroup = 2;
+  } else if (wcCount >= 13 && wcCount < 25) {
+    wcGroup = 3;
+  } else if (wcCount >= 25 && wcCount < 51) {
+    wcGroup = 4;
+  } else if (wcCount >= 51) {
+    wcGroup = 5;
+  }
+  const debitWC = wcGroup * wcFlushEfEc.index;
+
+  const debitTotal = debitSanit + debitWC;
+  setResults([
+    { label: "Nombre appareils sanitaires", value: fmt(countSanit, 0) },
+    { label: "Débit brut sanitaires", value: lps(sumSanit) },
+    { label: "Coefficient simultanéité", value: fmt(coeffSimulSanit, 3) },
+    { label: "Débit sanitaires", value: lps(debitSanit) },
+    { label: "Groupes WC", value: fmt(wcGroup, 0) },
+    { label: "Débit WC", value: lps(debitWC) },
+    { label: "Débit total", value: lps(debitTotal) }
+  ], "Débit probable EF & EC");
 }
 
 function renderConversion() {
