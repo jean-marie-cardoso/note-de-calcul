@@ -471,17 +471,39 @@ const conversionReferences = [
   ["Temperatures", "deg F = 1,8 x deg C + 32", "K = deg C + 273,15", ""]
 ];
 
-const apparatus = [
-  { id: "evier", label: "Evier", flow: 0.2 },
-  { id: "lavabo", label: "Lavabo", flow: 0.2 },
-  { id: "douche", label: "Douche", flow: 0.2 },
-  { id: "baignoire", label: "Baignoire", flow: 0.33 },
-  { id: "wc", label: "WC reservoir", flow: 0.12 },
-  { id: "laveLinge", label: "Lave-linge", flow: 0.2 },
-  { id: "laveVaisselle", label: "Lave-vaisselle", flow: 0.1 },
-  { id: "robinet", label: "Robinet puisage", flow: 0.33 },
-  { id: "urinoir", label: "Urinoir", flow: 0.15 }
-];
+const efEcApparelsData = {
+  apparels: [
+    { name: "évier - timbre office", index: 0.2 },
+    { name: "Lavabo", index: 0.2 },
+    { name: "bidet", index: 0.2 },
+    { name: "baignoire", index: 0.33 },
+    { name: "douche", index: 0.2 },
+    { name: "WC avec réservoir de chasse", index: 0.12 },
+    { name: "urinoir avec robinet individuel", index: 0.15 },
+    { name: "urinoir à action siphonique", index: 0.5 },
+    { name: "lavabo collectif (0,05 l/s par jet)", index: 0.05 },
+    { name: "poste d'eau, robinet 1/2", index: 0.33 },
+    { name: "poste d'eau, robinet 3/4", index: 0.42 },
+    { name: "lave-mains", index: 0.1 },
+    { name: "bac à laver", index: 0.33 },
+    { name: "MAL le linge (Compter pour une MAL)", index: 0.2 },
+    { name: "MAL la vaiselle (Compter pour une MAL)", index: 0.1 },
+    { name: "Equipements Restaurant-cuisine collective", index: 1.08 },
+    { name: "robinet de plonge (mélangeur 3/4)", index: 0.75 },
+    { name: "robinet de plonge (mélangeur1/2 )", index: 0.33 },
+    { name: "MAL semi-automatique 10 à 150 couverts", index: 0.5 },
+    { name: "MAL semi-automatique 151 à 300 couverts", index: 0.5 },
+    { name: "MAL automatique 300 à 1500 couverts", index: 0.7 },
+    { name: "MAL automatique 1500 à 2000 couverts", index: 1 }
+  ],
+  wc_flush: { name: "WC avec robinet de chasse", index: 1.5 }
+};
+
+const efEcDefaultQuantities = {
+  Lavabo: 4,
+  douche: 2,
+  "WC avec réservoir de chasse": 3
+};
 
 
 
@@ -1312,18 +1334,74 @@ function frictionFactor(reynolds, roughnessM, diameterM) {
   return Math.pow(-1.8 * Math.log10(term), -2);
 }
 
+function calculateDebitProbable(inputs = {}, luxeLevel = 1) {
+  let debitBaseSanit = 0;
+  let countSanit = 0;
+
+  efEcApparelsData.apparels.forEach((app) => {
+    const qty = Number(inputs[app.name] ?? 0);
+    if (!Number.isFinite(qty) || qty <= 0) return;
+    debitBaseSanit += app.index * qty;
+    countSanit += qty;
+  });
+
+  const comfortLevel = Number(luxeLevel);
+  const kLuxeFactor = comfortLevel === 2 ? 1.25 : comfortLevel >= 3 ? 1.5 : 1;
+  const coeffSimulSanit = countSanit >= 3 ? 0.8 * kLuxeFactor / Math.sqrt(countSanit - 1) : 1;
+  const debitSanit = debitBaseSanit * coeffSimulSanit;
+
+  const wcFlush = efEcApparelsData.wc_flush;
+  const wcCount = Number(inputs[wcFlush.name] ?? 0);
+  let wcGroup = 0;
+  if (wcCount >= 1 && wcCount < 4) {
+    wcGroup = 1;
+  } else if (wcCount >= 4 && wcCount < 13) {
+    wcGroup = 2;
+  } else if (wcCount >= 13 && wcCount < 25) {
+    wcGroup = 3;
+  } else if (wcCount >= 25 && wcCount < 51) {
+    wcGroup = 4;
+  } else if (wcCount >= 51) {
+    wcGroup = 5;
+  }
+
+  const debitWC = wcGroup * wcFlush.index;
+  const debitTotal = debitSanit + debitWC;
+
+  return {
+    debitBaseSanit: Number(debitBaseSanit.toFixed(3)),
+    debitSanit: Number(debitSanit.toFixed(3)),
+    debitWC: Number(debitWC.toFixed(3)),
+    debitTotal: Number(debitTotal.toFixed(3)),
+    coeffSimulSanit: Number(coeffSimulSanit.toFixed(3)),
+    countSanit: Number(countSanit),
+    wcCount: Number.isFinite(wcCount) && wcCount > 0 ? Number(wcCount) : 0,
+    wcGroup: Number(wcGroup)
+  };
+}
+
 function renderPlumbing() {
   wrapForm(`
     <div class="apparatus-grid">
-      ${apparatus.map((item) => `
+      ${efEcApparelsData.apparels.map((item, index) => `
         <div class="apparatus-row">
-          <strong>${item.label}</strong>
-          <span>${fmt(item.flow, 2)} l/s unitaire</span>
-          <input id="app-${item.id}" type="number" min="0" step="1" value="${item.id === "lavabo" ? 4 : item.id === "douche" ? 2 : item.id === "wc" ? 3 : 0}">
+          <strong>${item.name}</strong>
+          <span>${fmt(item.index, 2)} l/s unitaire</span>
+          <input id="efec-app-${index}" type="number" min="0" step="1" value="${efEcDefaultQuantities[item.name] || 0}">
         </div>
       `).join("")}
+      <div class="apparatus-row">
+        <strong>${efEcApparelsData.wc_flush.name}</strong>
+        <span>${fmt(efEcApparelsData.wc_flush.index, 2)} l/s par groupe</span>
+        <input id="efec-wc-flush" type="number" min="0" step="1" value="0">
+      </div>
     </div>
     <div class="form-grid">
+      ${selectField("plumbLuxe", "Niveau de confort", [
+        { value: "1", label: "Standard" },
+        { value: "2", label: "Confort +" },
+        { value: "3", label: "Luxe" }
+      ])}
       ${field("plumbVelocity", "Vitesse cible", "1.5", "m/s")}
       ${selectField("plumbMaterial", "Tube", [
         { value: "cuivre", label: "Cuivre" },
@@ -1336,24 +1414,31 @@ function renderPlumbing() {
 }
 
 function calculatePlumbing() {
-  let totalFlow = 0;
-  let count = 0;
-  apparatus.forEach((item) => {
-    const qty = Number(document.getElementById(`app-${item.id}`)?.value || 0);
-    count += qty;
-    totalFlow += qty * item.flow;
+  const inputs = {};
+  efEcApparelsData.apparels.forEach((item, index) => {
+    inputs[item.name] = Number(document.getElementById(`efec-app-${index}`)?.value || 0);
   });
-  const simultaneity = count <= 5 ? 1 : 0.8 / Math.sqrt(Math.max(count - 1, 1));
-  const probable = totalFlow * simultaneity;
+  inputs[efEcApparelsData.wc_flush.name] = Number(document.getElementById("efec-wc-flush")?.value || 0);
+
+  const debit = calculateDebitProbable(inputs, Number(selectValue("plumbLuxe") || 1));
+  const probable = debit.debitTotal;
   const velocity = value("plumbVelocity");
-  const theoreticalDiameter = Math.sqrt((4 * probable / 1000) / (Math.PI * velocity)) * 1000;
-  const selected = selectPipe(selectValue("plumbMaterial"), theoreticalDiameter);
-  const realVelocity = selected ? (probable / 1000) / (Math.PI * Math.pow(selected.d / 1000, 2) / 4) : NaN;
+  const theoreticalDiameter = probable > 0 && velocity > 0
+    ? Math.sqrt((4 * probable / 1000) / (Math.PI * velocity)) * 1000
+    : 0;
+  const selected = theoreticalDiameter > 0 ? selectPipe(selectValue("plumbMaterial"), theoreticalDiameter) : null;
+  const realVelocity = selected && probable > 0
+    ? (probable / 1000) / (Math.PI * Math.pow(selected.d / 1000, 2) / 4)
+    : 0;
+
   setResults([
-    { label: "Nombre appareils", value: fmt(count, 0) },
-    { label: "Debit brut", value: lps(totalFlow) },
-    { label: "Coefficient simultaneite", value: fmt(simultaneity, 3) },
-    { label: "Debit probable", value: lps(probable) },
+    { label: "Appareils sanitaires", value: fmt(debit.countSanit, 0) },
+    { label: "Debit brut sanitaires", value: lps(debit.debitBaseSanit) },
+    { label: "Coefficient simultaneite", value: fmt(debit.coeffSimulSanit, 3) },
+    { label: "Debit probable sanitaires", value: lps(debit.debitSanit) },
+    { label: "WC robinet de chasse", value: `${fmt(debit.wcCount, 0)} appareil(s) / ${fmt(debit.wcGroup, 0)} groupe(s)` },
+    { label: "Debit WC robinet", value: lps(debit.debitWC) },
+    { label: "Debit probable total", value: lps(probable) },
     { label: "Diametre theorique", value: mm(theoreticalDiameter) },
     { label: "Reference proposee", value: selected ? selected.ref : "hors table" },
     { label: "Vitesse reelle", value: `${fmt(realVelocity, 2)} m/s` }
