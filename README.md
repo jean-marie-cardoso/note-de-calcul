@@ -13,8 +13,6 @@ Base de travail pour transformer les classeurs Excel du dossier `Soft etude JM` 
 
 Ouvrir simplement `index.html` dans un navigateur.
 
-Cette V1 est volontairement statique: pas de serveur, pas de base de donnees, pas d'installation.
-
 ## Modules deja esquisses
 
 - Debit / diametre / vitesse.
