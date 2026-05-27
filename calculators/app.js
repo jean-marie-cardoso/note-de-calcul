@@ -730,6 +730,17 @@ function renderModules(filtered) {
       state.selectedModule = module.id;
       state.currentCalculator = module.calculator;
       render();
+
+      // En affichage mobile, le calculateur est placé sous la liste des modules.
+      // Ce défilement automatique rend immédiatement visible le module sélectionné.
+      if (window.innerWidth <= 768) {
+        window.setTimeout(() => {
+          document.querySelector(".calculator-panel")?.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+          });
+        }, 80);
+      }
     });
   });
 }

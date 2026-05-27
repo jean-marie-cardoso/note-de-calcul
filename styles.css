@@ -605,3 +605,191 @@ button {
     border-bottom: 0;
   }
 }
+
+/* --------------------------------------------------------------------------
+   Optimisation smartphone
+   -------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  body {
+    overflow-x: hidden;
+  }
+
+  .app-shell {
+    display: block;
+    min-height: auto;
+  }
+
+  .sidebar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    gap: 12px;
+    padding: 12px;
+    border-right: 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  }
+
+  .brand {
+    grid-template-columns: 38px minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  .brand-mark {
+    width: 38px;
+    height: 38px;
+    font-size: 13px;
+  }
+
+  .brand h1 {
+    font-size: 16px;
+  }
+
+  .brand p,
+  .source-box {
+    display: none;
+  }
+
+  .category-nav {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scrollbar-width: thin;
+  }
+
+  .nav-button {
+    display: inline-flex;
+    flex: 0 0 auto;
+    width: auto;
+    min-width: max-content;
+    min-height: 38px;
+    padding: 8px 10px;
+    white-space: nowrap;
+  }
+
+  .nav-icon {
+    width: 10px;
+    height: 10px;
+  }
+
+  .workspace {
+    gap: 14px;
+    padding: 14px;
+  }
+
+  .topbar,
+  .topbar-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .topbar h2 {
+    font-size: 22px;
+  }
+
+  .search-field input {
+    width: 100%;
+  }
+
+  .metrics-band {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .metric {
+    padding: 12px;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .metric strong {
+    font-size: 19px;
+  }
+
+  .work-grid {
+    display: block;
+  }
+
+  .module-panel,
+  .calculator-panel,
+  .report-panel {
+    margin-bottom: 14px;
+  }
+
+  .module-list {
+    max-height: none;
+    overflow: visible;
+  }
+
+  .module-card {
+    padding: 12px;
+  }
+
+  .module-card h4 {
+    font-size: 15px;
+  }
+
+  .module-card p {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
+  .calculator-panel {
+    scroll-margin-top: 132px;
+  }
+
+  .panel-head {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 10px;
+    padding: 14px;
+  }
+
+  .panel-head select {
+    width: 100%;
+  }
+
+  .calculator-mount {
+    padding: 14px;
+  }
+
+  .form-grid,
+  .result-grid,
+  .apparatus-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .result-item {
+    min-height: auto;
+  }
+
+  .lookup-table,
+  .result-table,
+  .segment-table,
+  .conversion-reference,
+  .poids-gaine-table {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .report-panel {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .workspace {
+    padding: 10px;
+  }
+
+  .metrics-band {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .status-pill,
+  .source-chip,
+  .count-pill {
+    font-size: 11px;
+  }
+}
