@@ -691,18 +691,9 @@ button {
     width: 100%;
   }
 
+  /* Sur smartphone, on masque les indicateurs projet pour garder l'interface courte. */
   .metrics-band {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .metric {
-    padding: 12px;
-    border-right: 0;
-    border-bottom: 1px solid var(--line);
-  }
-
-  .metric strong {
-    font-size: 19px;
+    display: none;
   }
 
   .work-grid {

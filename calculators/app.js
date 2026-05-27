@@ -757,7 +757,7 @@ function categoryLabel(id) {
   return categories.find((category) => category.id === id)?.label || id;
 }
 
-function wrapForm(inner, note = "Predimensionnement: resultats a valider avec les feuilles Excel sources avant usage contractuel.") {
+function wrapForm(inner, note = "Predimensionnement: resultats a valider avant usage contractuel.") {
   $("#calculatorMount").innerHTML = `
     <form class="calc-form" id="calcForm">
       ${inner}
@@ -957,7 +957,7 @@ function renderPump() {
       ${field("pumpK", "Coefficient reseau", "1.2", "kPa/(m3/h)2")}
     </div>
     <div id="calcResults"></div>
-  `, "Courbe approchee par interpolation quadratique. A comparer au fichier circulateur.xls avant selection materiel.");
+  `, "Courbe approchee par interpolation quadratique. Resultats a valider avant selection materiel.");
 }
 
 function calculatePump() {
@@ -1117,7 +1117,7 @@ function renderDuctFlow() {
         `;
       }).join("")}
     </div>
-  `, "Module repris depuis Aéraulique/DEBIT D'AIR DANS GAINE.xls. Le tableau rapide reproduit les debits m3/h pour les diametres standards.");
+  `, "Le tableau rapide reproduit les debits m3/h pour les diametres standards.");
 }
 
 function calculateDuctFlow() {
@@ -1464,7 +1464,7 @@ function renderCompressedAir() {
     </div>
     <div id="calcResults"></div>
     <div class="result-table tube-output" id="airPipeOutput"></div>
-  `, "Module repris depuis Air Comprimé/Détermination tuyauterie air comprimé.xls. La perte est calculee avec la formule empirique du classeur, puis controlee avec le diametre retenu.");
+  `, "La perte est calculee avec formule empirique, puis controlee avec le diametre retenu.");
 }
 
 function calculateCompressedAir() {
@@ -1615,7 +1615,7 @@ function renderDuctWeight() {
 
     <div id="calcResults"></div>
     <div class="segment-output" id="ductWeightRowsOutput"></div>
-  `, "Module adapté depuis Poids gaine rectangulaire.xls. Les surfaces reprennent les formules du classeur: rectangulaire = L x 2 x (largeur + hauteur + 4 x épaisseur) / 1000 ; circulaire = L x π x (diamètre + 2 x épaisseur) / 1000.");
+  `, "Les surfaces reprennent les formules du classeur: rectangulaire = L x 2 x (largeur + hauteur + 4 x épaisseur) / 1000 ; circulaire = L x π x (diamètre + 2 x épaisseur) / 1000.");
 }
 
 function calculateDuctWeight() {
@@ -1733,7 +1733,7 @@ function renderConversion() {
       <div class="result-head">Reference 3</div>
       ${conversionReferences.map((row) => row.map((cell, index) => index === 0 ? `<strong>${cell}</strong>` : `<span>${cell}</span>`).join("")).join("")}
     </div>
-  `, "Module repris depuis Conversions/tableau de conversion.xls, complete avec les unites courantes deja presentes dans les autres classeurs.");
+  `, "Module Conversions");
 }
 
 function calculateConversion() {
@@ -1870,7 +1870,7 @@ function renderSanitaryEvac() {
     </div>
 
     <div id="calcResults"></div>
-  `, "Predimensionnement issu de SanitEvac / DTU 60.11-2013. A verifier avec le tableur source avant usage contractuel.");
+  `, "Predimensionnement issu de DTU 60.11. A verifier avec le DTU source avant usage contractuel.");
 }
 
 function calculateSanitaryEvac() {
