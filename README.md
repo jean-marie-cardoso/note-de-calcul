@@ -1,33 +1,40 @@
-# Soft Etudes JM App
+Soft Études JM App
 
-Base de travail pour transformer les classeurs Excel du dossier `Soft etude JM` en application metier locale.
+Application métier locale composée de modules de calcul indépendants, conçue pour le pré-dimensionnement rapide, le chiffrage et le contrôle d’installations existantes.
 
-## Principe
+L’objectif est de disposer d’un outil simple, rapide et exploitable directement sur chantier ou en rendez-vous client, afin d’obtenir des estimations techniques immédiates pour un devis ou une première analyse.
 
-- Conserver les fichiers Excel originaux comme sources de reference.
-- Migrer les outils sous forme de modules independants.
-- Valider chaque module contre quelques cas issus des classeurs Excel.
-- Produire ensuite des notes de calcul propres, exportables en PDF ou texte.
+Objectif du projet
 
-## Lancement
+Le projet repose sur plusieurs principes :
 
-Ouvrir simplement `index.html` dans un navigateur.
+* conserver les fichiers Excel d’origine comme références techniques jusqu’à validation complète des modules ;
+* transformer progressivement chaque outil en module JavaScript indépendant ;
+* vérifier les résultats à partir de cas réels issus des classeurs existants ;
+* générer à terme des notes de calcul claires, exploitables et exportables en PDF ou en texte.
 
-## Modules deja esquisses
+Modules actuellement en développement
 
-- Debit / diametre / vitesse.
-- Reseau hydraulique chauffage.
-- Vase d'expansion chauffage.
-- Gaine aeraulique circulaire et rectangulaire.
-- Debit d'air dans gaine.
-- Pertes de charge air par troncons.
-- Debit probable plomberie EF/ECS.
-- Psychrometrie.
-- Debit gaz.
-- Tuyauterie air comprime.
-- Surface de calorifuge.
-- Conversions d'unites.
+* Calcul débit / diamètre / vitesse
+* Réseaux hydrauliques chauffage
+* Vase d’expansion chauffage
+* Gaines aérauliques circulaires et rectangulaires
+* Débit d’air en gaine
+* Pertes de charge aérauliques par tronçons
+* Débit probable plomberie EF / ECS
+* Psychrométrie
+* Calculs gaz
+* Tuyauterie air comprimé
+* Surface de calorifuge
+* Conversions d’unités
 
-## Point important
+Validation des calculs
 
-Les calculs integres sont une premiere base de predimensionnement. Avant usage professionnel, il faudra comparer les resultats avec les classeurs sources, verrouiller les hypotheses et documenter les formules retenues.
+Les calculs intégrés constituent actuellement une base de pré-dimensionnement.
+
+Avant toute utilisation professionnelle, les résultats devront être :
+
+* comparés aux fichiers de référence ;
+* validés sur des cas réels ;
+* documentés avec les hypothèses retenues ;
+* validés par un bureau d’études compétent.
