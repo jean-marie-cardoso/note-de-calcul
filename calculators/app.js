@@ -689,9 +689,21 @@ function renderCalculatorSelect() {
 }
 
 function updateMetrics() {
-  $("#metricModules").textContent = modules.length;
-  $("#metricCalculators").textContent = Object.keys(calculators).length;
-  $("#metricSources").textContent = new Set(modules.flatMap((module) => module.source)).size;
+  const metricModules = document.getElementById("metricModules");
+  const metricCalculators = document.getElementById("metricCalculators");
+  const metricSources = document.getElementById("metricSources");
+
+  if (metricModules) {
+    metricModules.textContent = modules.length;
+  }
+
+  if (metricCalculators) {
+    metricCalculators.textContent = Object.keys(calculators).length;
+  }
+
+  if (metricSources) {
+    metricSources.textContent = new Set(modules.flatMap((module) => module.source)).size;
+  }
 }
 
 function render() {

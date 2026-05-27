@@ -16,21 +16,7 @@ Creer une application locale de bureau d'etudes batiment, organisee par corps d'
 
 ## Ce qui est faisable rapidement
 
-Une application web statique peut deja regrouper les modules simples, les tables de reference et les notes minute. C'est le meilleur rapport valeur / temps, car elle ne demande ni serveur ni infrastructure.
-
-Les modules les plus rapides a fiabiliser sont:
-
-- Calcul pratique fluides: debit, diametre, vitesse.
-- Vase d'expansion.
-- Debit gaz.
-- Calorifuge.
-- Gaine aeraulique simple.
-- Debit d'air dans gaine.
-- Pertes de charge air par troncons.
-- Debit plomberie EF/ECS.
-- Psychrometrie de base.
-- Tuyauterie air comprime.
-- Conversions d'unites.
+Une application web statique pour deja regrouper les modules simples, les tables de reference et les notes minute. C'est le meilleur rapport valeur / temps, car elle ne demande ni serveur ni infrastructure.
 
 ## Ce qui prendra plus de temps
 
@@ -43,7 +29,7 @@ Les modules suivants sont faisables, mais demandent une migration plus methodiqu
 - Vapeur saturee et tables TechVapor.
 - Notes de calcul completes avec edition PDF.
 
-## Methode recommandee
+## Methode de validation d'un module
 
 1. Choisir un module Excel source.
 2. Identifier les cellules de saisie, les cellules de resultat et les tables.
@@ -52,7 +38,7 @@ Les modules suivants sont faisables, mais demandent une migration plus methodiqu
 5. Ajouter une sortie de note de calcul.
 6. Marquer le module comme valide.
 
-## Decoupage propose
+## Decoupage du déploiement
 
 ### V1 courte
 
