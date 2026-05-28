@@ -815,3 +815,60 @@ button {
     -webkit-overflow-scrolling: touch;
   }
 }
+/* --------------------------------------------------------------------------
+   Module Help Styles
+   -------------------------------------------------------------------------- */
+.module-help {
+  border: 1px solid var(--line);
+  background: var(--surface-strong);
+}
+
+.module-help summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 42px;
+  padding: 10px 12px;
+  cursor: pointer;
+  color: var(--blue);
+  font-size: 13px;
+  font-weight: 800;
+  list-style: none;
+}
+
+.module-help summary::-webkit-details-marker {
+  display: none;
+}
+
+.module-help summary::after {
+  content: "+";
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.module-help[open] summary::after {
+  content: "−";
+}
+
+.module-help-content {
+  display: grid;
+  gap: 8px;
+  padding: 0 12px 12px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.module-help-content p {
+  margin: 0;
+}
+
+.module-help-content strong {
+  color: var(--ink);
+}

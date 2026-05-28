@@ -36,10 +36,10 @@ const modules = [
     id: "circulateur",
     category: "hydraulique",
     title: "Point d'equilibre circulateur",
-    status: "draft",
+    status: "ready",
     calculator: "pump",
     source: ["Programmes/Chaufferie/circulateur.xls"],
-    description: "Premiere base pour croiser courbe constructeur et courbe reseau.",
+    description: "Calcul du point d'equilibre d'un circulateur a partir de trois points constructeur et du coefficient Kv du reseau.",
     keywords: ["pompe", "circulateur", "courbe", "hmt", "perte de charge", "pression", "débit", "debit", "réseau", "reseau", "chauffage", "dimensionnement", "sélection", "selection", "performance", "rendement"]
   },
   {
@@ -910,31 +910,124 @@ function renderDdv() {
         { value: "ls", label: "l/s" },
         { value: "lh", label: "l/h" }
       ])}
-      ${field("ddvFlow", "Debit", "2.4")}
-      ${field("ddvVelocity", "Vitesse", "1.2", "m/s")}
-      ${field("ddvDiameter", "Diametre interieur", "26", "mm")}
+      ${selectField("ddvMaterial", "Matiere du tube", [
+        { value: "cuivre", label: "Cuivre" },
+        { value: "per", label: "PER" },
+        { value: "acier", label: "Acier" }
+      ])}
+      <div id="ddvPipeGroup">
+        ${selectField("ddvPipe", "Diametre norme", pipeTables.cuivre.map((pipe, index) => ({
+          value: String(index),
+          label: `${pipe.ref} - int. ${fmt(pipe.d, 1)} mm`
+        })))}
+      </div>
+      <div id="ddvFlowGroup">
+        ${field("ddvFlow", "Debit", "2.4")}
+      </div>
+      <div id="ddvVelocityGroup">
+        ${field("ddvVelocity", "Vitesse", "1.2", "m/s")}
+      </div>
+      <div id="ddvDiameterGroup">
+        ${field("ddvDiameter", "Diametre interieur manuel", "26", "mm")}
+      </div>
     </div>
+    <div class="calc-note" id="ddvModeNote"></div>
     <div id="calcResults"></div>
   `);
+  updateDdvPipeOptions();
+  updateDdvVisibility();
+}
+
+function updateDdvVisibility() {
+  const mode = selectValue("ddvMode") || "diameter";
+  const pipeGroup = document.getElementById("ddvPipeGroup");
+  const flowGroup = document.getElementById("ddvFlowGroup");
+  const velocityGroup = document.getElementById("ddvVelocityGroup");
+  const diameterGroup = document.getElementById("ddvDiameterGroup");
+  const note = document.getElementById("ddvModeNote");
+
+  const showPipe = mode === "flow" || mode === "velocity";
+  const showFlow = mode === "diameter" || mode === "velocity";
+  const showVelocity = mode === "diameter" || mode === "flow";
+  const showManualDiameter = false;
+
+  if (pipeGroup) pipeGroup.hidden = !showPipe;
+  if (flowGroup) flowGroup.hidden = !showFlow;
+  if (velocityGroup) velocityGroup.hidden = !showVelocity;
+  if (diameterGroup) diameterGroup.hidden = !showManualDiameter;
+
+  if (note) {
+    note.textContent = {
+      diameter: "Saisis le debit, la vitesse cible et la matiere: le module calcule le diametre theorique et propose une reference normalisee.",
+      flow: "Saisis le diametre norme, la vitesse et la matiere: le module calcule le debit correspondant.",
+      velocity: "Saisis le debit, le diametre norme et la matiere: le module calcule la vitesse reelle dans le tube."
+    }[mode] || "Predimensionnement: resultats a valider avant usage contractuel.";
+  }
+}
+
+function updateDdvPipeOptions() {
+  const material = selectValue("ddvMaterial") || "cuivre";
+  const pipeSelect = document.getElementById("ddvPipe");
+  if (!pipeSelect || !pipeTables[material]) return;
+
+  const current = pipeSelect.value;
+  pipeSelect.innerHTML = pipeTables[material]
+    .map((pipe, index) => `<option value="${index}">${pipe.ref} - int. ${fmt(pipe.d, 1)} mm</option>`)
+    .join("");
+
+  if (pipeTables[material][Number(current)]) {
+    pipeSelect.value = current;
+  } else {
+    pipeSelect.value = "0";
+  }
+
+  const selected = getDdvSelectedPipe();
+  const manual = document.getElementById("ddvDiameter");
+  if (manual && selected) {
+    manual.value = selected.d;
+  }
+
+  // (Suppression de l'appel à renderDdvPipeTable(material);)
+}
+
+function getDdvSelectedPipe() {
+  const material = selectValue("ddvMaterial") || "cuivre";
+  const index = Number(selectValue("ddvPipe") || 0);
+  return pipeTables[material]?.[index] || pipeTables[material]?.[0] || null;
 }
 
 function calculateDdv() {
+  updateDdvPipeOptions();
+  updateDdvVisibility();
+
   const mode = selectValue("ddvMode");
   const unit = selectValue("ddvUnit");
+  const material = selectValue("ddvMaterial") || "cuivre";
+  const selectedPipe = getDdvSelectedPipe();
   const flowInput = value("ddvFlow");
   const velocity = value("ddvVelocity");
-  const diameter = value("ddvDiameter");
+  const manualDiameter = value("ddvDiameter");
+  const diameter = manualDiameter > 0 ? manualDiameter : selectedPipe?.d || 0;
   const flowM3s = unit === "ls" ? flowInput / 1000 : unit === "lh" ? flowInput / 3600000 : flowInput / 3600;
   const dM = diameter / 1000;
   const area = Math.PI * Math.pow(dM, 2) / 4;
 
   if (mode === "diameter") {
-    const d = Math.sqrt((4 * flowM3s) / (Math.PI * velocity)) * 1000;
+    const theoreticalDiameter = velocity > 0 ? Math.sqrt((4 * flowM3s) / (Math.PI * velocity)) * 1000 : 0;
+    const recommended = selectPipe(material, theoreticalDiameter);
+    const recommendedVelocity = recommended && flowM3s > 0
+      ? flowM3s / (Math.PI * Math.pow(recommended.d / 1000, 2) / 4)
+      : 0;
+
     setResults([
-      { label: "Diametre theorique", value: mm(d) },
-      { label: "Section", value: `${fmt(flowM3s / velocity, 5)} m2` },
-      { label: "Debit equivalent", value: m3h(flowM3s * 3600) },
-      { label: "Vitesse retenue", value: `${fmt(velocity, 2)} m/s` }
+      { label: "Matiere", value: materialLabel(material) },
+      { label: "Debit saisi", value: m3h(flowM3s * 3600) },
+      { label: "Vitesse cible", value: `${fmt(velocity, 2)} m/s` },
+      { label: "Diametre theorique", value: mm(theoreticalDiameter) },
+      { label: "Reference conseillee", value: recommended ? recommended.ref : "hors table" },
+      { label: "Diametre interieur conseille", value: recommended ? mm(recommended.d) : "-" },
+      { label: "Vitesse reelle conseillee", value: `${fmt(recommendedVelocity, 2)} m/s` },
+      { label: "Avis", value: velocityAdvice(recommendedVelocity) }
     ], "Debit - diametre - vitesse");
     return;
   }
@@ -942,21 +1035,47 @@ function calculateDdv() {
   if (mode === "flow") {
     const q = area * velocity;
     setResults([
+      { label: "Matiere", value: materialLabel(material) },
+      { label: "Reference retenue", value: selectedPipe ? selectedPipe.ref : "diametre manuel" },
+      { label: "Diametre interieur utilise", value: mm(diameter) },
+      { label: "Vitesse", value: `${fmt(velocity, 2)} m/s` },
       { label: "Debit", value: m3h(q * 3600) },
       { label: "Debit", value: lps(q * 1000) },
       { label: "Section", value: `${fmt(area, 5)} m2` },
-      { label: "Diametre", value: mm(diameter) }
+      { label: "Avis", value: velocityAdvice(velocity) }
     ], "Debit - diametre - vitesse");
     return;
   }
 
-  const v = flowM3s / area;
+  const v = area > 0 ? flowM3s / area : 0;
+  const recommended = selectPipe(material, diameter);
   setResults([
-    { label: "Vitesse", value: `${fmt(v, 2)} m/s` },
+    { label: "Matiere", value: materialLabel(material) },
+    { label: "Reference retenue", value: selectedPipe ? selectedPipe.ref : "diametre manuel" },
+    { label: "Diametre interieur utilise", value: mm(diameter) },
     { label: "Debit", value: m3h(flowM3s * 3600) },
+    { label: "Debit", value: lps(flowM3s * 1000) },
     { label: "Section", value: `${fmt(area, 5)} m2` },
-    { label: "Diametre", value: mm(diameter) }
+    { label: "Vitesse calculee", value: `${fmt(v, 2)} m/s` },
+    { label: "Reference normalisee proche", value: recommended ? recommended.ref : "hors table" },
+    { label: "Avis", value: velocityAdvice(v) }
   ], "Debit - diametre - vitesse");
+}
+
+function materialLabel(material) {
+  return {
+    acier: "Acier",
+    cuivre: "Cuivre",
+    per: "PER"
+  }[material] || material;
+}
+
+function velocityAdvice(velocity) {
+  if (!Number.isFinite(velocity) || velocity <= 0) return "Saisir des valeurs positives.";
+  if (velocity < 0.5) return "Vitesse faible: installation silencieuse, mais debit peu dynamique.";
+  if (velocity <= 1.5) return "Vitesse correcte pour un predimensionnement courant.";
+  if (velocity <= 2) return "Vitesse elevee mais encore exploitable selon le contexte.";
+  return "Vitesse trop elevee: risque de bruit, pertes de charge et usure.";
 }
 
 function renderHydraulic() {
@@ -1003,54 +1122,105 @@ function selectPipe(material, minDiameter) {
 function renderPump() {
   wrapForm(`
     <div class="form-grid">
-      ${field("pumpQ1", "Point 1 debit", "0", "m3/h")}
-      ${field("pumpP1", "Point 1 HMT", "55", "kPa")}
-      ${field("pumpQ2", "Point 2 debit", "4", "m3/h")}
-      ${field("pumpP2", "Point 2 HMT", "42", "kPa")}
-      ${field("pumpQ3", "Point 3 debit", "8", "m3/h")}
-      ${field("pumpP3", "Point 3 HMT", "10", "kPa")}
-      ${field("pumpK", "Coefficient reseau", "1.2", "kPa/(m3/h)2")}
+      ${field("pumpName", "Designation du circulateur", "Circulateur test", "", "text")}
+      ${field("pumpQ1", "Point 1 - debit", "5", "m3/h")}
+      ${field("pumpP1", "Point 1 - DP", "90", "kPa")}
+      ${field("pumpQ2", "Point 2 - debit", "15", "m3/h")}
+      ${field("pumpP2", "Point 2 - DP", "60", "kPa")}
+      ${field("pumpQ3", "Point 3 - debit", "25", "m3/h")}
+      ${field("pumpP3", "Point 3 - DP", "10", "kPa")}
+      ${field("pumpKv", "Coefficient de debit du reseau Kv", "6", "", "number", "min=\"0.01\" step=\"0.1\"")}
+    </div>
+    <details class="module-help">
+      <summary>Comment utiliser ce module ?</summary>
+      <div class="module-help-content">
+        <p><strong>Points 1, 2 et 3 :</strong> relever trois points sur la courbe constructeur du circulateur. Pour chaque point, saisir le debit en m3/h et la pression disponible correspondante en kPa.</p>
+        <p><strong>Kv reseau :</strong> coefficient qui represente la facilite de passage de l'eau dans le reseau. Plus le Kv est eleve, moins le reseau est resistant.</p>
+        <p><strong>Resultat :</strong> le module croise la courbe pompe avec la courbe reseau pour trouver le debit d'equilibre, la DP pompe, la DP reseau et la puissance hydraulique.</p>
+      </div>
+    </details>
+    <div class="calc-note">
+      Calcul indicatif de predimensionnement. A valider avec la courbe constructeur reelle du circulateur.
     </div>
     <div id="calcResults"></div>
-  `, "Courbe approchee par interpolation quadratique. Resultats a valider avant selection materiel.");
+  `, "Calcul inspire du fichier Excel circulateur.xls : trois points constructeur, coefficient Kv reseau et resolution du point d'equilibre.");
 }
 
 function calculatePump() {
+  const name = document.getElementById("pumpName")?.value || "Circulateur";
   const points = [
     [value("pumpQ1"), value("pumpP1")],
     [value("pumpQ2"), value("pumpP2")],
     [value("pumpQ3"), value("pumpP3")]
   ];
-  const k = value("pumpK");
-  let bestQ = 0;
-  let bestGap = Infinity;
-  let bestPump = 0;
-  let bestNetwork = 0;
-  for (let q = 0; q <= 20; q += 0.02) {
-    const pump = lagrange(points, q);
-    const network = k * q * q;
-    const gap = Math.abs(pump - network);
-    if (gap < bestGap) {
-      bestGap = gap;
-      bestQ = q;
-      bestPump = pump;
-      bestNetwork = network;
-    }
+  const kv = value("pumpKv");
+  const z = kv > 0 ? 10 / Math.pow(kv, 2) : 0;
+
+  const validPoints = points.every(([q, dp]) => q >= 0 && dp >= 0) && new Set(points.map(([q]) => q)).size === 3;
+  if (!validPoints || kv <= 0) {
+    setResults([
+      { label: "Controle", value: "Saisir trois debits differents, trois DP positives et un Kv superieur a 0." }
+    ], "Point d'equilibre circulateur");
+    return;
   }
+
+  const coeffs = quadraticThroughPoints(points);
+  const qZeroRoots = quadraticRoots(coeffs.a, coeffs.b, coeffs.c).filter((root) => root >= 0);
+  const qZero = qZeroRoots.length ? Math.max(...qZeroRoots) : 0;
+  const equilibriumRoots = quadraticRoots(coeffs.a - z, coeffs.b, coeffs.c).filter((root) => root >= 0);
+  const qEquilibrium = equilibriumRoots.length ? Math.max(...equilibriumRoots) : 0;
+  const pumpDp = pumpPressureAt(coeffs, qEquilibrium);
+  const networkDp = z * Math.pow(qEquilibrium, 2);
+  const hydraulicPower = qEquilibrium * networkDp / 3.6;
+  const delta = Math.abs(pumpDp - networkDp);
+  const isInsideCurve = qZero > 0 ? qEquilibrium <= qZero : true;
+
   setResults([
-    { label: "Debit equilibre", value: m3h(bestQ) },
-    { label: "Pression pompe", value: `${fmt(bestPump, 1)} kPa` },
-    { label: "Perte reseau", value: `${fmt(bestNetwork, 1)} kPa` },
-    { label: "Ecart residuel", value: `${fmt(bestGap, 2)} kPa` }
+    { label: "Circulateur", value: name },
+    { label: "Coefficient reseau Z", value: `${fmt(z, 4)} kPa/(m3/h)2` },
+    { label: "Equation pompe", value: `DP = ${fmt(coeffs.a, 4)} qv2 + ${fmt(coeffs.b, 4)} qv + ${fmt(coeffs.c, 2)}` },
+    { label: "Debit a DP zero", value: m3h(qZero) },
+    { label: "Debit d'equilibre", value: m3h(qEquilibrium) },
+    { label: "DP pompe", value: `${fmt(pumpDp, 2)} kPa` },
+    { label: "DP reseau", value: `${fmt(networkDp, 2)} kPa` },
+    { label: "Puissance hydraulique", value: `${fmt(hydraulicPower, 1)} W` },
+    { label: "Ecart pompe / reseau", value: `${fmt(delta, 3)} kPa` },
+    { label: "Controle", value: isInsideCurve ? "Point situe dans la plage de courbe." : "Point hors plage: verifier les points constructeur." }
   ], "Point d'equilibre circulateur");
 }
 
-function lagrange(points, x) {
-  return points.reduce((sum, [xi, yi], i) => {
-    const basis = points.reduce((product, [xj], j) => i === j ? product : product * ((x - xj) / (xi - xj)), 1);
-    return sum + yi * basis;
-  }, 0);
+function quadraticThroughPoints(points) {
+  const [[x1, y1], [x2, y2], [x3, y3]] = points;
+  const denominator = (x1 - x2) * (x1 - x3) * (x2 - x3);
+  if (denominator === 0) return { a: 0, b: 0, c: 0 };
+
+  const a = (x3 * (y2 - y1) + x2 * (y1 - y3) + x1 * (y3 - y2)) / denominator;
+  const b = (Math.pow(x3, 2) * (y1 - y2) + Math.pow(x2, 2) * (y3 - y1) + Math.pow(x1, 2) * (y2 - y3)) / denominator;
+  const c = (x2 * x3 * (x2 - x3) * y1 + x3 * x1 * (x3 - x1) * y2 + x1 * x2 * (x1 - x2) * y3) / denominator;
+
+  return { a, b, c };
 }
+
+function quadraticRoots(a, b, c) {
+  if (Math.abs(a) < 1e-9) {
+    return Math.abs(b) < 1e-9 ? [] : [-c / b];
+  }
+
+  const delta = Math.pow(b, 2) - 4 * a * c;
+  if (delta < 0) return [];
+  if (delta === 0) return [-b / (2 * a)];
+
+  const sqrtDelta = Math.sqrt(delta);
+  return [
+    (-b + sqrtDelta) / (2 * a),
+    (-b - sqrtDelta) / (2 * a)
+  ];
+}
+
+function pumpPressureAt(coeffs, flow) {
+  return coeffs.a * Math.pow(flow, 2) + coeffs.b * flow + coeffs.c;
+}
+
 
 function renderVessel() {
   wrapForm(`
