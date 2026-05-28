@@ -49,7 +49,7 @@ const modules = [
     status: "ready",
     calculator: "vessel",
     source: ["Programmes/Chaufferie/vase", "Vase d'expansion/Calcul capacité vase d'expension"],
-    description: "Capacite minimale, pressions de gonflage et volume de dilatation.",
+    description: "Capacite minimale du vase, volume de dilatation, pressions de service/remplissage et rendement du vase.",
     keywords: ["vase", "expansion", "chauffage", "pression", "gonflage", "soupape", "dilatation", "volume", "installation", "sécurité", "securite" ,"dimensionnement", "selection", "sélection", "selection", "calcul", "capacité", "capacite"]
   },
   {
@@ -137,7 +137,7 @@ const modules = [
     category: "ventilation",
     title: "VMC hygro collectif",
     status: "backlog",
-    calculator: "duct",
+    calculator: "pending",
     source: ["Ventilation/Dimensionnement hygro", "Ventilation/Rapid_ MI-2.16"],
     description: "A migrer apres validation des bouches, colonnes et avis techniques sources.",
     keywords: ["vmc", "hygro", "hygroréglable", "hygroreglable", "ventilation", "bouche", "colonne", "logement", "extraction", "air", "débit", "debit"]
@@ -167,7 +167,7 @@ const modules = [
     category: "fluides",
     title: "Vapeur saturee",
     status: "backlog",
-    calculator: "gas",
+    calculator: "pending",
     source: ["Programmes/TechVapor/TechVaporFR", "Vapeur/Détermination tuyauterie Vapeur"],
     description: "Tables vapeur et dimensionnement a migrer depuis TechVapor.",
     keywords: ["vapeur", "saturée", "saturee", "pression", "température", "temperature", "condensat", "tuyauterie", "dimensionnement", "débit", "debit", "techvapor"]
@@ -242,68 +242,9 @@ const calculators = {
   ductWeight: { label: "Poids gaine et metré", render: renderDuctWeight },
   smoke: { label: "Desenfumage", render: renderSmoke },
   conversion: { label: "Conversions d'unites", render: renderConversion },
+  pending: { label: "Module a migrer", render: renderPending },
   library: { label: "Bibliotheque", render: renderLibrary }
 };
-
-const pipeTables = {
-  acier: [
-    { ref: "DN15 - 17.2 x 2", d: 13.2 },
-    { ref: "DN20 - 21.3 x 2.3", d: 16.7 },
-    { ref: "DN25 - 26.9 x 2.3", d: 22.3 },
-    { ref: "DN32 - 33.7 x 2.9", d: 27.9 },
-    { ref: "DN40 - 42.4 x 2.9", d: 36.6 },
-    { ref: "DN50 - 60.3 x 3.2", d: 53.9 },
-    { ref: "DN65 - 76.1 x 3.2", d: 69.7 },
-    { ref: "DN80 - 88.9 x 3.2", d: 82.5 },
-    { ref: "DN100 - 114.3 x 3.6", d: 107.1 }
-  ],
-  cuivre: [
-    { ref: "Cu 12/14", d: 12 },
-    { ref: "Cu 14/16", d: 14 },
-    { ref: "Cu 16/18", d: 16 },
-    { ref: "Cu 20/22", d: 20 },
-    { ref: "Cu 26/28", d: 26 },
-    { ref: "Cu 32/35", d: 32 },
-    { ref: "Cu 40/42", d: 40 },
-    { ref: "Cu 50/52", d: 50 },
-    { ref: "Cu 60/64", d: 60 }
-  ],
-  per: [
-    { ref: "PER 12 x 1.1", d: 9.8 },
-    { ref: "PER 16 x 1.5", d: 13 },
-    { ref: "PER 20 x 1.9", d: 16.2 },
-    { ref: "PER 25 x 2.3", d: 20.4 },
-    { ref: "PER 32 x 2.9", d: 26.2 },
-    { ref: "PER 40 x 3.7", d: 32.6 },
-    { ref: "PER 50 x 4.6", d: 40.8 },
-    { ref: "PER 63 x 5.8", d: 51.4 }
-  ]
-};
-
-const ductPressureDiameters = [60, 80, 100, 125, 160, 200, 250, 315, 355, 400, 450, 500, 560, 630, 710, 800, 900, 1000, 1120, 1250];
-
-const ductPressureMaterials = [
-  { value: "acier_galva", label: "acier galvanise", roughness: 0.15 },
-  { value: "spirale", label: "conduit agrafe spirale", roughness: 0.5 },
-  { value: "acier_inox", label: "acier inoxydable", roughness: 0.05 },
-  { value: "acier_noir", label: "acier noir lamine", roughness: 0.1 },
-  { value: "aluminium", label: "aluminium", roughness: 0.002 },
-  { value: "flexible", label: "flexible", roughness: 3 },
-  { value: "plastique", label: "mat. plastique", roughness: 0.002 },
-  { value: "beton_lisse", label: "beton lisse", roughness: 0.55 },
-  { value: "beton_brut", label: "beton brut de decoffrage", roughness: 2 },
-  { value: "brique", label: "paroi de brique", roughness: 2 },
-  { value: "tole_rivee", label: "tole d'acier rivee", roughness: 2 }
-];
-
-const ductPressureRows = [
-  { flow: 1800, length: 12, shape: "round", diameter: 315, width: 600, height: 300, fixed: 0, zeta: 0.8 },
-  { flow: 1200, length: 8, shape: "rect", diameter: 250, width: 500, height: 250, fixed: 0, zeta: 1.2 },
-  { flow: 800, length: 10, shape: "round", diameter: 250, width: 400, height: 200, fixed: 0, zeta: 0.6 },
-  { flow: 0, length: 0, shape: "round", diameter: 200, width: 300, height: 200, fixed: 0, zeta: 0 },
-  { flow: 0, length: 0, shape: "round", diameter: 200, width: 300, height: 200, fixed: 0, zeta: 0 },
-  { flow: 0, length: 0, shape: "round", diameter: 200, width: 300, height: 200, fixed: 0, zeta: 0 }
-];
 
 const compressedAirPipes = [
   { nominal: 15, retained: 20, outer: 21.3, thickness: 2.6, inner: 16.1, inch: '1/2"' },
@@ -519,42 +460,6 @@ const smokeZones = [
   { repere: "Zone 4", surface: 0, enabled: false }
 ];
 
-const efEcApparelsData = {
-  apparels: [
-    { name: "évier - timbre office", index: 0.2 },
-    { name: "Lavabo", index: 0.2 },
-    { name: "bidet", index: 0.2 },
-    { name: "baignoire", index: 0.33 },
-    { name: "douche", index: 0.2 },
-    { name: "WC avec réservoir de chasse", index: 0.12 },
-    { name: "urinoir avec robinet individuel", index: 0.15 },
-    { name: "urinoir à action siphonique", index: 0.5 },
-    { name: "lavabo collectif (0,05 l/s par jet)", index: 0.05 },
-    { name: "poste d'eau, robinet 1/2", index: 0.33 },
-    { name: "poste d'eau, robinet 3/4", index: 0.42 },
-    { name: "lave-mains", index: 0.1 },
-    { name: "bac à laver", index: 0.33 },
-    { name: "MAL le linge (Compter pour une MAL)", index: 0.2 },
-    { name: "MAL la vaiselle (Compter pour une MAL)", index: 0.1 },
-    { name: "Equipements Restaurant-cuisine collective", index: 1.08 },
-    { name: "robinet de plonge (mélangeur 3/4)", index: 0.75 },
-    { name: "robinet de plonge (mélangeur1/2 )", index: 0.33 },
-    { name: "MAL semi-automatique 10 à 150 couverts", index: 0.5 },
-    { name: "MAL semi-automatique 151 à 300 couverts", index: 0.5 },
-    { name: "MAL automatique 300 à 1500 couverts", index: 0.7 },
-    { name: "MAL automatique 1500 à 2000 couverts", index: 1 }
-  ],
-  wc_flush: { name: "WC avec robinet de chasse", index: 1.5 }
-};
-
-const efEcDefaultQuantities = {
-  Lavabo: 4,
-  douche: 2,
-  "WC avec réservoir de chasse": 3
-};
-
-
-
 const sanitaryEvacFixtures = [
   { id: "wc67", label: "WC 6 ou 7,5 l - reservoir", type: "EV", du: 2, min: 73, pvc: "80", cuivre: "---", fonte: "75" },
   { id: "wc9", label: "WC 9 l - reservoir", type: "EV", du: 2.5, min: 83, pvc: "84/90", cuivre: "---", fonte: "100" },
@@ -663,6 +568,13 @@ const fmt = (value, digits = 2) => Number.isFinite(value) ? value.toLocaleString
 const mm = (value) => `${fmt(value, 1)} mm`;
 const m3h = (value) => `${fmt(value, 2)} m3/h`;
 const lps = (value) => `${fmt(value, 3)} l/s`;
+const escapeHtml = (value) => String(value ?? "").replace(/[&<>"']/g, (char) => ({
+  "&": "&amp;",
+  "<": "&lt;",
+  ">": "&gt;",
+  "\"": "&quot;",
+  "'": "&#39;"
+}[char]));
 
 function init() {
   renderCategories();
@@ -885,8 +797,8 @@ function result(items) {
     <div class="result-grid">
       ${items.map((item) => `
         <div class="result-item">
-          <span>${item.label}</span>
-          <strong>${item.value}</strong>
+          <span>${escapeHtml(item.label)}</span>
+          <strong>${escapeHtml(item.value)}</strong>
         </div>
       `).join("")}
     </div>
@@ -920,10 +832,36 @@ function runCurrentCalculator() {
     ductWeight: calculateDuctWeight,
     smoke: calculateSmoke,
     conversion: calculateConversion,
+    pending: calculatePending,
     library: calculateLibrary
   };
 
   runners[state.currentCalculator]?.();
+}
+
+function selectedModule() {
+  return modules.find((module) => module.id === state.selectedModule);
+}
+
+function renderPending() {
+  const module = selectedModule();
+  const pendingModule = module?.calculator === "pending" ? module : null;
+  wrapForm(`
+    <div class="empty-state">
+      ${pendingModule ? `${pendingModule.title} est reference, mais son calculateur n'est pas encore migre.` : "Module a migrer."}
+    </div>
+    <div id="calcResults"></div>
+  `, "Ce module reste dans le catalogue pour garder la trace du classeur source, mais il n'est pas encore exploitable.");
+}
+
+function calculatePending() {
+  const module = selectedModule();
+  const pendingModule = module?.calculator === "pending" ? module : null;
+  setResults([
+    { label: "Etat", value: "Module a migrer" },
+    { label: "Source", value: pendingModule ? pendingModule.source.join(" / ") : "-" },
+    { label: "Action", value: "Extraire les formules du classeur puis creer un calculateur dedie." }
+  ], pendingModule ? pendingModule.title : "Module a migrer");
 }
 
 function renderSmoke() {
@@ -1080,783 +1018,6 @@ function renderSmokeRows(rows) {
       `).join("")}
     </div>
   `;
-}
-
-function renderDdv() {
-  wrapForm(`
-    <div class="form-grid">
-      ${selectField("ddvMode", "Grandeur a calculer", [
-        { value: "diameter", label: "Diametre depuis debit + vitesse" },
-        { value: "flow", label: "Debit depuis diametre + vitesse" },
-        { value: "velocity", label: "Vitesse depuis debit + diametre" }
-      ])}
-      ${selectField("ddvUnit", "Unite debit", [
-        { value: "m3h", label: "m3/h" },
-        { value: "ls", label: "l/s" },
-        { value: "lh", label: "l/h" }
-      ])}
-      ${selectField("ddvMaterial", "Matiere du tube", [
-        { value: "cuivre", label: "Cuivre" },
-        { value: "per", label: "PER" },
-        { value: "acier", label: "Acier" }
-      ])}
-      <div id="ddvPipeGroup">
-        ${selectField("ddvPipe", "Diametre norme", pipeTables.cuivre.map((pipe, index) => ({
-          value: String(index),
-          label: `${pipe.ref} - int. ${fmt(pipe.d, 1)} mm`
-        })))}
-      </div>
-      <div id="ddvFlowGroup">
-        ${field("ddvFlow", "Debit", "2.4")}
-      </div>
-      <div id="ddvVelocityGroup">
-        ${field("ddvVelocity", "Vitesse", "1.2", "m/s")}
-      </div>
-      <div id="ddvDiameterGroup">
-        ${field("ddvDiameter", "Diametre interieur manuel", "26", "mm")}
-      </div>
-    </div>
-    <div class="calc-note" id="ddvModeNote"></div>
-    <div id="calcResults"></div>
-  `);
-  updateDdvPipeOptions();
-  updateDdvVisibility();
-}
-
-function updateDdvVisibility() {
-  const mode = selectValue("ddvMode") || "diameter";
-  const pipeGroup = document.getElementById("ddvPipeGroup");
-  const flowGroup = document.getElementById("ddvFlowGroup");
-  const velocityGroup = document.getElementById("ddvVelocityGroup");
-  const diameterGroup = document.getElementById("ddvDiameterGroup");
-  const note = document.getElementById("ddvModeNote");
-
-  const showPipe = mode === "flow" || mode === "velocity";
-  const showFlow = mode === "diameter" || mode === "velocity";
-  const showVelocity = mode === "diameter" || mode === "flow";
-  const showManualDiameter = false;
-
-  if (pipeGroup) pipeGroup.hidden = !showPipe;
-  if (flowGroup) flowGroup.hidden = !showFlow;
-  if (velocityGroup) velocityGroup.hidden = !showVelocity;
-  if (diameterGroup) diameterGroup.hidden = !showManualDiameter;
-
-  if (note) {
-    note.textContent = {
-      diameter: "Saisis le debit, la vitesse cible et la matiere: le module calcule le diametre theorique et propose une reference normalisee.",
-      flow: "Saisis le diametre norme, la vitesse et la matiere: le module calcule le debit correspondant.",
-      velocity: "Saisis le debit, le diametre norme et la matiere: le module calcule la vitesse reelle dans le tube."
-    }[mode] || "Predimensionnement: resultats a valider avant usage contractuel.";
-  }
-}
-
-function updateDdvPipeOptions() {
-  const material = selectValue("ddvMaterial") || "cuivre";
-  const pipeSelect = document.getElementById("ddvPipe");
-  if (!pipeSelect || !pipeTables[material]) return;
-
-  const current = pipeSelect.value;
-  pipeSelect.innerHTML = pipeTables[material]
-    .map((pipe, index) => `<option value="${index}">${pipe.ref} - int. ${fmt(pipe.d, 1)} mm</option>`)
-    .join("");
-
-  if (pipeTables[material][Number(current)]) {
-    pipeSelect.value = current;
-  } else {
-    pipeSelect.value = "0";
-  }
-
-  const selected = getDdvSelectedPipe();
-  const manual = document.getElementById("ddvDiameter");
-  if (manual && selected) {
-    manual.value = selected.d;
-  }
-
-  // (Suppression de l'appel à renderDdvPipeTable(material);)
-}
-
-function getDdvSelectedPipe() {
-  const material = selectValue("ddvMaterial") || "cuivre";
-  const index = Number(selectValue("ddvPipe") || 0);
-  return pipeTables[material]?.[index] || pipeTables[material]?.[0] || null;
-}
-
-function calculateDdv() {
-  updateDdvPipeOptions();
-  updateDdvVisibility();
-
-  const mode = selectValue("ddvMode");
-  const unit = selectValue("ddvUnit");
-  const material = selectValue("ddvMaterial") || "cuivre";
-  const selectedPipe = getDdvSelectedPipe();
-  const flowInput = value("ddvFlow");
-  const velocity = value("ddvVelocity");
-  const manualDiameter = value("ddvDiameter");
-  const diameter = manualDiameter > 0 ? manualDiameter : selectedPipe?.d || 0;
-  const flowM3s = unit === "ls" ? flowInput / 1000 : unit === "lh" ? flowInput / 3600000 : flowInput / 3600;
-  const dM = diameter / 1000;
-  const area = Math.PI * Math.pow(dM, 2) / 4;
-
-  if (mode === "diameter") {
-    const theoreticalDiameter = velocity > 0 ? Math.sqrt((4 * flowM3s) / (Math.PI * velocity)) * 1000 : 0;
-    const recommended = selectPipe(material, theoreticalDiameter);
-    const recommendedVelocity = recommended && flowM3s > 0
-      ? flowM3s / (Math.PI * Math.pow(recommended.d / 1000, 2) / 4)
-      : 0;
-
-    setResults([
-      { label: "Matiere", value: materialLabel(material) },
-      { label: "Debit saisi", value: m3h(flowM3s * 3600) },
-      { label: "Vitesse cible", value: `${fmt(velocity, 2)} m/s` },
-      { label: "Diametre theorique", value: mm(theoreticalDiameter) },
-      { label: "Reference conseillee", value: recommended ? recommended.ref : "hors table" },
-      { label: "Diametre interieur conseille", value: recommended ? mm(recommended.d) : "-" },
-      { label: "Vitesse reelle conseillee", value: `${fmt(recommendedVelocity, 2)} m/s` },
-      { label: "Avis", value: velocityAdvice(recommendedVelocity) }
-    ], "Debit - diametre - vitesse");
-    return;
-  }
-
-  if (mode === "flow") {
-    const q = area * velocity;
-    setResults([
-      { label: "Matiere", value: materialLabel(material) },
-      { label: "Reference retenue", value: selectedPipe ? selectedPipe.ref : "diametre manuel" },
-      { label: "Diametre interieur utilise", value: mm(diameter) },
-      { label: "Vitesse", value: `${fmt(velocity, 2)} m/s` },
-      { label: "Debit", value: m3h(q * 3600) },
-      { label: "Debit", value: lps(q * 1000) },
-      { label: "Section", value: `${fmt(area, 5)} m2` },
-      { label: "Avis", value: velocityAdvice(velocity) }
-    ], "Debit - diametre - vitesse");
-    return;
-  }
-
-  const v = area > 0 ? flowM3s / area : 0;
-  const recommended = selectPipe(material, diameter);
-  setResults([
-    { label: "Matiere", value: materialLabel(material) },
-    { label: "Reference retenue", value: selectedPipe ? selectedPipe.ref : "diametre manuel" },
-    { label: "Diametre interieur utilise", value: mm(diameter) },
-    { label: "Debit", value: m3h(flowM3s * 3600) },
-    { label: "Debit", value: lps(flowM3s * 1000) },
-    { label: "Section", value: `${fmt(area, 5)} m2` },
-    { label: "Vitesse calculee", value: `${fmt(v, 2)} m/s` },
-    { label: "Reference normalisee proche", value: recommended ? recommended.ref : "hors table" },
-    { label: "Avis", value: velocityAdvice(v) }
-  ], "Debit - diametre - vitesse");
-}
-
-function materialLabel(material) {
-  return {
-    acier: "Acier",
-    cuivre: "Cuivre",
-    per: "PER"
-  }[material] || material;
-}
-
-function velocityAdvice(velocity) {
-  if (!Number.isFinite(velocity) || velocity <= 0) return "Saisir des valeurs positives.";
-  if (velocity < 0.5) return "Vitesse faible: installation silencieuse, mais debit peu dynamique.";
-  if (velocity <= 1.5) return "Vitesse correcte pour un predimensionnement courant.";
-  if (velocity <= 2) return "Vitesse elevee mais encore exploitable selon le contexte.";
-  return "Vitesse trop elevee: risque de bruit, pertes de charge et usure.";
-}
-
-function renderHydraulic() {
-  wrapForm(`
-    <div class="form-grid">
-      ${field("hydPower", "Puissance", "45", "kW")}
-      ${field("hydDelta", "Delta T", "15", "K")}
-      ${field("hydVelocity", "Vitesse cible", "0.8", "m/s")}
-      ${selectField("hydMaterial", "Tube", [
-        { value: "acier", label: "Acier" },
-        { value: "cuivre", label: "Cuivre" },
-        { value: "per", label: "PER" }
-      ])}
-    </div>
-    <div id="calcResults"></div>
-  `);
-}
-
-function calculateHydraulic() {
-  const power = value("hydPower");
-  const deltaT = value("hydDelta");
-  const velocity = value("hydVelocity");
-  const material = selectValue("hydMaterial");
-  const flowM3h = power * 0.86 / deltaT;
-  const flowM3s = flowM3h / 3600;
-  const theoreticalDiameter = Math.sqrt((4 * flowM3s) / (Math.PI * velocity)) * 1000;
-  const selected = selectPipe(material, theoreticalDiameter);
-  const realVelocity = selected ? flowM3s / (Math.PI * Math.pow(selected.d / 1000, 2) / 4) : NaN;
-
-  setResults([
-    { label: "Debit chauffage", value: m3h(flowM3h) },
-    { label: "Debit", value: `${fmt(flowM3h * 1000, 0)} l/h` },
-    { label: "Diametre theorique", value: mm(theoreticalDiameter) },
-    { label: "Reference proposee", value: selected ? selected.ref : "hors table" },
-    { label: "Diametre interieur retenu", value: selected ? mm(selected.d) : "-" },
-    { label: "Vitesse reelle", value: `${fmt(realVelocity, 2)} m/s` }
-  ], "Reseau hydraulique chauffage");
-}
-
-function selectPipe(material, minDiameter) {
-  return pipeTables[material].find((pipe) => pipe.d >= minDiameter) || pipeTables[material].at(-1);
-}
-
-function renderPump() {
-  wrapForm(`
-    <div class="form-grid">
-      ${field("pumpName", "Designation du circulateur", "Circulateur test", "", "text")}
-      ${field("pumpQ1", "Point 1 - debit", "5", "m3/h")}
-      ${field("pumpP1", "Point 1 - DP", "90", "kPa")}
-      ${field("pumpQ2", "Point 2 - debit", "15", "m3/h")}
-      ${field("pumpP2", "Point 2 - DP", "60", "kPa")}
-      ${field("pumpQ3", "Point 3 - debit", "25", "m3/h")}
-      ${field("pumpP3", "Point 3 - DP", "10", "kPa")}
-      ${field("pumpKv", "Coefficient de debit du reseau Kv", "6", "", "number", "min=\"0.01\" step=\"0.1\"")}
-    </div>
-    <details class="module-help">
-      <summary>Comment utiliser ce module ?</summary>
-      <div class="module-help-content">
-        <p><strong>Points 1, 2 et 3 :</strong> relever trois points sur la courbe constructeur du circulateur. Pour chaque point, saisir le debit en m3/h et la pression disponible correspondante en kPa.</p>
-        <p><strong>Kv reseau :</strong> coefficient qui represente la facilite de passage de l'eau dans le reseau. Plus le Kv est eleve, moins le reseau est resistant.</p>
-        <p><strong>Resultat :</strong> le module croise la courbe pompe avec la courbe reseau pour trouver le debit d'equilibre, la DP pompe, la DP reseau et la puissance hydraulique.</p>
-      </div>
-    </details>
-    <div class="calc-note">
-      Calcul indicatif de predimensionnement. A valider avec la courbe constructeur reelle du circulateur.
-    </div>
-    <div id="calcResults"></div>
-  `, "Calcul inspire du fichier Excel circulateur : trois points constructeur, coefficient Kv reseau et resolution du point d'equilibre.");
-}
-
-function calculatePump() {
-  const name = document.getElementById("pumpName")?.value || "Circulateur";
-  const points = [
-    [value("pumpQ1"), value("pumpP1")],
-    [value("pumpQ2"), value("pumpP2")],
-    [value("pumpQ3"), value("pumpP3")]
-  ];
-  const kv = value("pumpKv");
-  const z = kv > 0 ? 10 / Math.pow(kv, 2) : 0;
-
-  const validPoints = points.every(([q, dp]) => q >= 0 && dp >= 0) && new Set(points.map(([q]) => q)).size === 3;
-  if (!validPoints || kv <= 0) {
-    setResults([
-      { label: "Controle", value: "Saisir trois debits differents, trois DP positives et un Kv superieur a 0." }
-    ], "Point d'equilibre circulateur");
-    return;
-  }
-
-  const coeffs = quadraticThroughPoints(points);
-  const qZeroRoots = quadraticRoots(coeffs.a, coeffs.b, coeffs.c).filter((root) => root >= 0);
-  const qZero = qZeroRoots.length ? Math.max(...qZeroRoots) : 0;
-  const equilibriumRoots = quadraticRoots(coeffs.a - z, coeffs.b, coeffs.c).filter((root) => root >= 0);
-  const qEquilibrium = equilibriumRoots.length ? Math.max(...equilibriumRoots) : 0;
-  const pumpDp = pumpPressureAt(coeffs, qEquilibrium);
-  const networkDp = z * Math.pow(qEquilibrium, 2);
-  const hydraulicPower = qEquilibrium * networkDp / 3.6;
-  const delta = Math.abs(pumpDp - networkDp);
-  const isInsideCurve = qZero > 0 ? qEquilibrium <= qZero : true;
-
-  setResults([
-    { label: "Circulateur", value: name },
-    { label: "Coefficient reseau Z", value: `${fmt(z, 4)} kPa/(m3/h)2` },
-    { label: "Equation pompe", value: `DP = ${fmt(coeffs.a, 4)} qv2 + ${fmt(coeffs.b, 4)} qv + ${fmt(coeffs.c, 2)}` },
-    { label: "Debit a DP zero", value: m3h(qZero) },
-    { label: "Debit d'equilibre", value: m3h(qEquilibrium) },
-    { label: "DP pompe", value: `${fmt(pumpDp, 2)} kPa` },
-    { label: "DP reseau", value: `${fmt(networkDp, 2)} kPa` },
-    { label: "Puissance hydraulique", value: `${fmt(hydraulicPower, 1)} W` },
-    { label: "Ecart pompe / reseau", value: `${fmt(delta, 3)} kPa` },
-    { label: "Controle", value: isInsideCurve ? "Point situe dans la plage de courbe." : "Point hors plage: verifier les points constructeur." }
-  ], "Point d'equilibre circulateur");
-}
-
-function quadraticThroughPoints(points) {
-  const [[x1, y1], [x2, y2], [x3, y3]] = points;
-  const denominator = (x1 - x2) * (x1 - x3) * (x2 - x3);
-  if (denominator === 0) return { a: 0, b: 0, c: 0 };
-
-  const a = (x3 * (y2 - y1) + x2 * (y1 - y3) + x1 * (y3 - y2)) / denominator;
-  const b = (Math.pow(x3, 2) * (y1 - y2) + Math.pow(x2, 2) * (y3 - y1) + Math.pow(x1, 2) * (y2 - y3)) / denominator;
-  const c = (x2 * x3 * (x2 - x3) * y1 + x3 * x1 * (x3 - x1) * y2 + x1 * x2 * (x1 - x2) * y3) / denominator;
-
-  return { a, b, c };
-}
-
-function quadraticRoots(a, b, c) {
-  if (Math.abs(a) < 1e-9) {
-    return Math.abs(b) < 1e-9 ? [] : [-c / b];
-  }
-
-  const delta = Math.pow(b, 2) - 4 * a * c;
-  if (delta < 0) return [];
-  if (delta === 0) return [-b / (2 * a)];
-
-  const sqrtDelta = Math.sqrt(delta);
-  return [
-    (-b + sqrtDelta) / (2 * a),
-    (-b - sqrtDelta) / (2 * a)
-  ];
-}
-
-function pumpPressureAt(coeffs, flow) {
-  return coeffs.a * Math.pow(flow, 2) + coeffs.b * flow + coeffs.c;
-}
-
-
-function renderVessel() {
-  wrapForm(`
-    <div class="form-grid">
-      ${field("vesVolume", "Volume installation", "1200", "l")}
-      ${field("vesTemp", "Temperature max", "80", "deg C")}
-      ${field("vesHeight", "Hauteur statique", "12", "m")}
-      ${field("vesValve", "Soupape", "3", "bar")}
-      ${field("vesReserve", "Marge minimale", "0.3", "bar")}
-      ${field("vesSafety", "Coefficient securite", "1.1")}
-    </div>
-    <div id="calcResults"></div>
-  `);
-}
-
-function calculateVessel() {
-  const volume = value("vesVolume");
-  const temp = value("vesTemp");
-  const height = value("vesHeight");
-  const valve = value("vesValve");
-  const reserve = value("vesReserve");
-  const safety = value("vesSafety");
-  const expansion = expansionCoefficient(temp);
-  const vd = volume * expansion;
-  const p0 = Math.max(height / 10 + reserve, 0.8);
-  const pMax = Math.max(valve - 0.5, p0 + 0.4);
-  const efficiency = 1 - ((p0 + 1) / (pMax + 1));
-  const capacity = vd / efficiency * safety;
-  setResults([
-    { label: "Coefficient dilatation", value: fmt(expansion, 4) },
-    { label: "Volume dilate", value: `${fmt(vd, 1)} l` },
-    { label: "Pression gonflage mini", value: `${fmt(p0, 2)} bar` },
-    { label: "Pression finale retenue", value: `${fmt(pMax, 2)} bar` },
-    { label: "Rendement vase", value: `${fmt(efficiency * 100, 1)} %` },
-    { label: "Capacite mini", value: `${fmt(capacity, 0)} l` }
-  ], "Vase d'expansion chauffage");
-}
-
-function expansionCoefficient(temp) {
-  const table = [
-    [20, 0],
-    [40, 0.0078],
-    [50, 0.0121],
-    [60, 0.0171],
-    [70, 0.0228],
-    [80, 0.029],
-    [90, 0.0359],
-    [100, 0.0434]
-  ];
-  if (temp <= 20) return 0;
-  for (let i = 1; i < table.length; i += 1) {
-    const [t2, e2] = table[i];
-    const [t1, e1] = table[i - 1];
-    if (temp <= t2) return e1 + ((temp - t1) / (t2 - t1)) * (e2 - e1);
-  }
-  return table.at(-1)[1];
-}
-
-function renderDuct() {
-  wrapForm(`
-    <div class="form-grid">
-      ${field("ductFlow", "Debit air", "1800", "m3/h")}
-      ${field("ductVelocity", "Vitesse cible", "5", "m/s")}
-      ${field("ductHeight", "Hauteur rectangulaire", "400", "mm")}
-      ${field("ductLength", "Longueur", "18", "m")}
-      ${field("ductCoef", "Coefficient accessoires", "1.2")}
-      ${field("ductInsulation", "Epaisseur isolant", "25", "mm")}
-    </div>
-    <div id="calcResults"></div>
-  `);
-}
-
-function calculateDuct() {
-  const flow = value("ductFlow") / 3600;
-  const velocity = value("ductVelocity");
-  const height = value("ductHeight") / 1000;
-  const length = value("ductLength");
-  const coef = value("ductCoef");
-  const insulation = value("ductInsulation") / 1000;
-  const area = flow / velocity;
-  const diameter = Math.sqrt((4 * area) / Math.PI);
-  const width = area / height;
-  const circSurface = Math.PI * (diameter + 2 * insulation) * length * coef;
-  const rectSurface = 2 * (height + width + 4 * insulation) * length * coef;
-  setResults([
-    { label: "Section utile", value: `${fmt(area, 3)} m2` },
-    { label: "Diametre circulaire", value: mm(diameter * 1000) },
-    { label: "Largeur rectangulaire", value: mm(width * 1000) },
-    { label: "Format rectangulaire", value: `${fmt(value("ductHeight"), 0)} x ${fmt(width * 1000, 0)} mm` },
-    { label: "Surface iso circulaire", value: `${fmt(circSurface, 1)} m2` },
-    { label: "Surface iso rectangulaire", value: `${fmt(rectSurface, 1)} m2` }
-  ], "Gaine aeraulique");
-}
-
-function renderDuctFlow() {
-  const diameters = [125, 160, 200, 250, 315, 355, 400, 450, 500, 560, 630, 710];
-  wrapForm(`
-    <div class="form-grid">
-      ${selectField("ductFlowDiameter", "Diametre gaine circulaire", diameters.map((d) => ({ value: String(d), label: `${d} mm` })))}
-      ${field("ductFlowVelocity", "Vitesse d'air", "5", "m/s", "number", "step=\"0.5\" min=\"0\"")}
-      ${field("ductFlowWidth", "Largeur rectangulaire optionnelle", "600", "mm")}
-      ${field("ductFlowHeight", "Hauteur rectangulaire optionnelle", "300", "mm")}
-    </div>
-    <div id="calcResults"></div>
-    <div class="lookup-table" aria-label="Table rapide des debits">
-      <div class="lookup-head">Diametre</div>
-      <div class="lookup-head">4 m/s</div>
-      <div class="lookup-head">5 m/s</div>
-      <div class="lookup-head">6 m/s</div>
-      <div class="lookup-head">8 m/s</div>
-      <div class="lookup-head">10 m/s</div>
-      <div class="lookup-head">12 m/s</div>
-      ${diameters.map((diameter) => {
-        const section = Math.PI * Math.pow(diameter / 1000, 2) / 4;
-        const flows = [4, 5, 6, 8, 10, 12].map((velocity) => fmt(section * velocity * 3600, 0));
-        return `
-          <span>${diameter} mm</span>
-          ${flows.map((flow) => `<span>${flow}</span>`).join("")}
-        `;
-      }).join("")}
-    </div>
-  `, "Le tableau rapide reproduit les debits m3/h pour les diametres standards.");
-}
-
-function calculateDuctFlow() {
-  const diameter = value("ductFlowDiameter");
-  const velocity = value("ductFlowVelocity");
-  const width = value("ductFlowWidth") / 1000;
-  const height = value("ductFlowHeight") / 1000;
-  const circularSection = Math.PI * Math.pow(diameter / 1000, 2) / 4;
-  const circularFlow = circularSection * velocity * 3600;
-  const rectangularSection = width * height;
-  const rectangularFlow = rectangularSection * velocity * 3600;
-
-  setResults([
-    { label: "Section circulaire", value: `${fmt(circularSection, 5)} m2` },
-    { label: "Debit circulaire", value: `${fmt(circularFlow, 0)} m3/h` },
-    { label: "Debit circulaire", value: `${fmt(circularFlow / 3600 * 1000, 2)} l/s` },
-    { label: "Diametre retenu", value: mm(diameter) },
-    { label: "Section rectangulaire", value: `${fmt(rectangularSection, 3)} m2` },
-    { label: "Debit rectangulaire", value: `${fmt(rectangularFlow, 0)} m3/h` }
-  ], "Debit d'air dans gaine");
-}
-
-function renderDuctPressure() {
-  wrapForm(`
-    <div class="form-grid">
-      ${field("pdcTemp", "Temperature air", "20", "deg C")}
-      ${field("pdcHumidity", "Humidite absolue", "7", "g/kg air sec")}
-      ${field("pdcPressure", "Pression atmospherique", "101.325", "kPa")}
-      ${selectField("pdcMaterial", "Materiau / rugosite", ductPressureMaterials)}
-    </div>
-    <div class="segment-table" aria-label="Troncons perte de charge air">
-      <div class="segment-head">Rep.</div>
-      <div class="segment-head">Debit</div>
-      <div class="segment-head">Long.</div>
-      <div class="segment-head">Forme</div>
-      <div class="segment-head">Diam.</div>
-      <div class="segment-head">Larg.</div>
-      <div class="segment-head">Haut.</div>
-      <div class="segment-head">PDC fixe</div>
-      <div class="segment-head">d</div>
-      ${ductPressureRows.map((row, index) => `
-        <strong>T${index + 1}</strong>
-        <input id="pdcFlow${index}" type="number" min="0" step="10" value="${row.flow}" aria-label="Debit troncon ${index + 1}">
-        <input id="pdcLength${index}" type="number" min="0" step="0.5" value="${row.length}" aria-label="Longueur troncon ${index + 1}">
-        <select id="pdcShape${index}" aria-label="Forme troncon ${index + 1}">
-          <option value="round" ${row.shape === "round" ? "selected" : ""}>circ.</option>
-          <option value="rect" ${row.shape === "rect" ? "selected" : ""}>rect.</option>
-        </select>
-        <select id="pdcDiameter${index}" aria-label="Diametre troncon ${index + 1}">
-          ${ductPressureDiameters.map((diameter) => `<option value="${diameter}" ${diameter === row.diameter ? "selected" : ""}>${diameter}</option>`).join("")}
-        </select>
-        <input id="pdcWidth${index}" type="number" min="0" step="10" value="${row.width}" aria-label="Largeur troncon ${index + 1}">
-        <input id="pdcHeight${index}" type="number" min="0" step="10" value="${row.height}" aria-label="Hauteur troncon ${index + 1}">
-        <input id="pdcFixed${index}" type="number" min="0" step="1" value="${row.fixed}" aria-label="PDC fixe troncon ${index + 1}">
-        <input id="pdcZeta${index}" type="number" min="0" step="0.1" value="${row.zeta}" aria-label="Coefficient d troncon ${index + 1}">
-      `).join("")}
-    </div>
-    <div id="calcResults"></div>
-    <div class="segment-output" id="pdcRowsOutput"></div>
-  `, "Calcul reconstruit depuis la structure du tableur PDC: j = lambda x rho x v2 / 2D, jL, pdc fixe et d x rho x v2 / 2. Diametre rectangulaire equivalent selon la formule usuelle des gaines.");
-}
-
-function calculateDuctPressure() {
-  const air = moistAir(value("pdcTemp"), value("pdcHumidity"), value("pdcPressure"));
-  const material = ductPressureMaterials.find((item) => item.value === selectValue("pdcMaterial")) || ductPressureMaterials[0];
-  const roughnessM = material.roughness / 1000;
-  const rows = [];
-
-  ductPressureRows.forEach((_, index) => {
-    const flow = value(`pdcFlow${index}`);
-    const length = value(`pdcLength${index}`);
-    if (flow <= 0 || length < 0) return;
-
-    const shape = selectValue(`pdcShape${index}`);
-    const diameter = value(`pdcDiameter${index}`) / 1000;
-    const width = value(`pdcWidth${index}`) / 1000;
-    const height = value(`pdcHeight${index}`) / 1000;
-    const fixed = value(`pdcFixed${index}`);
-    const zeta = value(`pdcZeta${index}`);
-    const q = flow / 3600;
-    const area = shape === "round" ? Math.PI * Math.pow(diameter, 2) / 4 : width * height;
-    if (area <= 0) return;
-
-    const velocity = q / area;
-    const equivalentDiameter = shape === "round" ? diameter : equivalentRoundDuct(width, height);
-    const reynolds = air.density * velocity * equivalentDiameter / air.viscosity;
-    const lambda = frictionFactor(reynolds, roughnessM, equivalentDiameter);
-    const dynamicPressure = air.density * Math.pow(velocity, 2) / 2;
-    const j = lambda * dynamicPressure / equivalentDiameter;
-    const linear = j * length;
-    const singular = zeta * dynamicPressure;
-    const total = linear + fixed + singular;
-
-    rows.push({
-      index: index + 1,
-      flow,
-      length,
-      shape,
-      velocity,
-      equivalentDiameter,
-      reynolds,
-      lambda,
-      dynamicPressure,
-      j,
-      linear,
-      fixed,
-      zeta,
-      singular,
-      total
-    });
-  });
-
-  const totals = rows.reduce((acc, row) => {
-    acc.length += row.length;
-    acc.linear += row.linear;
-    acc.fixed += row.fixed;
-    acc.singular += row.singular;
-    acc.total += row.total;
-    acc.maxVelocity = Math.max(acc.maxVelocity, row.velocity);
-    acc.maxJ = Math.max(acc.maxJ, row.j);
-    return acc;
-  }, { length: 0, linear: 0, fixed: 0, singular: 0, total: 0, maxVelocity: 0, maxJ: 0 });
-
-  const output = document.getElementById("pdcRowsOutput");
-  if (output) output.innerHTML = renderDuctPressureRows(rows);
-
-  setResults([
-    { label: "PDC totale reseau", value: `${fmt(totals.total, 1)} Pa` },
-    { label: "PDC lineaire jL", value: `${fmt(totals.linear, 1)} Pa` },
-    { label: "PDC ponctuelle fixe", value: `${fmt(totals.fixed, 1)} Pa` },
-    { label: "PDC singuliere d rv2/2", value: `${fmt(totals.singular, 1)} Pa` },
-    { label: "Longueur totale", value: `${fmt(totals.length, 1)} m` },
-    { label: "Vitesse max", value: `${fmt(totals.maxVelocity, 2)} m/s` },
-    { label: "j max", value: `${fmt(totals.maxJ, 3)} Pa/m` },
-    { label: "Air / rugosite", value: `${fmt(air.density, 3)} kg/m3 / ${fmt(material.roughness, 3)} mm` }
-  ], "Pertes de charge air");
-}
-
-function renderDuctPressureRows(rows) {
-  if (!rows.length) {
-    return `<div class="empty-state">Saisir au moins un troncon avec debit et longueur.</div>`;
-  }
-
-  return `
-    <div class="result-table">
-      <div class="result-head">Rep.</div>
-      <div class="result-head">v</div>
-      <div class="result-head">D eq.</div>
-      <div class="result-head">Re</div>
-      <div class="result-head">lambda</div>
-      <div class="result-head">j</div>
-      <div class="result-head">jL</div>
-      <div class="result-head">dyn.</div>
-      <div class="result-head">sing.</div>
-      <div class="result-head">total</div>
-      ${rows.map((row) => `
-        <strong>T${row.index}</strong>
-        <span>${fmt(row.velocity, 2)} m/s</span>
-        <span>${fmt(row.equivalentDiameter * 1000, 0)} mm</span>
-        <span>${fmt(row.reynolds, 0)}</span>
-        <span>${fmt(row.lambda, 4)}</span>
-        <span>${fmt(row.j, 3)}</span>
-        <span>${fmt(row.linear, 1)}</span>
-        <span>${fmt(row.dynamicPressure, 1)}</span>
-        <span>${fmt(row.singular, 1)}</span>
-        <strong>${fmt(row.total, 1)} Pa</strong>
-      `).join("")}
-    </div>
-  `;
-}
-
-function moistAir(tempC, humidityGKg, pressureKPa) {
-  const t = tempC + 273.15;
-  const w = Math.max(humidityGKg, 0) / 1000;
-  const pressure = pressureKPa * 1000;
-  const specificVolume = 287.05 * t * (1 + 1.6078 * w) / pressure;
-  const density = 1 / specificVolume;
-  const viscosity = 1.716e-5 * Math.pow(t / 273.15, 1.5) * ((273.15 + 110.4) / (t + 110.4));
-  return { density, viscosity, specificVolume };
-}
-
-function equivalentRoundDuct(widthM, heightM) {
-  if (widthM <= 0 || heightM <= 0) return 0;
-  return 1.3 * Math.pow(widthM * heightM, 0.625) / Math.pow(widthM + heightM, 0.25);
-}
-
-function frictionFactor(reynolds, roughnessM, diameterM) {
-  if (!Number.isFinite(reynolds) || reynolds <= 0 || diameterM <= 0) return 0;
-  if (reynolds < 2300) return 64 / reynolds;
-  const relativeRoughness = roughnessM / diameterM;
-  const term = Math.pow(relativeRoughness / 3.7, 1.11) + 6.9 / reynolds;
-  return Math.pow(-1.8 * Math.log10(term), -2);
-}
-
-function calculateDebitProbable(inputs = {}, luxeLevel = 1, simuMin = 0.2, majoration = 1) {
-  let debitBaseSanit = 0;
-  let countSanit = 0;
-
-  efEcApparelsData.apparels.forEach((app) => {
-    const qty = Number(inputs[app.name] ?? 0);
-    if (!Number.isFinite(qty) || qty <= 0) return;
-    debitBaseSanit += app.index * qty;
-    countSanit += qty;
-  });
-
-  const comfortLevel = Number(luxeLevel);
-  const kLuxeFactor = comfortLevel === 2 ? 1.25 : comfortLevel >= 3 ? 1.5 : 1;
-  let coeffSimulSanit = countSanit >= 3 ? 0.8 * kLuxeFactor / Math.sqrt(countSanit - 1) : 1;
-  coeffSimulSanit = Math.max(coeffSimulSanit * majoration, simuMin);
-  const debitSanit = debitBaseSanit * coeffSimulSanit;
-
-  const wcFlush = efEcApparelsData.wc_flush;
-  const wcCount = Number(inputs[wcFlush.name] ?? 0);
-  let wcGroup = 0;
-  if (wcCount >= 1 && wcCount < 4) {
-    wcGroup = 1;
-  } else if (wcCount >= 4 && wcCount < 13) {
-    wcGroup = 2;
-  } else if (wcCount >= 13 && wcCount < 25) {
-    wcGroup = 3;
-  } else if (wcCount >= 25 && wcCount < 51) {
-    wcGroup = 4;
-  } else if (wcCount >= 51) {
-    wcGroup = 5;
-  }
-
-  const debitWC = wcGroup * wcFlush.index;
-  const debitTotal = debitSanit + debitWC;
-
-  return {
-    debitBaseSanit: Number(debitBaseSanit.toFixed(3)),
-    debitSanit: Number(debitSanit.toFixed(3)),
-    debitWC: Number(debitWC.toFixed(3)),
-    debitTotal: Number(debitTotal.toFixed(3)),
-    coeffSimulSanit: Number(coeffSimulSanit.toFixed(3)),
-    countSanit: Number(countSanit),
-    wcCount: Number.isFinite(wcCount) && wcCount > 0 ? Number(wcCount) : 0,
-    wcGroup: Number(wcGroup)
-  };
-}
-
-function renderPlumbing() {
-  wrapForm(`
-    <div class="apparatus-grid">
-      ${efEcApparelsData.apparels.map((item, index) => `
-        <div class="apparatus-row">
-          <strong>${item.name}</strong>
-          <span>${fmt(item.index, 2)} l/s unitaire</span>
-          <input id="efec-app-${index}" type="number" min="0" step="1" value="${efEcDefaultQuantities[item.name] || 0}">
-        </div>
-      `).join("")}
-      <div class="apparatus-row">
-        <strong>${efEcApparelsData.wc_flush.name}</strong>
-        <span>${fmt(efEcApparelsData.wc_flush.index, 2)} l/s par groupe</span>
-        <input id="efec-wc-flush" type="number" min="0" step="1" value="0">
-      </div>
-    </div>
-    <div class="form-grid">
-      ${selectField("plumbLuxe", "Niveau de confort", [
-        { value: "1", label: "Standard" },
-        { value: "2", label: "Confort +" },
-        { value: "3", label: "Luxe" }
-      ])}
-      ${field("plumbTempEF", "Temperature EF", "10", "deg C")}
-      ${field("plumbTempECS", "Temperature ECS production", "60", "deg C")}
-      ${field("plumbTempMix", "Temperature eau melangee", "40", "deg C")}
-      ${field("plumbSimuMin", "Coefficient mini simultaneite", "0.2")}
-      ${field("plumbMajoration", "Majoration simultaneite", "1")}
-      ${field("plumbVelocity", "Vitesse cible", "1.5", "m/s")}
-      ${selectField("plumbMaterial", "Tube", [
-        { value: "cuivre", label: "Cuivre" },
-        { value: "per", label: "PER" },
-        { value: "acier", label: "Acier" }
-      ])}
-    </div>
-    <div id="calcResults"></div>
-  `);
-}
-
-function calculatePlumbing() {
-  const inputs = {};
-  efEcApparelsData.apparels.forEach((item, index) => {
-    inputs[item.name] = Number(document.getElementById(`efec-app-${index}`)?.value || 0);
-  });
-  inputs[efEcApparelsData.wc_flush.name] = Number(document.getElementById("efec-wc-flush")?.value || 0);
-
-  const luxe = Number(selectValue("plumbLuxe") || 1);
-  const tempEF = value("plumbTempEF");
-  const tempECS = value("plumbTempECS");
-  const tempMix = value("plumbTempMix");
-  const simuMin = value("plumbSimuMin");
-  const majoration = value("plumbMajoration") || 1;
-  const velocity = value("plumbVelocity");
-
-  const debit = calculateDebitProbable(inputs, luxe, simuMin, majoration);
-  const probable = debit.debitTotal;
-  const flowM3h = probable * 3.6;
-
-  const ecsRatio = Math.max(0, Math.min(1, (tempMix - tempEF) / Math.max(tempECS - tempEF, 1)));
-  const ecsFlow = probable * ecsRatio;
-  const efFlow = probable - ecsFlow;
-
-  const theoreticalDiameter = probable > 0 && velocity > 0
-    ? Math.sqrt((4 * probable / 1000) / (Math.PI * velocity)) * 1000
-    : 0;
-
-  const selected = theoreticalDiameter > 0 ? selectPipe(selectValue("plumbMaterial"), theoreticalDiameter) : null;
-
-  const realVelocity = selected && probable > 0
-    ? (probable / 1000) / (Math.PI * Math.pow(selected.d / 1000, 2) / 4)
-    : 0;
-
-  setResults([
-    { label: "Appareils sanitaires", value: fmt(debit.countSanit, 0) },
-    { label: "Debit brut sanitaires", value: lps(debit.debitBaseSanit) },
-    { label: "Coefficient simultaneite", value: fmt(debit.coeffSimulSanit, 3) },
-    { label: "Correction ECS", value: `${fmt(ecsRatio * 100, 0)} % du debit melange` },
-    { label: "Temperatures", value: `EF ${fmt(tempEF, 0)} deg C / ECS ${fmt(tempECS, 0)} deg C / melange ${fmt(tempMix, 0)} deg C` },
-    { label: "Debit probable sanitaires", value: lps(debit.debitSanit) },
-    { label: "WC robinet de chasse", value: `${fmt(debit.wcCount, 0)} appareil(s) / ${fmt(debit.wcGroup, 0)} groupe(s)` },
-    { label: "Debit WC robinet", value: lps(debit.debitWC) },
-    { label: "Debit probable total", value: lps(probable) },
-    { label: "Debit total", value: m3h(flowM3h) },
-    { label: "Debit EF estime", value: lps(efFlow) },
-    { label: "Debit ECS production", value: lps(ecsFlow) },
-    { label: "Diametre theorique", value: mm(theoreticalDiameter) },
-    { label: "Reference proposee", value: selected ? selected.ref : "hors table" },
-    { label: "Vitesse reelle", value: `${fmt(realVelocity, 2)} m/s` }
-  ], "Debit probable plomberie EF/ECS");
 }
 
 function renderPsychro() {
