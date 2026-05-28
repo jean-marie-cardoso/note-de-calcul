@@ -804,7 +804,7 @@ function statusLabel(status) {
   return {
     ready: "utilisable",
     draft: "a fiabiliser",
-    backlog: "a migrer"
+    backlog: "inactif"
   }[status] || status;
 }
 
