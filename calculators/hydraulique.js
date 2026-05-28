@@ -365,6 +365,8 @@ function pumpPressureAt(coeffs, flow) {
   return coeffs.a * Math.pow(flow, 2) + coeffs.b * flow + coeffs.c;
 }
 
+const standardVesselVolumes = [8, 12, 18, 25, 35, 50, 80, 100, 150, 200, 300, 500, 750, 1000];
+
 function renderVessel() {
   wrapForm(`
     <div class="form-grid">
@@ -380,6 +382,7 @@ function renderVessel() {
       ${field("vesFillMargin", "Marge remplissage", "0.3", "bar")}
       ${field("vesFinalMargin", "Marge sous soupape", "0.5", "bar")}
       ${field("vesSafety", "Coefficient securite", "1.1")}
+      ${field("vesInstalled", "Vase installe / envisage", "0", "l")}
     </div>
     <details class="module-help">
       <summary>Logique de calcul</summary>
@@ -403,6 +406,7 @@ function calculateVessel() {
   const fillMargin = value("vesFillMargin");
   const finalMargin = value("vesFinalMargin");
   const safety = value("vesSafety");
+  const installedVolume = value("vesInstalled");
 
   const rhoMin = waterDensity(tempMin);
   const rhoMax = waterDensity(tempMax);
@@ -417,6 +421,17 @@ function calculateVessel() {
   const usefulCapacity = dilatedVolume / efficiency;
   const vesselCapacity = usefulCapacity * safety;
 
+  const recommendedStandard = standardVesselVolumes.find((standard) => standard >= vesselCapacity) || null;
+  const installedRatio = installedVolume > 0 ? usefulCapacity / installedVolume : 0;
+  const installedStatus = installedVolume <= 0
+    ? "Non renseigne."
+    : installedVolume >= vesselCapacity
+      ? "Volume installe suffisant."
+      : "Volume installe insuffisant.";
+  const pressureStatus = pFinal > pInitial
+    ? "Pressions coherentes."
+    : "Pression finale insuffisante : verifier soupape, hauteur statique ou marge.";
+
   setResults([
     { label: "Type de reseau", value: mode === "cold" ? "Eau glacee / froid" : "Eau chaude / chauffage" },
     { label: "Volume installation", value: `${fmt(volume, 0)} l` },
@@ -430,7 +445,12 @@ function calculateVessel() {
     { label: "Pression finale retenue", value: `${fmt(pFinal, 2)} bar` },
     { label: "Rendement du vase", value: `${fmt(efficiency * 100, 1)} %` },
     { label: "Capacite utile", value: `${fmt(usefulCapacity, 0)} l` },
-    { label: "Capacite mini avec securite", value: `${fmt(vesselCapacity, 0)} l` }
+    { label: "Capacite mini avec securite", value: `${fmt(vesselCapacity, 0)} l` },
+    { label: "Volume standard conseille", value: recommendedStandard ? `${fmt(recommendedStandard, 0)} l` : "hors table" },
+    { label: "Vase installe / envisage", value: installedVolume > 0 ? `${fmt(installedVolume, 0)} l` : "non renseigne" },
+    { label: "Taux utile / vase installe", value: installedVolume > 0 ? `${fmt(installedRatio * 100, 1)} %` : "-" },
+    { label: "Controle vase", value: installedStatus },
+    { label: "Controle pressions", value: pressureStatus }
   ], "Vase d'expansion chauffage / eau glacee");
 }
 
