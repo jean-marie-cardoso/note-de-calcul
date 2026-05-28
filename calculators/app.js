@@ -213,6 +213,16 @@ const modules = [
     keywords: ["conversion", "convertisseur", "unité", "unite", "longueur", "surface", "volume", "masse", "pression", "énergie", "energie", "puissance", "température", "temperature", "angle", "bar", "pa", "kw", "m3", "m2"]
   },
   {
+    id: "convertisseur-technique-cvc",
+    category: "utilitaires",
+    title: "Pouvoir calorifique combustible",
+    status: "ready",
+    calculator: "pouvoirCalorifique",
+    source: ["Module ajoute manuellement"],
+    description: "Conversion rapide d'une quantite de combustible en energie PCI, PCS et energie utile.",
+    keywords: ["combustible", "pouvoir calorifique", "pci", "pcs", "fioul", "gaz", "propane", "butane", "kwh", "energie", "rendement"]
+  },
+  {
     id: "bibliotheque",
     category: "bibliotheque",
     title: "Catalogue des fichiers Excel",
@@ -242,6 +252,7 @@ const calculators = {
   ductWeight: { label: "Poids gaine et metré", render: renderDuctWeight },
   smoke: { label: "Desenfumage", render: renderSmoke },
   conversion: { label: "Conversions d'unites", render: renderConversion },
+  pouvoirCalorifique: { label: "Pouvoir calorifique combustible", render: renderPouvoirCalorifique },
   pending: { label: "Module a migrer", render: renderPending },
   library: { label: "Bibliotheque", render: renderLibrary }
 };
@@ -523,6 +534,7 @@ function runCurrentCalculator() {
     ductWeight: calculateDuctWeight,
     smoke: calculateSmoke,
     conversion: calculateConversion,
+    pouvoirCalorifique: calculatePouvoirCalorifique,
     pending: calculatePending,
     library: calculateLibrary
   };
