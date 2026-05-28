@@ -765,7 +765,14 @@ button {
   }
 
   .report-panel {
-    display: none;
+    display: block;
+    margin-top: 18px;
+  }
+
+  .report-panel pre {
+    max-height: 220px;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
   }
 }
 
@@ -782,5 +789,29 @@ button {
   .source-chip,
   .count-pill {
     font-size: 11px;
+  }
+}
+
+/* Force l'affichage de Note minute en bas de page sur smartphone */
+@media (max-width: 768px) {
+  .workspace {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .report-panel {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    order: 99;
+    margin-top: 18px;
+    margin-bottom: 24px;
+  }
+
+  .report-panel pre {
+    display: block !important;
+    max-height: 220px;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
   }
 }

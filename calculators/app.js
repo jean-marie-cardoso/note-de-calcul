@@ -19,7 +19,8 @@ const modules = [
     status: "ready",
     calculator: "ddv",
     source: ["Programmes/Chaufferie/Calcul pratique Fluides.xls", "DIM ALIM EF.xlsm"],
-    description: "Predimensionnement rapide d'une conduite ou d'un reseau par debit, vitesse et diametre."
+    description: "Predimensionnement rapide d'une conduite ou d'un reseau par debit, vitesse et diametre.",
+    keywords: ["debit", "débit", "diametre", "diamètre", "vitesse", "tube", "tuyau", "canalisation", "conduite", "section", "hydraulique", "eau", "dimensionnement"]
   },
   {
     id: "reseau-hydraulique",
@@ -28,7 +29,8 @@ const modules = [
     status: "ready",
     calculator: "hydraulic",
     source: ["Reseau hydraulique/Réseau hydraulique_model_V01.xls", "Programmes/Chaufferie/Calcul pratique Fluides.xls"],
-    description: "Debit d'eau, diametre theorique, reference tube et vitesse reelle a partir de la puissance."
+    description: "Debit d'eau, diametre theorique, reference tube et vitesse reelle a partir de la puissance.",
+    keywords: ["chauffage", "réseau", "reseau", "hydraulique", "puissance", "kw", "delta t", "débit eau", "debit eau", "diametre", "diamètre", "tube", "vitesse", "radiateur", "PAC", "chaudière", "chaudiere", "dimensionnement"]
   },
   {
     id: "circulateur",
@@ -37,7 +39,8 @@ const modules = [
     status: "draft",
     calculator: "pump",
     source: ["Programmes/Chaufferie/circulateur.xls"],
-    description: "Premiere base pour croiser courbe constructeur et courbe reseau."
+    description: "Premiere base pour croiser courbe constructeur et courbe reseau.",
+    keywords: ["pompe", "circulateur", "courbe", "hmt", "perte de charge", "pression", "débit", "debit", "réseau", "reseau", "chauffage", "dimensionnement", "sélection", "selection", "performance", "rendement"]
   },
   {
     id: "vase",
@@ -46,7 +49,8 @@ const modules = [
     status: "ready",
     calculator: "vessel",
     source: ["Programmes/Chaufferie/vase.xls", "Vase d'expansion/Calcul capacité vase d'expension.xls"],
-    description: "Capacite minimale, pressions de gonflage et volume de dilatation."
+    description: "Capacite minimale, pressions de gonflage et volume de dilatation.",
+    keywords: ["vase", "expansion", "chauffage", "pression", "gonflage", "soupape", "dilatation", "volume", "installation", "sécurité", "securite" ,"dimensionnement", "selection", "sélection", "selection", "calcul", "capacité", "capacite"]
   },
   {
     id: "gaine-air",
@@ -55,7 +59,8 @@ const modules = [
     status: "ready",
     calculator: "duct",
     source: ["Réseau Aéraulique/Réseau aéraulique_model_V01.xls", "Aéraulique/Réseau aéraulique_model_V01.xls"],
-    description: "Diametre circulaire, largeur rectangulaire et surface d'isolation de gaine."
+    description: "Diametre circulaire, largeur rectangulaire et surface d'isolation de gaine.",
+    keywords: ["gaine", "air", "aéraulique", "aeraulique", "ventilation", "diametre", "diamètre", "rectangulaire", "circulaire", "section", "isolation", "calorifuge"]
   },
   {
     id: "debit-air-gaine",
@@ -64,7 +69,8 @@ const modules = [
     status: "ready",
     calculator: "ductFlow",
     source: ["Aéraulique/DEBIT D'AIR DANS GAINE.xls"],
-    description: "Debit d'air en fonction du diametre de gaine circulaire et de la vitesse d'air."
+    description: "Debit d'air en fonction du diametre de gaine circulaire et de la vitesse d'air.",
+    keywords: ["débit air", "debit air", "gaine", "ventilation", "vitesse", "diametre", "diamètre", "m3/h", "l/s", "circulaire", "rectangulaire", "aéraulique", "aeraulique"]
   },
   {
     id: "pdc-air",
@@ -73,7 +79,8 @@ const modules = [
     status: "ready",
     calculator: "ductPressure",
     source: ["Réseau Aéraulique/Tableur aeraulique vierge.xls", "Réseau Aéraulique/Réseau aéraulique_model_V01.xls"],
-    description: "Calcul par troncons: vitesse, diametre equivalent, j, jL, singularites et perte totale."
+    description: "Calcul par troncons: vitesse, diametre equivalent, j, jL, singularites et perte totale.",
+    keywords: ["perte de charge", "pdc", "pression", "gaine", "air", "aéraulique", "aeraulique", "tronçon", "troncon", "singularité", "singularite", "rugosité", "rugosite", "ventilation"]
   },
   {
     id: "plomberie-debits",
@@ -82,7 +89,8 @@ const modules = [
     status: "ready",
     calculator: "plumbing",
     source: ["Programmes/Divers/150106 Calcul débit Pb EF-EC- NEW.xls", "Calcul débit Pb EF-EC- NEW.xls"],
-    description: "Somme des debits de base et coefficient de simultaneite pour reseaux sanitaires."
+    description: "Somme des debits de base et coefficient de simultaneite pour reseaux sanitaires.",
+    keywords: ["plomberie", "sanitaire", "ef", "ec", "ecs", "eau froide", "eau chaude", "débit probable", "debit probable", "simultanéité", "simultaneite", "wc", "lavabo", "douche", "baignoire"]
   },
   {
     id: "evacuations",
@@ -91,7 +99,8 @@ const modules = [
     status: "ready",
     calculator: "sanitaryEvac",
     source: ["Calcul débit évacuations DTU60.xls"],
-    description: "Predimensionnement des evacuations sanitaires: appareils EU/EV, debit probable, diametre de chute, collecteur et descente EP."
+    description: "Predimensionnement des evacuations sanitaires: appareils EU/EV, debit probable, diametre de chute, collecteur et descente EP.",
+    keywords: ["évacuation", "evacuation", "eu", "ev", "ep", "eaux usées", "eaux usees", "eaux vannes", "eaux pluviales", "wc", "chute", "collecteur", "pente", "diametre", "diamètre", "dtu 60.11"]
   },
   {
     id: "psychro",
@@ -100,7 +109,8 @@ const modules = [
     status: "ready",
     calculator: "psychro",
     source: ["Programmes/PsychrometricPr.xls", "Programmes/Divers/Psychro annexe.xls"],
-    description: "Humidite specifique, point de rosee, enthalpie et masse volumique approchee."
+    description: "Humidite specifique, point de rosee, enthalpie et masse volumique approchee.",
+    keywords: ["psychrométrie", "psychrometrie", "air humide", "humidité", "humidite", "point de rosée", "point de rosee", "enthalpie", "masse volumique", "température", "temperature", "hygrométrie", "hygrometrie"]
   },
   {
     id: "deperditions",
@@ -109,7 +119,8 @@ const modules = [
     status: "backlog",
     calculator: "thermal",
     source: ["Déperdition et froid/Déperdition.xls", "Calculs thermiques/Bilan thermique simplifié.xls"],
-    description: "Gros module a reconstruire avec pieces, parois, coefficients U et bilan final."
+    description: "Gros module a reconstruire avec pieces, parois, coefficients U et bilan final.",
+    keywords: ["déperdition", "deperdition", "bilan thermique", "chauffage", "froid", "paroi", "mur", "toiture", "fenêtre", "fenetre", "coefficient u", "isolation", "puissance"]
   },
   {
     id: "coef-u",
@@ -118,7 +129,8 @@ const modules = [
     status: "draft",
     calculator: "thermal",
     source: ["Programmes/Divers/Feuilles de Coef U.xls", "Programmes/Déperditions/Feuilles de Coef U.xls"],
-    description: "Tables de parois et vitrages a transformer en base de donnees consultable."
+    description: "Tables de parois et vitrages a transformer en base de donnees consultable.",
+    keywords: ["coefficient u", "u", "paroi", "vitrage", "mur", "isolant", "isolation", "thermique", "lambda", "résistance", "resistance", "déperdition", "deperdition"]
   },
   {
     id: "vmc-hygro",
@@ -127,7 +139,8 @@ const modules = [
     status: "backlog",
     calculator: "duct",
     source: ["Ventilation/Dimensionnement hygro.xls", "Ventilation/Rapid_ MI-2.16.xlsx"],
-    description: "A migrer apres validation des bouches, colonnes et avis techniques sources."
+    description: "A migrer apres validation des bouches, colonnes et avis techniques sources.",
+    keywords: ["vmc", "hygro", "hygroréglable", "hygroreglable", "ventilation", "bouche", "colonne", "logement", "extraction", "air", "débit", "debit"]
   },
   {
     id: "desenfumage",
@@ -136,7 +149,8 @@ const modules = [
     status: "backlog",
     calculator: "duct",
     source: ["Désenfumage/Débit de désenfumage.xls"],
-    description: "Calculs de debits et surfaces utiles a isoler dans un module dedie."
+    description: "Calculs de debits et surfaces utiles a isoler dans un module dedie.",
+    keywords: ["désenfumage", "desenfumage", "fumée", "fumee", "sécurité incendie", "securite incendie", "débit", "debit", "surface utile", "extraction", "amenée air", "amenee air"]
   },
   {
     id: "gaz",
@@ -145,7 +159,8 @@ const modules = [
     status: "ready",
     calculator: "gas",
     source: ["Programmes/Chaufferie/calcul gaz coll.xls", "Gaz/Détermination tuyauterie gaz.xls"],
-    description: "Conversion puissance, PCI, rendement et debit gaz de reference."
+    description: "Conversion puissance, PCI, rendement et debit gaz de reference.",
+    keywords: ["gaz", "débit gaz", "debit gaz", "puissance", "pci", "pcs", "rendement", "chaudière", "chaudiere", "brûleur", "bruleur", "m3/h"]
   },
   {
     id: "vapeur",
@@ -154,7 +169,8 @@ const modules = [
     status: "backlog",
     calculator: "gas",
     source: ["Programmes/TechVapor/TechVaporFR.xls", "Vapeur/Détermination tuyauterie Vapeur.xls"],
-    description: "Tables vapeur et dimensionnement a migrer depuis TechVapor."
+    description: "Tables vapeur et dimensionnement a migrer depuis TechVapor.",
+    keywords: ["vapeur", "saturée", "saturee", "pression", "température", "temperature", "condensat", "tuyauterie", "dimensionnement", "débit", "debit", "techvapor"]
   },
   {
     id: "air-comprime",
@@ -163,7 +179,8 @@ const modules = [
     status: "ready",
     calculator: "compressedAir",
     source: ["Air Comprimé/Détermination tuyauterie air comprimé.xls", "Programmes/PdcAirComprimé/Biblio air comprimé.xls"],
-    description: "Diametre conseille, longueur equivalente, vitesse et perte de pression reelle."
+    description: "Diametre conseille, longueur equivalente, vitesse et perte de pression reelle.",
+    keywords: ["air comprimé", "air comprime", "compresseur", "pression", "bar", "perte", "diametre", "diamètre", "tuyauterie", "longueur équivalente", "longueur equivalente", "débit", "debit"]
   },
   {
     id: "calorifuge",
@@ -172,7 +189,8 @@ const modules = [
     status: "ready",
     calculator: "insulation",
     source: ["Calorifuge/CALORIFUGE.xls", "Surface tuyauteries/Calcul surface.xls"],
-    description: "Surface au metre lineaire, accessoires et quantitatif d'isolant."
+    description: "Surface au metre lineaire, accessoires et quantitatif d'isolant.",
+    keywords: ["calorifuge", "isolation", "isolant", "surface", "m2", "mètre linéaire", "metre lineaire", "tuyauterie", "tube", "épaisseur", "epaisseur", "vanne", "pompe"]
   },
   {
     id: "poids-gaine",
@@ -181,7 +199,8 @@ const modules = [
     status: "ready",
     calculator: "ductWeight",
     source: ["/Feuilles de calcul/Poids gaine rectangulaire.xls"],
-    description: "Poids de gaine rectangulaire, surfaces de calorifuge et flocage avec majoration."
+    description: "Poids de gaine rectangulaire, surfaces de calorifuge et flocage avec majoration.",
+    keywords: ["poids", "gaine", "métré", "metre", "métrage", "metrage", "rectangulaire", "circulaire", "calorifuge", "flocage", "surface", "kg", "quantitatif", "ventilation"]
   },
   {
     id: "conversions-unites",
@@ -190,7 +209,8 @@ const modules = [
     status: "ready",
     calculator: "conversion",
     source: ["Conversions/tableau de conversion.xls", "Convertisseur.xls", "Programmes/Chaufferie/conversion.xls"],
-    description: "Convertisseur transverse: longueurs, surfaces, volumes, masses, pressions, energies, puissances, angles et temperatures."
+    description: "Convertisseur transverse: longueurs, surfaces, volumes, masses, pressions, energies, puissances, angles et temperatures.",
+    keywords: ["conversion", "convertisseur", "unité", "unite", "longueur", "surface", "volume", "masse", "pression", "énergie", "energie", "puissance", "température", "temperature", "angle", "bar", "pa", "kw", "m3", "m2"]
   },
   {
     id: "bibliotheque",
@@ -199,7 +219,8 @@ const modules = [
     status: "draft",
     calculator: "library",
     source: ["Dossier Soft etude JM"],
-    description: "Index vivant des classeurs: outils generiques, notes de calcul, fabricants et archives projet."
+    description: "Index vivant des classeurs: outils generiques, notes de calcul, fabricants et archives projet.",
+    keywords: ["bibliothèque", "bibliotheque", "catalogue", "excel", "sources", "classeur", "archive", "notes de calcul", "référentiel", "referentiel", "dtu", "normes"]
   }
 ];
 
@@ -716,7 +737,7 @@ function render() {
 
   const filtered = modules.filter((module) => {
     const inCategory = state.category === "overview" || module.category === state.category;
-    const haystack = `${module.title} ${module.description} ${module.source.join(" ")}`.toLowerCase();
+    const haystack = `${module.title} ${module.description} ${module.source.join(" ")} ${(module.keywords || []).join(" ")}`.toLowerCase();
     return inCategory && (!state.query || haystack.includes(state.query));
   });
 
