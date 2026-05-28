@@ -18,7 +18,7 @@ const modules = [
     title: "Debit - diametre - vitesse",
     status: "ready",
     calculator: "ddv",
-    source: ["Programmes/Chaufferie/Calcul pratique Fluides.xls", "DIM ALIM EF.xlsm"],
+    source: ["Programmes/Chaufferie/Calcul pratique Fluides", "DIM ALIM EF"],
     description: "Predimensionnement rapide d'une conduite ou d'un reseau par debit, vitesse et diametre.",
     keywords: ["debit", "débit", "diametre", "diamètre", "vitesse", "tube", "tuyau", "canalisation", "conduite", "section", "hydraulique", "eau", "dimensionnement"]
   },
@@ -28,7 +28,7 @@ const modules = [
     title: "Reseau hydraulique chauffage",
     status: "ready",
     calculator: "hydraulic",
-    source: ["Reseau hydraulique/Réseau hydraulique_model_V01.xls", "Programmes/Chaufferie/Calcul pratique Fluides.xls"],
+    source: ["Reseau hydraulique/Réseau hydraulique_model_V01", "Programmes/Chaufferie/Calcul pratique Fluides"],
     description: "Debit d'eau, diametre theorique, reference tube et vitesse reelle a partir de la puissance.",
     keywords: ["chauffage", "réseau", "reseau", "hydraulique", "puissance", "kw", "delta t", "débit eau", "debit eau", "diametre", "diamètre", "tube", "vitesse", "radiateur", "PAC", "chaudière", "chaudiere", "dimensionnement"]
   },
@@ -38,7 +38,7 @@ const modules = [
     title: "Point d'equilibre circulateur",
     status: "ready",
     calculator: "pump",
-    source: ["Programmes/Chaufferie/circulateur.xls"],
+    source: ["Programmes/Chaufferie/circulateur"],
     description: "Calcul du point d'equilibre d'un circulateur a partir de trois points constructeur et du coefficient Kv du reseau.",
     keywords: ["pompe", "circulateur", "courbe", "hmt", "perte de charge", "pression", "débit", "debit", "réseau", "reseau", "chauffage", "dimensionnement", "sélection", "selection", "performance", "rendement"]
   },
@@ -48,7 +48,7 @@ const modules = [
     title: "Vase d'expansion chauffage",
     status: "ready",
     calculator: "vessel",
-    source: ["Programmes/Chaufferie/vase.xls", "Vase d'expansion/Calcul capacité vase d'expension.xls"],
+    source: ["Programmes/Chaufferie/vase", "Vase d'expansion/Calcul capacité vase d'expension"],
     description: "Capacite minimale, pressions de gonflage et volume de dilatation.",
     keywords: ["vase", "expansion", "chauffage", "pression", "gonflage", "soupape", "dilatation", "volume", "installation", "sécurité", "securite" ,"dimensionnement", "selection", "sélection", "selection", "calcul", "capacité", "capacite"]
   },
@@ -58,7 +58,7 @@ const modules = [
     title: "Gaine circulaire et rectangulaire",
     status: "ready",
     calculator: "duct",
-    source: ["Réseau Aéraulique/Réseau aéraulique_model_V01.xls", "Aéraulique/Réseau aéraulique_model_V01.xls"],
+    source: ["Réseau Aéraulique/Réseau aéraulique_model_V01", "Aéraulique/Réseau aéraulique_model_V01"],
     description: "Diametre circulaire, largeur rectangulaire et surface d'isolation de gaine.",
     keywords: ["gaine", "air", "aéraulique", "aeraulique", "ventilation", "diametre", "diamètre", "rectangulaire", "circulaire", "section", "isolation", "calorifuge"]
   },
@@ -68,7 +68,7 @@ const modules = [
     title: "Debit d'air dans gaine",
     status: "ready",
     calculator: "ductFlow",
-    source: ["Aéraulique/DEBIT D'AIR DANS GAINE.xls"],
+    source: ["Aéraulique/DEBIT D'AIR DANS GAINE"],
     description: "Debit d'air en fonction du diametre de gaine circulaire et de la vitesse d'air.",
     keywords: ["débit air", "debit air", "gaine", "ventilation", "vitesse", "diametre", "diamètre", "m3/h", "l/s", "circulaire", "rectangulaire", "aéraulique", "aeraulique"]
   },
@@ -78,19 +78,29 @@ const modules = [
     title: "Pertes de charge air",
     status: "ready",
     calculator: "ductPressure",
-    source: ["Réseau Aéraulique/Tableur aeraulique vierge.xls", "Réseau Aéraulique/Réseau aéraulique_model_V01.xls"],
+    source: ["Réseau Aéraulique/Tableur aeraulique vierge", "Réseau Aéraulique/Réseau aéraulique_model_V01"],
     description: "Calcul par troncons: vitesse, diametre equivalent, j, jL, singularites et perte totale.",
     keywords: ["perte de charge", "pdc", "pression", "gaine", "air", "aéraulique", "aeraulique", "tronçon", "troncon", "singularité", "singularite", "rugosité", "rugosite", "ventilation"]
   },
   {
+    id: "alimentation-ef-simple",
+    category: "plomberie",
+    title: "Alimentation EF simple",
+    status: "ready",
+    calculator: "ddv",
+    source: ["DIM ALIM EF", "Programmes/Chaufferie/Calcul pratique Fluides"],
+    description: "Dimensionnement rapide d'une alimentation d'eau froide par debit, vitesse et diametre de tube.",
+    keywords: ["plomberie", "alimentation", "ef", "eau froide", "débit", "debit", "diametre", "diamètre", "vitesse", "per", "acier", "cuivre", "tube", "simple", "dimensionnement"]
+  },
+  {
     id: "plomberie-debits",
     category: "plomberie",
-    title: "Debit probable EF/ECS",
+    title: "Debit probable EF/ECS complet",
     status: "ready",
     calculator: "plumbing",
-    source: ["Programmes/Divers/150106 Calcul débit Pb EF-EC- NEW.xls", "Calcul débit Pb EF-EC- NEW.xls"],
-    description: "Somme des debits de base et coefficient de simultaneite pour reseaux sanitaires.",
-    keywords: ["plomberie", "sanitaire", "ef", "ec", "ecs", "eau froide", "eau chaude", "débit probable", "debit probable", "simultanéité", "simultaneite", "wc", "lavabo", "douche", "baignoire"]
+    source: ["Programmes/Divers/150106 Calcul débit Pb EF-EC- NEW", "Calcul débit Pb EF-EC- NEW"],
+    description: "Calcul complet des debits probables EF/ECS avec appareils sanitaires et coefficient de simultaneite.",
+    keywords: ["plomberie", "sanitaire", "ef", "ec", "ecs", "eau froide", "eau chaude", "débit probable", "debit probable", "simultanéité", "simultaneite", "wc", "lavabo", "douche", "baignoire", "complet"]
   },
   {
     id: "evacuations",
@@ -98,7 +108,7 @@ const modules = [
     title: "Evacuations EU/EV/EP",
     status: "ready",
     calculator: "sanitaryEvac",
-    source: ["Calcul débit évacuations DTU60.xls"],
+    source: ["Calcul débit évacuations DTU60"],
     description: "Predimensionnement des evacuations sanitaires: appareils EU/EV, debit probable, diametre de chute, collecteur et descente EP.",
     keywords: ["évacuation", "evacuation", "eu", "ev", "ep", "eaux usées", "eaux usees", "eaux vannes", "eaux pluviales", "wc", "chute", "collecteur", "pente", "diametre", "diamètre", "dtu 60.11"]
   },
@@ -108,7 +118,7 @@ const modules = [
     title: "Psychrometrie air humide",
     status: "ready",
     calculator: "psychro",
-    source: ["Programmes/PsychrometricPr.xls", "Programmes/Divers/Psychro annexe.xls"],
+    source: ["Programmes/PsychrometricPr", "Programmes/Divers/Psychro annexe"],
     description: "Humidite specifique, point de rosee, enthalpie et masse volumique approchee.",
     keywords: ["psychrométrie", "psychrometrie", "air humide", "humidité", "humidite", "point de rosée", "point de rosee", "enthalpie", "masse volumique", "température", "temperature", "hygrométrie", "hygrometrie"]
   },
@@ -116,21 +126,11 @@ const modules = [
     id: "deperditions",
     category: "thermique",
     title: "Deperditions et bilan chaud/froid",
-    status: "backlog",
+    status: "ready",
     calculator: "thermal",
-    source: ["Déperdition et froid/Déperdition.xls", "Calculs thermiques/Bilan thermique simplifié.xls"],
-    description: "Gros module a reconstruire avec pieces, parois, coefficients U et bilan final.",
+    source: ["Déperdition et froid/Déperdition", "Calculs thermiques/Bilan thermique simplifié"],
+    description: "Estimation simplifiee des besoins chaud et froid d'un local avec apports internes, air neuf, vitrages et transmission thermique.",
     keywords: ["déperdition", "deperdition", "bilan thermique", "chauffage", "froid", "paroi", "mur", "toiture", "fenêtre", "fenetre", "coefficient u", "isolation", "puissance"]
-  },
-  {
-    id: "coef-u",
-    category: "thermique",
-    title: "Bibliotheque coefficients U",
-    status: "draft",
-    calculator: "thermal",
-    source: ["Programmes/Divers/Feuilles de Coef U.xls", "Programmes/Déperditions/Feuilles de Coef U.xls"],
-    description: "Tables de parois et vitrages a transformer en base de donnees consultable.",
-    keywords: ["coefficient u", "u", "paroi", "vitrage", "mur", "isolant", "isolation", "thermique", "lambda", "résistance", "resistance", "déperdition", "deperdition"]
   },
   {
     id: "vmc-hygro",
@@ -138,7 +138,7 @@ const modules = [
     title: "VMC hygro collectif",
     status: "backlog",
     calculator: "duct",
-    source: ["Ventilation/Dimensionnement hygro.xls", "Ventilation/Rapid_ MI-2.16.xlsx"],
+    source: ["Ventilation/Dimensionnement hygro", "Ventilation/Rapid_ MI-2.16"],
     description: "A migrer apres validation des bouches, colonnes et avis techniques sources.",
     keywords: ["vmc", "hygro", "hygroréglable", "hygroreglable", "ventilation", "bouche", "colonne", "logement", "extraction", "air", "débit", "debit"]
   },
@@ -146,11 +146,11 @@ const modules = [
     id: "desenfumage",
     category: "ventilation",
     title: "Desenfumage",
-    status: "backlog",
-    calculator: "duct",
-    source: ["Désenfumage/Débit de désenfumage.xls"],
-    description: "Calculs de debits et surfaces utiles a isoler dans un module dedie.",
-    keywords: ["désenfumage", "desenfumage", "fumée", "fumee", "sécurité incendie", "securite incendie", "débit", "debit", "surface utile", "extraction", "amenée air", "amenee air"]
+    status: "ready",
+    calculator: "smoke",
+    source: ["Désenfumage/Débit de désenfumage", "Désenfumage/Débit désenfumage"],
+    description: "Calcul des debits d'extraction et de compensation par zone, avec nombre de bouches, debit unitaire et sections indicatives.",
+    keywords: ["désenfumage", "desenfumage", "fumée", "fumee", "sécurité incendie", "securite incendie", "débit", "debit", "surface utile", "extraction", "amenée air", "amenee air", "compensation", "bouche", "zf"]
   },
   {
     id: "gaz",
@@ -158,7 +158,7 @@ const modules = [
     title: "Debit gaz et puissance",
     status: "ready",
     calculator: "gas",
-    source: ["Programmes/Chaufferie/calcul gaz coll.xls", "Gaz/Détermination tuyauterie gaz.xls"],
+    source: ["Programmes/Chaufferie/calcul gaz coll", "Gaz/Détermination tuyauterie gaz"],
     description: "Conversion puissance, PCI, rendement et debit gaz de reference.",
     keywords: ["gaz", "débit gaz", "debit gaz", "puissance", "pci", "pcs", "rendement", "chaudière", "chaudiere", "brûleur", "bruleur", "m3/h"]
   },
@@ -168,7 +168,7 @@ const modules = [
     title: "Vapeur saturee",
     status: "backlog",
     calculator: "gas",
-    source: ["Programmes/TechVapor/TechVaporFR.xls", "Vapeur/Détermination tuyauterie Vapeur.xls"],
+    source: ["Programmes/TechVapor/TechVaporFR", "Vapeur/Détermination tuyauterie Vapeur"],
     description: "Tables vapeur et dimensionnement a migrer depuis TechVapor.",
     keywords: ["vapeur", "saturée", "saturee", "pression", "température", "temperature", "condensat", "tuyauterie", "dimensionnement", "débit", "debit", "techvapor"]
   },
@@ -178,7 +178,7 @@ const modules = [
     title: "Tuyauterie air comprime",
     status: "ready",
     calculator: "compressedAir",
-    source: ["Air Comprimé/Détermination tuyauterie air comprimé.xls", "Programmes/PdcAirComprimé/Biblio air comprimé.xls"],
+    source: ["Air Comprimé/Détermination tuyauterie air comprimé", "Programmes/PdcAirComprimé/Biblio air comprimé"],
     description: "Diametre conseille, longueur equivalente, vitesse et perte de pression reelle.",
     keywords: ["air comprimé", "air comprime", "compresseur", "pression", "bar", "perte", "diametre", "diamètre", "tuyauterie", "longueur équivalente", "longueur equivalente", "débit", "debit"]
   },
@@ -188,7 +188,7 @@ const modules = [
     title: "Surface de calorifuge",
     status: "ready",
     calculator: "insulation",
-    source: ["Calorifuge/CALORIFUGE.xls", "Surface tuyauteries/Calcul surface.xls"],
+    source: ["Calorifuge/CALORIFUGE", "Surface tuyauteries/Calcul surface"],
     description: "Surface au metre lineaire, accessoires et quantitatif d'isolant.",
     keywords: ["calorifuge", "isolation", "isolant", "surface", "m2", "mètre linéaire", "metre lineaire", "tuyauterie", "tube", "épaisseur", "epaisseur", "vanne", "pompe"]
   },
@@ -198,7 +198,7 @@ const modules = [
     title: "Poids de gaine et metrer",
     status: "ready",
     calculator: "ductWeight",
-    source: ["/Feuilles de calcul/Poids gaine rectangulaire.xls"],
+    source: ["/Feuilles de calcul/Poids gaine rectangulaire"],
     description: "Poids de gaine rectangulaire, surfaces de calorifuge et flocage avec majoration.",
     keywords: ["poids", "gaine", "métré", "metre", "métrage", "metrage", "rectangulaire", "circulaire", "calorifuge", "flocage", "surface", "kg", "quantitatif", "ventilation"]
   },
@@ -208,7 +208,7 @@ const modules = [
     title: "Conversions d'unites",
     status: "ready",
     calculator: "conversion",
-    source: ["Conversions/tableau de conversion.xls", "Convertisseur.xls", "Programmes/Chaufferie/conversion.xls"],
+    source: ["Conversions/tableau de conversion", "Convertisseur", "Programmes/Chaufferie/conversion"],
     description: "Convertisseur transverse: longueurs, surfaces, volumes, masses, pressions, energies, puissances, angles et temperatures.",
     keywords: ["conversion", "convertisseur", "unité", "unite", "longueur", "surface", "volume", "masse", "pression", "énergie", "energie", "puissance", "température", "temperature", "angle", "bar", "pa", "kw", "m3", "m2"]
   },
@@ -240,6 +240,7 @@ const calculators = {
   compressedAir: { label: "Tuyauterie air comprime", render: renderCompressedAir },
   insulation: { label: "Calorifuge", render: renderInsulation },
   ductWeight: { label: "Poids gaine et metré", render: renderDuctWeight },
+  smoke: { label: "Desenfumage", render: renderSmoke },
   conversion: { label: "Conversions d'unites", render: renderConversion },
   library: { label: "Bibliotheque", render: renderLibrary }
 };
@@ -490,6 +491,32 @@ const conversionReferences = [
   ["Pressions", "1 atm = 1,01325 bar", "1 mm Hg = 133,3 Pa", "1 Pa = 1e-5 bar"],
   ["Puissances", "1 cv = 735,5 W", "1 frigorie/h = 1,161 W", "1 kcal/h = 1,163 W"],
   ["Temperatures", "deg F = 1,8 x deg C + 32", "K = deg C + 273,15", ""]
+];
+
+const thermalSolarGains = {
+  ne: { label: "NE", base: 300 },
+  e: { label: "E", base: 510 },
+  se: { label: "SE", base: 515 },
+  s: { label: "S", base: 525 },
+  so: { label: "SO", base: 510 },
+  o: { label: "O", base: 510 },
+  no: { label: "NO", base: 300 },
+  horizontal: { label: "Horizontale", base: 650 }
+};
+
+const thermalSolarTreatments = {
+  none: { label: "Sans traitement", factor: 1 },
+  double: { label: "Double vitrage", factor: 0.8 },
+  solar: { label: "Traitement solaire", factor: 0.6 },
+  interiorBlind: { label: "Store interieur", factor: 0.5 },
+  exteriorBlind: { label: "Store exterieur", factor: 0.3 }
+};
+
+const smokeZones = [
+  { repere: "Zone 1", surface: 100, enabled: true },
+  { repere: "Zone 2", surface: 0, enabled: false },
+  { repere: "Zone 3", surface: 0, enabled: false },
+  { repere: "Zone 4", surface: 0, enabled: false }
 ];
 
 const efEcApparelsData = {
@@ -891,10 +918,168 @@ function runCurrentCalculator() {
     compressedAir: calculateCompressedAir,
     insulation: calculateInsulation,
     ductWeight: calculateDuctWeight,
+    smoke: calculateSmoke,
     conversion: calculateConversion,
     library: calculateLibrary
   };
+
   runners[state.currentCalculator]?.();
+}
+
+function renderSmoke() {
+  wrapForm(`
+    <div class="form-grid">
+      ${field("smokeSurfaceMain", "Surface principale", "100", "m2")}
+      ${field("smokeMinFlow", "Debit minimal", "1.5", "m3/s")}
+      ${field("smokeRatio", "Ratio extraction", "1", "m3/s / 100 m2")}
+      ${field("smokeCompensation", "Compensation", "0.6", "x extraction")}
+      ${field("smokeAreaPerOutlet", "Surface par bouche", "320", "m2/bouche")}
+      ${field("smokeExtractVelocity", "Vitesse extraction", "8", "m/s")}
+      ${field("smokeCompVelocity", "Vitesse compensation", "5", "m/s")}
+      ${field("smokeReserve", "Marge ventilateur", "10", "%")}
+      ${selectField("smokeZoneMode", "Mode de calcul", [
+        { value: "simple", label: "Une seule zone" },
+        { value: "multi", label: "Detail par zones" }
+      ])}
+    </div>
+    <details class="module-help" id="smokeZoneDetails">
+      <summary>Zones detaillees optionnelles</summary>
+      <div class="module-help-content">
+        <p>Utilise cette partie uniquement si le local est decoupe en plusieurs zones de desenfumage. Sinon, laisse le mode une seule zone.</p>
+        <div class="form-grid">
+          ${smokeZones.map((zone, index) => `
+            <div class="form-field">
+              <label for="smokeRepere${index}">Zone ${index + 1} - repere</label>
+              <input id="smokeRepere${index}" type="text" value="${zone.repere}" aria-label="Repere zone ${index + 1}">
+            </div>
+            <div class="form-field">
+              <label for="smokeSurface${index}">Zone ${index + 1} - surface (m2)</label>
+              <input id="smokeSurface${index}" type="number" min="0" step="0.01" value="${zone.surface}" aria-label="Surface zone ${index + 1}">
+            </div>
+            <div class="form-field">
+              <label for="smokeOutlets${index}">Zone ${index + 1} - bouches</label>
+              <input id="smokeOutlets${index}" type="number" min="0" step="1" value="0" aria-label="Nombre de bouches zone ${index + 1}">
+            </div>
+            <div class="form-field">
+              <label for="smokeEnabled${index}">Zone ${index + 1} - active</label>
+              <select id="smokeEnabled${index}" aria-label="Activation zone ${index + 1}">
+                <option value="yes" ${zone.enabled ? "selected" : ""}>oui</option>
+                <option value="no" ${zone.enabled ? "" : "selected"}>non</option>
+              </select>
+            </div>
+          `).join("")}
+        </div>
+      </div>
+    </details>
+    <details class="module-help">
+      <summary>Logique de calcul</summary>
+      <div class="module-help-content">
+        <p>Extraction = ratio x surface, avec un debit minimal applique par zone.</p>
+        <p>Compensation = coefficient x extraction. Le nombre de bouches est propose automatiquement selon la surface par bouche, sauf saisie manuelle.</p>
+        <p>Les sections indicatives sont calculees avec les vitesses d'extraction et de compensation saisies. Module de predimensionnement a faire valider par le bureau de controle / SSI.</p>
+      </div>
+    </details>
+    <div id="calcResults"></div>
+    <div class="segment-output" id="smokeRowsOutput"></div>
+  `, "Predimensionnement simplifie du desenfumage : extraction, compensation, nombre de bouches, debit unitaire et section indicative.");
+}
+
+function calculateSmoke() {
+  const minFlowM3s = value("smokeMinFlow");
+  const ratioM3sPer100 = value("smokeRatio");
+  const compensationCoef = value("smokeCompensation");
+  const areaPerOutlet = value("smokeAreaPerOutlet");
+  const extractVelocity = value("smokeExtractVelocity");
+  const compVelocity = value("smokeCompVelocity");
+  const reserve = value("smokeReserve") / 100;
+  const mode = selectValue("smokeZoneMode") || "simple";
+  const rows = [];
+
+  if (mode === "simple") {
+    rows.push(buildSmokeRow("Zone unique", value("smokeSurfaceMain"), 0, minFlowM3s, ratioM3sPer100, compensationCoef, areaPerOutlet, extractVelocity, compVelocity, reserve));
+  } else {
+    smokeZones.forEach((_, index) => {
+      if (selectValue(`smokeEnabled${index}`) !== "yes") return;
+      const repere = document.getElementById(`smokeRepere${index}`)?.value.trim() || `Zone ${index + 1}`;
+      const surface = value(`smokeSurface${index}`);
+      const forcedOutlets = value(`smokeOutlets${index}`);
+      if (surface <= 0) return;
+      rows.push(buildSmokeRow(repere, surface, forcedOutlets, minFlowM3s, ratioM3sPer100, compensationCoef, areaPerOutlet, extractVelocity, compVelocity, reserve));
+    });
+  }
+
+  const totals = rows.reduce((acc, row) => {
+    acc.surface += row.surface;
+    acc.outlets += row.outlets;
+    acc.extractionM3s += row.extractionM3s;
+    acc.extractionM3h += row.extractionM3h;
+    acc.extractionWithReserve += row.extractionWithReserve;
+    acc.compensationM3s += row.compensationM3s;
+    acc.compensationM3h += row.compensationM3h;
+    acc.extractSection += row.extractSection;
+    acc.compSection += row.compSection;
+    return acc;
+  }, { surface: 0, outlets: 0, extractionM3s: 0, extractionM3h: 0, extractionWithReserve: 0, compensationM3s: 0, compensationM3h: 0, extractSection: 0, compSection: 0 });
+
+  const output = document.getElementById("smokeRowsOutput");
+  if (output) output.innerHTML = renderSmokeRows(rows);
+
+  setResults([
+    { label: "Mode", value: mode === "simple" ? "Une seule zone" : "Detail par zones" },
+    { label: "Surface totale", value: `${fmt(totals.surface, 2)} m2` },
+    { label: "Nombre de bouches", value: fmt(totals.outlets, 0) },
+    { label: "Extraction calculee", value: `${fmt(totals.extractionM3h, 0)} m3/h / ${fmt(totals.extractionM3s, 2)} m3/s` },
+    { label: "Extraction avec marge", value: `${fmt(totals.extractionWithReserve, 0)} m3/h` },
+    { label: "Compensation", value: `${fmt(totals.compensationM3h, 0)} m3/h / ${fmt(totals.compensationM3s, 2)} m3/s` },
+    { label: "Section extraction indicative", value: `${fmt(totals.extractSection, 2)} m2` },
+    { label: "Section compensation indicative", value: `${fmt(totals.compSection, 2)} m2` },
+    { label: "Regle appliquee", value: `${fmt(ratioM3sPer100, 2)} m3/s / 100 m2, mini ${fmt(minFlowM3s, 2)} m3/s` }
+  ], "Desenfumage");
+}
+
+function buildSmokeRow(repere, surface, forcedOutlets, minFlowM3s, ratioM3sPer100, compensationCoef, areaPerOutlet, extractVelocity, compVelocity, reserve) {
+  const extractionM3s = Math.max(minFlowM3s, ratioM3sPer100 * surface / 100);
+  const extractionM3h = extractionM3s * 3600;
+  const extractionWithReserve = extractionM3h * (1 + reserve);
+  const compensationM3s = extractionM3s * compensationCoef;
+  const compensationM3h = compensationM3s * 3600;
+  const outlets = forcedOutlets > 0 ? forcedOutlets : Math.max(1, Math.ceil(surface / Math.max(areaPerOutlet, 1)));
+  const flowPerOutletM3h = outlets > 0 ? extractionM3h / outlets : 0;
+  const extractSection = extractVelocity > 0 ? extractionM3s / extractVelocity : 0;
+  const compSection = compVelocity > 0 ? compensationM3s / compVelocity : 0;
+
+  return {
+    repere,
+    surface,
+    outlets,
+    extractionM3s,
+    extractionM3h,
+    extractionWithReserve,
+    compensationM3s,
+    compensationM3h,
+    flowPerOutletM3h,
+    extractSection,
+    compSection
+  };
+}
+
+function renderSmokeRows(rows) {
+  if (!rows.length) {
+    return `<div class="empty-state">Aucune zone active avec une surface superieure a 0.</div>`;
+  }
+
+  return `
+    <div class="result-grid">
+      ${rows.map((row) => `
+        <div class="result-item">
+          <span>${row.repere}</span>
+          <strong>${fmt(row.extractionM3h, 0)} m3/h</strong>
+          <small>${fmt(row.surface, 2)} m2 - ${fmt(row.outlets, 0)} bouche(s) - ${fmt(row.flowPerOutletM3h, 0)} m3/h/bouche</small>
+          <small>Compensation ${fmt(row.compensationM3h, 0)} m3/h - sections ${fmt(row.extractSection, 2)} / ${fmt(row.compSection, 2)} m2</small>
+        </div>
+      `).join("")}
+    </div>
+  `;
 }
 
 function renderDdv() {
@@ -1143,7 +1328,7 @@ function renderPump() {
       Calcul indicatif de predimensionnement. A valider avec la courbe constructeur reelle du circulateur.
     </div>
     <div id="calcResults"></div>
-  `, "Calcul inspire du fichier Excel circulateur.xls : trois points constructeur, coefficient Kv reseau et resolution du point d'equilibre.");
+  `, "Calcul inspire du fichier Excel circulateur : trois points constructeur, coefficient Kv reseau et resolution du point d'equilibre.");
 }
 
 function calculatePump() {
@@ -1685,24 +1870,119 @@ function calculatePsychro() {
 function renderThermal() {
   wrapForm(`
     <div class="form-grid">
-      ${field("thermArea", "Surface paroi", "85", "m2")}
-      ${field("thermU", "Coefficient U", "0.32", "W/m2.K")}
-      ${field("thermDelta", "Delta temperature", "28", "K")}
-      ${field("thermAirFlow", "Renouvellement air", "180", "m3/h")}
+      ${field("thermLength", "Longueur du local", "8", "m", "number", "min=\"0\" step=\"0.1\"")}
+      ${field("thermWidth", "Largeur du local", "5", "m", "number", "min=\"0\" step=\"0.1\"")}
+      ${field("thermHeight", "Hauteur sous plafond", "2.5", "m", "number", "min=\"0\" step=\"0.1\"")}
+      ${field("thermSummerExtTemp", "Ete - temperature exterieure", "32", "deg C")}
+      ${field("thermSummerExtRh", "Ete - humidite exterieure", "40", "%")}
+      ${field("thermSummerIntTemp", "Ete - temperature interieure", "26", "deg C")}
+      ${field("thermSummerIntRh", "Ete - humidite interieure", "50", "%")}
+      ${field("thermWinterExtTemp", "Hiver - temperature exterieure", "-5", "deg C")}
+      ${field("thermWinterIntTemp", "Hiver - temperature interieure", "20", "deg C")}
+      ${field("thermWallCoeff", "Coefficient murs", "1", "W/m2.K")}
+      ${field("thermCeilingCoeff", "Coefficient plafond", "1", "W/m2.K")}
+      ${field("thermGlassCoeff", "Coefficient vitrage", "2.9", "W/m2.K")}
+      ${field("thermLightingRatio", "Ratio eclairage", "15", "W/m2")}
+      ${field("thermPeople", "Occupation", "2", "pers", "number", "min=\"0\" step=\"1\"")}
+      ${field("thermFreshAir", "Debit d'air neuf", "60", "m3/h")}
+      ${field("thermInternalGain", "Apport interne", "0", "W")}
+      ${field("thermGlassArea", "Surface vitrage", "6", "m2")}
+      ${selectField("thermSolarOrientation", "Exposition vitrage", Object.entries(thermalSolarGains).map(([value, item]) => ({ value, label: item.label })))}
+      ${selectField("thermSolarTreatment", "Traitement vitrage", Object.entries(thermalSolarTreatments).map(([value, item]) => ({ value, label: item.label })))}
+      ${field("thermComputers", "Postes informatiques", "1", "u", "number", "min=\"0\" step=\"1\"")}
+      ${field("thermComputerPower", "Puissance par poste", "200", "W")}
+      ${field("thermFans", "Ventilateurs", "0", "u", "number", "min=\"0\" step=\"1\"")}
+      ${field("thermFanPower", "Puissance par ventilateur", "0", "W")}
     </div>
+    <details class="module-help">
+      <summary>Logique du calcul</summary>
+      <div class="module-help-content">
+        <p>Module Bilan thermique simplifie : cloisons, plafond, eclairage, occupation, air neuf, apport interne, vitrage, informatique et ventilateurs.</p>
+        <p>Le total froid additionne les apports ete. Le total chaud additionne les deperditions hiver par parois, plafond, air neuf et vitrages.</p>
+      </div>
+    </details>
     <div id="calcResults"></div>
-  `, "Module simplifie en attente de migration piece par piece depuis les feuilles de deperditions.");
+  `, "Predimensionnement thermique simplifie : a valider par une note de calcul complete avant usage contractuel.");
 }
 
 function calculateThermal() {
-  const wall = value("thermArea") * value("thermU") * value("thermDelta");
-  const air = 0.34 * value("thermAirFlow") * value("thermDelta");
+  const length = value("thermLength");
+  const width = value("thermWidth");
+  const height = value("thermHeight");
+  const area = length * width;
+  const volume = area * height;
+  const wallSurface = (length + width) * 2 * height;
+
+  const summerDelta = value("thermSummerExtTemp") - value("thermSummerIntTemp");
+  const winterDelta = value("thermWinterIntTemp") - value("thermWinterExtTemp");
+  const summerExternalAir = thermalMoistAir(value("thermSummerExtTemp"), value("thermSummerExtRh"));
+  const summerInternalAir = thermalMoistAir(value("thermSummerIntTemp"), value("thermSummerIntRh"));
+  const deltaEnthalpy = summerExternalAir.enthalpy - summerInternalAir.enthalpy;
+
+  const wallCoeff = value("thermWallCoeff");
+  const ceilingCoeff = value("thermCeilingCoeff");
+  const glassCoeff = value("thermGlassCoeff");
+  const lightingRatio = value("thermLightingRatio");
+  const people = value("thermPeople");
+  const freshAir = value("thermFreshAir");
+  const internalGain = value("thermInternalGain");
+  const glassArea = value("thermGlassArea");
+  const computers = value("thermComputers");
+  const computerPower = value("thermComputerPower");
+  const fans = value("thermFans");
+  const fanPower = value("thermFanPower");
+
+  const solarOrientation = thermalSolarGains[selectValue("thermSolarOrientation")] || thermalSolarGains.s;
+  const solarTreatment = thermalSolarTreatments[selectValue("thermSolarTreatment")] || thermalSolarTreatments.none;
+  const solarRatio = solarOrientation.base * solarTreatment.factor;
+
+  const summerWalls = wallSurface * summerDelta * wallCoeff;
+  const summerCeiling = area * summerDelta * ceilingCoeff;
+  const summerLighting = area * lightingRatio;
+  const summerPeople = people * 150;
+  const summerFreshAir = freshAir * (1.2 / 3600) * deltaEnthalpy * 1000;
+  const summerGlass = glassArea * solarRatio;
+  const summerComputers = computers * computerPower;
+  const summerFans = fans * fanPower;
+  const summerTotal = summerWalls + summerCeiling + summerLighting + summerPeople + summerFreshAir + internalGain + summerGlass + summerComputers + summerFans;
+
+  const winterWalls = wallSurface * winterDelta * wallCoeff;
+  const winterCeiling = area * winterDelta * ceilingCoeff;
+  const winterFreshAir = freshAir * 0.34 * winterDelta;
+  const winterGlass = glassArea * glassCoeff * winterDelta;
+  const winterTotal = winterWalls + winterCeiling + winterFreshAir + winterGlass;
+
   setResults([
-    { label: "Deperdition paroi", value: `${fmt(wall, 0)} W` },
-    { label: "Deperdition air neuf", value: `${fmt(air, 0)} W` },
-    { label: "Total", value: `${fmt(wall + air, 0)} W` },
-    { label: "Total", value: `${fmt((wall + air) / 1000, 2)} kW` }
+    { label: "Surface", value: `${fmt(area, 2)} m2` },
+    { label: "Volume", value: `${fmt(volume, 2)} m3` },
+    { label: "Delta ete", value: `${fmt(summerDelta, 1)} K` },
+    { label: "Delta hiver", value: `${fmt(winterDelta, 1)} K` },
+    { label: "Delta enthalpie ete", value: `${fmt(deltaEnthalpy, 2)} kJ/kg` },
+    { label: "Froid - cloisons", value: `${fmt(summerWalls, 0)} W` },
+    { label: "Froid - plafond", value: `${fmt(summerCeiling, 0)} W` },
+    { label: "Froid - eclairage", value: `${fmt(summerLighting, 0)} W` },
+    { label: "Froid - occupation", value: `${fmt(summerPeople, 0)} W` },
+    { label: "Froid - air neuf", value: `${fmt(summerFreshAir, 0)} W` },
+    { label: "Froid - vitrage solaire", value: `${fmt(summerGlass, 0)} W (${solarOrientation.label} / ${solarTreatment.label})` },
+    { label: "Froid - informatique", value: `${fmt(summerComputers, 0)} W` },
+    { label: "Froid - ventilateurs", value: `${fmt(summerFans, 0)} W` },
+    { label: "Total froid", value: `${fmt(summerTotal, 0)} W / ${fmt(summerTotal / 1000, 2)} kW` },
+    { label: "Ratio froid", value: area > 0 ? `${fmt(summerTotal / area, 1)} W/m2` : "-" },
+    { label: "Chaud - cloisons", value: `${fmt(winterWalls, 0)} W` },
+    { label: "Chaud - plafond", value: `${fmt(winterCeiling, 0)} W` },
+    { label: "Chaud - air neuf", value: `${fmt(winterFreshAir, 0)} W` },
+    { label: "Chaud - vitrage", value: `${fmt(winterGlass, 0)} W` },
+    { label: "Total chaud", value: `${fmt(winterTotal, 0)} W / ${fmt(winterTotal / 1000, 2)} kW` },
+    { label: "Ratio chaud", value: area > 0 ? `${fmt(winterTotal / area, 1)} W/m2` : "-" }
   ], "Bilan thermique simplifie");
+}
+
+function thermalMoistAir(tempC, relativeHumidityPercent) {
+  const pvs = Math.pow(10, 2.7877 + ((7.625 * tempC) / (241.6 + tempC)));
+  const rh = Math.max(relativeHumidityPercent, 0) / 100;
+  const humidityRatio = (0.622 * rh * pvs) / (101325 - (rh * pvs));
+  const enthalpy = tempC + humidityRatio * ((1.96 * tempC) + 2490);
+  return { pvs, humidityRatio, enthalpy };
 }
 
 function renderGas() {
@@ -2039,7 +2319,7 @@ function calculateConversion() {
       { label: "Valeur convertie", value: `${formatConversion(converted)} ${to.label}` },
       { label: "Valeur en Celsius", value: `${formatConversion(celsius)} deg C` },
       { label: "Formule", value: temperatureFormula(from.id, to.id) },
-      { label: "Source", value: "Conversions/tableau de conversion.xls" }
+      { label: "Source", value: "Conversions/tableau de conversion" }
     ], "Conversions d'unites");
     return;
   }
