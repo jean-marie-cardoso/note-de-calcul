@@ -1,3 +1,4 @@
+const { document, fmt, mm, m3h, lps, value, selectValue, setResults } = require("./runtime");
 const smokeZones = [
   { repere: "Zone 1", surface: 100, enabled: true },
   { repere: "Zone 2", surface: 0, enabled: false },
@@ -160,3 +161,8 @@ function renderSmokeRows(rows) {
     </div>
   `;
 }
+
+
+module.exports = {
+  calculateSmoke
+};

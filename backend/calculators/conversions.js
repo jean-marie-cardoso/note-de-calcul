@@ -1,3 +1,4 @@
+const { document, fmt, mm, m3h, lps, value, selectValue, setResults } = require("./runtime");
 const conversionGroups = {
   length: {
     label: "Distances",
@@ -259,3 +260,8 @@ function temperatureFormula(from, to) {
   if (from === "k" && to === "c") return "deg C = K - 273,15";
   return "conversion via deg C";
 }
+
+
+module.exports = {
+  calculateConversion
+};

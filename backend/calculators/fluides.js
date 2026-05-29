@@ -1,3 +1,4 @@
+const { document, fmt, mm, m3h, lps, value, selectValue, setResults } = require("./runtime");
 const compressedAirPipes = [
   { nominal: 15, retained: 20, outer: 21.3, thickness: 2.6, inner: 16.1, inch: '1/2"' },
   { nominal: 20, retained: 25, outer: 26.9, thickness: 2.6, inner: 21.7, inch: '3/4"' },
@@ -165,3 +166,9 @@ function renderCompressedAirPipeOutput(selected, recommended, equivalents) {
     <span>Soupape ${fmt(equivalents.globe, 2)} m</span>
   `;
 }
+
+
+module.exports = {
+  calculateGas,
+  calculateCompressedAir
+};

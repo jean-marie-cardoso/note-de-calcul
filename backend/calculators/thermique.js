@@ -1,3 +1,4 @@
+const { document, fmt, mm, m3h, lps, value, selectValue, setResults } = require("./runtime");
 const thermalSolarGains = {
   ne: { label: "NE", base: 300 },
   e: { label: "E", base: 510 },
@@ -168,3 +169,9 @@ function thermalMoistAir(tempC, relativeHumidityPercent) {
   const enthalpy = tempC + humidityRatio * ((1.96 * tempC) + 2490);
   return { pvs, humidityRatio, enthalpy };
 }
+
+
+module.exports = {
+  calculatePsychro,
+  calculateThermal
+};

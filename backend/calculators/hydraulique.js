@@ -1,3 +1,4 @@
+const { document, fmt, mm, m3h, lps, value, selectValue, setResults } = require("./runtime");
 const pipeTables = {
   acier: [
     { ref: "DN15 - 17.2 x 2", d: 13.2 },
@@ -462,3 +463,12 @@ function waterDensity(tempC) {
   const t = Math.max(0, Math.min(100, tempC));
   return 1000 * (1 - ((t + 288.9414) / (508929.2 * (t + 68.12963))) * Math.pow(t - 3.9863, 2));
 }
+
+
+module.exports = {
+  calculateDdv,
+  calculateHydraulic,
+  calculatePump,
+  calculateVessel,
+  selectPipe
+};

@@ -1,3 +1,5 @@
+const { document, fmt, mm, m3h, lps, value, selectValue, setResults } = require("./runtime");
+const { categories, modules } = require("../routes/catalog-data");
 function renderLibrary() {
   const byCategory = categories
     .filter((category) => category.id !== "overview")
@@ -29,3 +31,8 @@ function calculateLibrary() {
     { label: "Sources referencees", value: fmt(new Set(modules.flatMap((module) => module.source)).size, 0) }
   ], "Bibliotheque Excel");
 }
+
+
+module.exports = {
+  calculateLibrary
+};

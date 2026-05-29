@@ -1,3 +1,4 @@
+const { document, fmt, mm, m3h, lps, value, selectValue, setResults } = require("./runtime");
 const ductPressureDiameters = [60, 80, 100, 125, 160, 200, 250, 315, 355, 400, 450, 500, 560, 630, 710, 800, 900, 1000, 1120, 1250];
 
 const ductPressureMaterials = [
@@ -288,3 +289,10 @@ function frictionFactor(reynolds, roughnessM, diameterM) {
   const term = Math.pow(relativeRoughness / 3.7, 1.11) + 6.9 / reynolds;
   return Math.pow(-1.8 * Math.log10(term), -2);
 }
+
+
+module.exports = {
+  calculateDuct,
+  calculateDuctFlow,
+  calculateDuctPressure
+};

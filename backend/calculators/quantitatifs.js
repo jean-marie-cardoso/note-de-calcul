@@ -1,3 +1,4 @@
+const { document, fmt, mm, m3h, lps, value, selectValue, setResults } = require("./runtime");
 function renderInsulation() {
   wrapForm(`
     <div class="form-grid">
@@ -161,3 +162,9 @@ function renderDuctWeightRows(rows) {
     </div>
   `;
 }
+
+
+module.exports = {
+  calculateInsulation,
+  calculateDuctWeight
+};

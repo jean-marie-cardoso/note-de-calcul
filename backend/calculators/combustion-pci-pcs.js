@@ -1,3 +1,4 @@
+const { document, fmt, mm, m3h, lps, value, selectValue, setResults } = require("./runtime");
 const combustionFuels = {
   fioul: {
     label: "Fioul domestique",
@@ -5,6 +6,7 @@ const combustionFuels = {
     pci: 10.08,
     pcs: 10.6848,
     defaultQuantity: 3000,
+    defaultEnergyPci: 30240,
     example: "3000 litres -> 30 240 kWh PCI / 32 054,4 kWh PCS"
   },
   gaz: {
@@ -13,23 +15,26 @@ const combustionFuels = {
     pci: 9.45,
     pcs: 10.4895,
     defaultQuantity: 1000,
+    defaultEnergyPci: 3000,
     example: "1000 Nm3 -> 9450 kWh PCI / 10 489,5 kWh PCS"
   },
   propane: {
     label: "Propane",
     unit: "kg",
-    pci: 12.78,
-    pcs: 13.8,
-    defaultQuantity: 0,
-    example: "100 kg de propane ≈ 1 278 kWh PCI"
+    pci: 12.88,
+    pcs: 13.9104,
+    defaultQuantity: 3000,
+    defaultEnergyPci: 3000,
+    example: "3000 kg -> 38 640 kWh PCI / 41 731,2 kWh PCS"
   },
   butane: {
     label: "Butane",
     unit: "kg",
-    pci: 12.66,
-    pcs: 13.7,
-    defaultQuantity: 0,
-    example: "100 kg de butane ≈ 1 266 kWh PCI"
+    pci: 12.3,
+    pcs: 13.369,
+    defaultQuantity: 3000,
+    defaultEnergyPci: 3000,
+    example: "3000 kg -> 36 900 kWh PCI / 40 107 kWh PCS"
   }
 };
 
@@ -53,7 +58,7 @@ function renderCombustionPciPcs() {
       <summary>Lecture rapide</summary>
       <div class="module-help-content">
         <p>Le calcul reprend la logique du tableau combustion : quantite combustible x PCI/PCS = energie, puis conversion inverse depuis une energie PCI.</p>
-        <p>Les valeurs fioul et gaz sont celles du tableau fourni. Propane et butane restent modifiables tant que leurs valeurs source ne sont pas completees.</p>
+        <p>Les valeurs fioul, gaz, propane et butane sont calees sur le tableau fourni.</p>
       </div>
     </details>
 
@@ -77,7 +82,7 @@ function updateCombustionDefaults(forceQuantity = false) {
   }
 
   if (energyInput && (forceQuantity || energyInput.dataset.fuel !== fuelKey)) {
-    energyInput.value = fuel.defaultQuantity * fuel.pci;
+    energyInput.value = fuel.defaultEnergyPci;
     energyInput.dataset.fuel = fuelKey;
   }
 
@@ -119,6 +124,9 @@ function calculateCombustionPciPcs() {
     { label: "Energie PCS", value: `${fmt(energyPcs, 1)} kWh` },
     { label: "Energie utile", value: `${fmt(usefulEnergy, 1)} kWh avec rendement ${fmt(efficiency * 100, 0)} %` },
     { label: "Rapport PCS / PCI", value: fmt(pcsPciRatio, 4) },
+    { label: `Pour obtenir ${fmt(targetEnergyPci, 1)} kWh PCI`, value: `${fmt(requiredQuantity, 6)} ${fuel.unit}` },
+    { label: "PCS equivalent", value: `${fmt(equivalentPcs, 1)} kWh PCS` },
+    { label: "Reference tableau", value: fuel.example }
   ], "Combustion PCI/PCS");
 }
 
@@ -137,3 +145,10 @@ function renderConvertisseurTechniqueCVC() {
 function calculateConvertisseurTechniqueCVC() {
   calculateCombustionPciPcs();
 }
+
+
+module.exports = {
+  calculateCombustionPciPcs,
+  calculatePouvoirCalorifique,
+  calculateConvertisseurTechniqueCVC
+};

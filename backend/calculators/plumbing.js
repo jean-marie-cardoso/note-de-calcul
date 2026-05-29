@@ -1,3 +1,5 @@
+const { document, fmt, mm, m3h, lps, value, selectValue, setResults } = require("./runtime");
+const { selectPipe } = require("./hydraulique");
 const efEcApparelsData = {
   apparels: [
     { name: "évier - timbre office", index: 0.2 },
@@ -168,3 +170,9 @@ function calculatePlumbing() {
     { label: "Vitesse reelle", value: `${fmt(realVelocity, 2)} m/s` }
   ], "Debit probable plomberie EF/ECS");
 }
+
+
+module.exports = {
+  calculatePlumbing,
+  calculateDebitProbable
+};

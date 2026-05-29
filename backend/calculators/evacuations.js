@@ -1,3 +1,4 @@
+const { document, fmt, mm, m3h, lps, value, selectValue, setResults } = require("./runtime");
 const sanitaryEvacFixtures = [
   { id: "wc67", label: "WC 6 ou 7,5 l - reservoir", type: "EV", du: 2, min: 73, pvc: "80", cuivre: "---", fonte: "75" },
   { id: "wc9", label: "WC 9 l - reservoir", type: "EV", du: 2.5, min: 83, pvc: "84/90", cuivre: "---", fonte: "100" },
@@ -237,3 +238,8 @@ function calculateSanitaryEp() {
     { label: "Controle", value: row && Number.isFinite(capacity) && surface <= capacity ? "OK" : "A verifier hors table" }
   ], "Evacuation EP");
 }
+
+
+module.exports = {
+  calculateSanitaryEvac
+};
