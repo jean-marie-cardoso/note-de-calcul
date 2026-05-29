@@ -69,13 +69,14 @@ const API_BASE_URL =
   window.location.hostname === "localhost" ||
   window.location.hostname === "127.0.0.1" ||
   window.location.hostname.startsWith("192.168.") ||
+  window.location.hostname === "82.67.215.219" ||
   window.location.hostname.endsWith(".local")
     ? ""
     : "https://api.mon-domaine.fr";
 ```
 
 En local ou preproduction Nginx, `/api` est sur la meme origine.
-En production GitHub Pages, remplacer `https://api.mon-domaine.fr` par le domaine API OVH.
+En production, remplacer `https://api.mon-domaine.fr` par le domaine API OVH.
 
 Installation backend locale
 
