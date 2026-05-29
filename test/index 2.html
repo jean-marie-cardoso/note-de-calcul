@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Soft Etudes JM</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Navigation modules">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true">JM</div>
+          <div>
+            <h1>Soft Etudes</h1>
+            <p>Feuilles de calculs rapide</p>
+          </div>
+        </div>
+
+        <nav class="category-nav" id="categoryNav" aria-label="Corps d'etat"></nav>
+
+        <div class="source-box">
+          <span class="source-kicker">Basé sur DTU & Normes</span>
+          <span>preview version 1.1.</span>
+        </div>
+      </aside>
+
+      <main class="workspace">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">Application metier</p>
+            <h2 id="workspaceTitle">Vue d'ensemble</h2>
+          </div>
+          <div class="topbar-actions">
+            <label class="search-field">
+              <span>Recherche</span>
+              <input id="searchInput" type="search" placeholder="hydraulique, gaz, vase...">
+            </label>
+            <button class="icon-button" id="resetButton" type="button" title="Reinitialiser les filtres" aria-label="Reinitialiser les filtres">
+              <span aria-hidden="true">↺</span>
+            </button>
+          </div>
+        </header>
+
+        <section class="work-grid">
+          <div class="panel module-panel">
+            <div class="panel-head">
+              <div>
+                <p class="eyebrow">Ensemble</p>
+                <h3>Modules metier</h3>
+              </div>
+              <span id="moduleCount" class="count-pill">0</span>
+            </div>
+            <div class="module-list" id="moduleList"></div>
+          </div>
+
+          <div class="panel calculator-panel">
+            <div class="panel-head">
+              <div>
+                <p class="eyebrow">Choisir un atelier</p>
+                <h3 id="calculatorTitle">Calcul rapide</h3>
+              </div>
+              <select id="calculatorSelect" aria-label="Choisir un calculateur"></select>
+            </div>
+            <div id="calculatorMount" class="calculator-mount"></div>
+          </div>
+        </section>
+
+        <section class="panel report-panel">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Note minute</p>
+              <h3>Synthese des derniers calculs</h3>
+            </div>
+            <button class="text-button" id="copyReport" type="button">Copier</button>
+          </div>
+          <pre id="reportOutput">Aucun calcul lance pour le moment.</pre>
+        </section>
+      </main>
+    </div>
+
+    <script src="calculators/hydraulique.js"></script>
+    <script src="calculators/plumbing.js"></script>
+    <script src="calculators/evacuations.js"></script>
+    <script src="calculators/aeraulique.js"></script>
+    <script src="calculators/thermique.js"></script>
+    <script src="calculators/ventilation.js"></script>
+    <script src="calculators/fluides.js"></script>
+    <script src="calculators/quantitatifs.js"></script>
+    <script src="calculators/conversions.js"></script>
+    <script src="calculators/combustion-pci-pcs.js"></script>
+    <script src="calculators/bibliotheque.js"></script>
+    <script src="calculators/app.js"></script>
+  </body>
+</html>
