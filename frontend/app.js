@@ -1,27 +1,21 @@
-const ductPressureDiameters = [60, 80, 100, 125, 160, 200, 250, 315, 355, 400, 450, 500, 560, 630, 710, 800, 900, 1000, 1120, 1250];
-
-const ductPressureMaterials = [
-  { value: "acier_galva", label: "acier galvanise", roughness: 0.15 },
-  { value: "spirale", label: "conduit agrafe spirale", roughness: 0.5 },
-  { value: "acier_inox", label: "acier inoxydable", roughness: 0.05 },
-  { value: "acier_noir", label: "acier noir lamine", roughness: 0.1 },
-  { value: "aluminium", label: "aluminium", roughness: 0.002 },
-  { value: "flexible", label: "flexible", roughness: 3 },
-  { value: "plastique", label: "mat. plastique", roughness: 0.002 },
-  { value: "beton_lisse", label: "beton lisse", roughness: 0.55 },
-  { value: "beton_brut", label: "beton brut de decoffrage", roughness: 2 },
-  { value: "brique", label: "paroi de brique", roughness: 2 },
-  { value: "tole_rivee", label: "tole d'acier rivee", roughness: 2 }
-];
-
-const ductPressureRows = [
-  { flow: 1800, length: 12, shape: "round", diameter: 315, width: 600, height: 300, fixed: 0, zeta: 0.8 },
-  { flow: 1200, length: 8, shape: "rect", diameter: 250, width: 500, height: 250, fixed: 0, zeta: 1.2 },
-  { flow: 800, length: 10, shape: "round", diameter: 250, width: 400, height: 200, fixed: 0, zeta: 0.6 },
-  { flow: 0, length: 0, shape: "round", diameter: 200, width: 300, height: 200, fixed: 0, zeta: 0 },
-  { flow: 0, length: 0, shape: "round", diameter: 200, width: 300, height: 200, fixed: 0, zeta: 0 },
-  { flow: 0, length: 0, shape: "round", diameter: 200, width: 300, height: 200, fixed: 0, zeta: 0 }
-];
+let uiData = {};
+let categories = [];
+let modules = [];
+let ductPressureDiameters = [];
+let ductPressureMaterials = [];
+let ductPressureRows = [];
+let combustionFuels = {};
+let conversionGroups = {};
+let conversionReferences = [];
+let sanitaryEvacFixtures = [];
+let sanitaryEvacUsageFactors = {};
+let compressedAirPipes = [];
+let pipeTables = {};
+let efEcApparelsData = { apparels: [], wc_flush: { name: "WC avec robinet de chasse", index: 0 } };
+let efEcDefaultQuantities = {};
+let thermalSolarGains = {};
+let thermalSolarTreatments = {};
+let smokeZones = [];
 
 function renderDuct() {
   wrapForm(`
@@ -39,7 +33,8 @@ function renderDuct() {
 
 
 function renderDuctFlow() {
-  const diameters = [125, 160, 200, 250, 315, 355, 400, 450, 500, 560, 630, 710];
+  const diameters = uiData.aeraulique?.ductFlowDiameters || [];
+  const lookupRows = uiData.aeraulique?.ductFlowLookupRows || [];
   wrapForm(`
     <div class="form-grid">
       ${selectField("ductFlowDiameter", "Diametre gaine circulaire", diameters.map((d) => ({ value: String(d), label: `${d} mm` })))}
@@ -56,14 +51,10 @@ function renderDuctFlow() {
       <div class="lookup-head">8 m/s</div>
       <div class="lookup-head">10 m/s</div>
       <div class="lookup-head">12 m/s</div>
-      ${diameters.map((diameter) => {
-        const section = Math.PI * Math.pow(diameter / 1000, 2) / 4;
-        const flows = [4, 5, 6, 8, 10, 12].map((velocity) => fmt(section * velocity * 3600, 0));
-        return `
-          <span>${diameter} mm</span>
-          ${flows.map((flow) => `<span>${flow}</span>`).join("")}
-        `;
-      }).join("")}
+      ${lookupRows.map((row) => `
+        <span>${row.diameter} mm</span>
+        ${row.flows.map((flow) => `<span>${fmt(flow, 0)}</span>`).join("")}
+      `).join("")}
     </div>
   `, "Le tableau rapide reproduit les debits m3/h pour les diametres standards.");
 }
@@ -135,44 +126,6 @@ function renderLibrary() {
 }
 
 
-const combustionFuels = {
-  fioul: {
-    label: "Fioul domestique",
-    unit: "litres",
-    pci: 10.08,
-    pcs: 10.6848,
-    defaultQuantity: 3000,
-    defaultEnergyPci: 30240,
-    example: "3000 litres -> 30 240 kWh PCI / 32 054,4 kWh PCS"
-  },
-  gaz: {
-    label: "Gaz naturel",
-    unit: "Nm3",
-    pci: 9.45,
-    pcs: 10.4895,
-    defaultQuantity: 1000,
-    defaultEnergyPci: 3000,
-    example: "1000 Nm3 -> 9450 kWh PCI / 10 489,5 kWh PCS"
-  },
-  propane: {
-    label: "Propane",
-    unit: "kg",
-    pci: 12.88,
-    pcs: 13.9104,
-    defaultQuantity: 3000,
-    defaultEnergyPci: 3000,
-    example: "3000 kg -> 38 640 kWh PCI / 41 731,2 kWh PCS"
-  },
-  butane: {
-    label: "Butane",
-    unit: "kg",
-    pci: 12.3,
-    pcs: 13.369,
-    defaultQuantity: 3000,
-    defaultEnergyPci: 3000,
-    example: "3000 kg -> 36 900 kWh PCI / 40 107 kWh PCS"
-  }
-};
 
 function renderCombustionPciPcs() {
   wrapForm(`
@@ -238,161 +191,7 @@ function updateCombustionDefaults(forceQuantity = false) {
 
 
 
-const conversionGroups = {
-  length: {
-    label: "Distances",
-    base: "m",
-    units: [
-      { id: "m", label: "metre (m)", factor: 1 },
-      { id: "km", label: "kilometre (km)", factor: 1000 },
-      { id: "cm", label: "centimetre (cm)", factor: 0.01 },
-      { id: "mm", label: "millimetre (mm)", factor: 0.001 },
-      { id: "in", label: "pouce (in)", factor: 0.0254 },
-      { id: "ft", label: "pied (ft)", factor: 0.3048 },
-      { id: "yd", label: "yard (yd)", factor: 0.9144 },
-      { id: "mile", label: "mile terrestre", factor: 1609.347 },
-      { id: "nmi", label: "mile nautique international", factor: 1851.99 },
-      { id: "nmi_uk", label: "mile nautique anglais", factor: 1853.19 },
-      { id: "ua", label: "unite astronomique", factor: 1.496e11 },
-      { id: "al", label: "annee lumiere", factor: 9.461e15 },
-      { id: "ang", label: "angstrom", factor: 1e-10 }
-    ]
-  },
-  area: {
-    label: "Surfaces",
-    base: "m2",
-    units: [
-      { id: "m2", label: "metre carre (m2)", factor: 1 },
-      { id: "km2", label: "kilometre carre (km2)", factor: 1e6 },
-      { id: "cm2", label: "centimetre carre (cm2)", factor: 0.0001 },
-      { id: "ha", label: "hectare (ha)", factor: 10000 },
-      { id: "are", label: "are (a)", factor: 100 },
-      { id: "acre", label: "acre", factor: 4046.86 },
-      { id: "mile2", label: "mile carre", factor: 2.59e6 },
-      { id: "yd2", label: "yard carre", factor: 0.8361 },
-      { id: "ft2", label: "pied carre", factor: 0.0929 },
-      { id: "in2", label: "pouce carre", factor: 0.00064516 },
-      { id: "barn", label: "barn", factor: 1e-28 }
-    ]
-  },
-  volume: {
-    label: "Volumes",
-    base: "m3",
-    units: [
-      { id: "m3", label: "metre cube (m3)", factor: 1 },
-      { id: "l", label: "litre", factor: 0.001 },
-      { id: "dm3", label: "decimetre cube (dm3)", factor: 0.001 },
-      { id: "cm3", label: "centimetre cube (cm3)", factor: 1e-6 },
-      { id: "tonneau_mer", label: "tonneau de mer", factor: 1.44 },
-      { id: "tonneau_jauge", label: "tonneau de jauge", factor: 2.832 },
-      { id: "usgal", label: "gallon US", factor: 0.003785 },
-      { id: "ukgal", label: "gallon UK", factor: 0.004546 },
-      { id: "usbbl", label: "baril US", factor: 0.159 },
-      { id: "ukbbl", label: "baril UK", factor: 0.164 },
-      { id: "cuyd", label: "yard cube", factor: 0.765 },
-      { id: "cuft", label: "pied cube", factor: 0.02833 },
-      { id: "cuin", label: "pouce cube", factor: 0.00001639 },
-      { id: "uspint", label: "pinte US", factor: 0.000473 },
-      { id: "ukpint", label: "pinte UK", factor: 0.000568 },
-      { id: "usbushel", label: "bushel US", factor: 0.03524 },
-      { id: "ukbushel", label: "bushel UK", factor: 0.03636 }
-    ]
-  },
-  mass: {
-    label: "Masses",
-    base: "kg",
-    units: [
-      { id: "kg", label: "kilogramme (kg)", factor: 1 },
-      { id: "t", label: "tonne", factor: 1000 },
-      { id: "g", label: "gramme (g)", factor: 0.001 },
-      { id: "mg", label: "milligramme (mg)", factor: 0.000001 },
-      { id: "longton", label: "long ton", factor: 1016.05 },
-      { id: "shortton", label: "short ton", factor: 907.2 },
-      { id: "lb", label: "livre US", factor: 0.4536 },
-      { id: "oz", label: "once US", factor: 0.02835 },
-      { id: "grain", label: "grain", factor: 0.00006481 },
-      { id: "quintal", label: "quintal", factor: 100 },
-      { id: "carat", label: "carat", factor: 0.0002 },
-      { id: "u", label: "unite masse atomique", factor: 1.66053e-27 }
-    ]
-  },
-  pressure: {
-    label: "Pressions",
-    base: "Pa",
-    units: [
-      { id: "pa", label: "pascal (Pa)", factor: 1 },
-      { id: "kpa", label: "kilopascal (kPa)", factor: 1000 },
-      { id: "bar", label: "bar", factor: 100000 },
-      { id: "mbar", label: "millibar (mbar)", factor: 100 },
-      { id: "atm", label: "atmosphere (atm)", factor: 101325 },
-      { id: "mmhg", label: "mm Hg / torr", factor: 133.3 },
-      { id: "mmce", label: "mmCE", factor: 9.80665 },
-      { id: "mce", label: "mCE", factor: 9806.65 }
-    ]
-  },
-  energy: {
-    label: "Energies",
-    base: "J",
-    units: [
-      { id: "j", label: "joule (J)", factor: 1 },
-      { id: "kj", label: "kilojoule (kJ)", factor: 1000 },
-      { id: "erg", label: "erg", factor: 1e-7 },
-      { id: "cal", label: "calorie thermochimique", factor: 4.184 },
-      { id: "calit", label: "calorie IT", factor: 4.1868 },
-      { id: "kcal", label: "kilocalorie", factor: 4184 },
-      { id: "wh", label: "wattheure (Wh)", factor: 3600 },
-      { id: "kwh", label: "kilowattheure (kWh)", factor: 3.6e6 },
-      { id: "th", label: "thermie", factor: 4.18e6 },
-      { id: "cvh", label: "chevalheure", factor: 2.648e6 },
-      { id: "btu", label: "BTU", factor: 1055 },
-      { id: "ev", label: "electronvolt", factor: 1.602e-19 },
-      { id: "frigorie", label: "frigorie", factor: 4180 }
-    ]
-  },
-  power: {
-    label: "Puissances",
-    base: "W",
-    units: [
-      { id: "w", label: "watt (W)", factor: 1 },
-      { id: "kw", label: "kilowatt (kW)", factor: 1000 },
-      { id: "cv", label: "cheval-vapeur (cv)", factor: 735.5 },
-      { id: "frigh", label: "frigorie par heure", factor: 1.161 },
-      { id: "kcalh", label: "kcal/h", factor: 1.163 },
-      { id: "btuh", label: "BTU/h", factor: 0.293071 }
-    ]
-  },
-  angle: {
-    label: "Angles",
-    base: "degre",
-    units: [
-      { id: "deg", label: "degre", factor: 1 },
-      { id: "rad", label: "radian", factor: 180 / Math.PI },
-      { id: "grad", label: "grade", factor: 0.9 },
-      { id: "min", label: "minute", factor: 1 / 60 },
-      { id: "sec", label: "seconde", factor: 1 / 3600 }
-    ]
-  },
-  temperature: {
-    label: "Temperatures",
-    base: "C",
-    units: [
-      { id: "c", label: "Celsius (deg C)" },
-      { id: "f", label: "Fahrenheit (deg F)" },
-      { id: "k", label: "Kelvin (K)" }
-    ]
-  }
-};
 
-const conversionReferences = [
-  ["Distances", "1 in = 25,4 mm", "1 mile nautique UK = 1,85319 km", "1 mile = 1,609347 km"],
-  ["Surfaces", "1 ha = 10 000 m2", "1 acre = 0,404686 ha", "1 sq ft = 0,0929 m2"],
-  ["Volumes", "1 litre = 1e-3 m3", "1 tonneau de mer = 1,44 m3", "1 tonneau de jauge = 2,832 m3"],
-  ["Masses", "1 pound = 0,4536 kg", "1 ounce = 28,35 g", "1 quintal = 100 kg"],
-  ["Energies", "1 kWh = 3,6e6 J", "1 BTU = 1,055e3 J", "1 kcal = 4184 J"],
-  ["Pressions", "1 atm = 1,01325 bar", "1 mm Hg = 133,3 Pa", "1 Pa = 1e-5 bar"],
-  ["Puissances", "1 cv = 735,5 W", "1 frigorie/h = 1,161 W", "1 kcal/h = 1,163 W"],
-  ["Temperatures", "deg F = 1,8 x deg C + 32", "K = deg C + 273,15", ""]
-];
 
 function renderConversion() {
   wrapForm(`
@@ -447,100 +246,10 @@ function populateConversionUnits(family) {
 
 
 
-const sanitaryEvacFixtures = [
-  { id: "wc67", label: "WC 6 ou 7,5 l - reservoir", type: "EV", du: 2, min: 73, pvc: "80", cuivre: "---", fonte: "75" },
-  { id: "wc9", label: "WC 9 l - reservoir", type: "EV", du: 2.5, min: 83, pvc: "84/90", cuivre: "---", fonte: "100" },
-  { id: "wcRobinet", label: "WC avec robinet de chasse", type: "EV", du: 2, min: 83, pvc: "84/90", cuivre: "---", fonte: "100" },
-  { id: "evier", label: "Evier - timbre office", type: "EU", du: 0.5, min: 33, pvc: "33,6/40", cuivre: "34/36", fonte: "50" },
-  { id: "laveLinge6", label: "Lave-linge jusqu'a 6 kg", type: "EU", du: 0.5, min: 33, pvc: "33,6/40", cuivre: "34/36", fonte: "50" },
-  { id: "laveLinge12", label: "Lave-linge jusqu'a 12 kg", type: "EU", du: 1, min: 43, pvc: "43,6/50", cuivre: "52/54", fonte: "50" },
-  { id: "laveVaisselle", label: "Lave-vaisselle domestique", type: "EU", du: 0.5, min: 33, pvc: "33,6/40", cuivre: "34/36", fonte: "50" },
-  { id: "lavabo", label: "Lavabo / lave-mains", type: "EU", du: 0.3, min: 25, pvc: "25,6/32", cuivre: "26/28", fonte: "---" },
-  { id: "bidet", label: "Bidet", type: "EU", du: 0.3, min: 25, pvc: "25,6/32", cuivre: "26/28", fonte: "---" },
-  { id: "baignoire", label: "Baignoire", type: "EU", du: 0.5, min: 38, pvc: "43,6/50", cuivre: "40/42", fonte: "50" },
-  { id: "doucheBouchon", label: "Douche a bouchon", type: "EU", du: 0.5, min: 33, pvc: "33,6/40", cuivre: "34/36", fonte: "50" },
-  { id: "doucheGrille", label: "Douche a grille fixe", type: "EU", du: 0.4, min: 33, pvc: "33,6/40", cuivre: "34/36", fonte: "50" },
-  { id: "urinoirSiphonique", label: "Urinoir a action siphonique", type: "EU", du: 0.5, min: 33, pvc: "33,6/40", cuivre: "34/36", fonte: "50" },
-  { id: "urinoirVanne", label: "Urinoir avec vanne de rincage", type: "EU", du: 0.3, min: 25, pvc: "25,6/32", cuivre: "26/28", fonte: "---" },
-  { id: "urinoirRigole", label: "Urinoir rigole par personne", type: "EU", du: 0.2, min: 25, pvc: "25,6/32", cuivre: "26/28", fonte: "---" },
-  { id: "lavaboCollectif", label: "Lavabo collectif par jet", type: "EU", du: 0.05, min: 25, pvc: "25,6/32", cuivre: "26/28", fonte: "---" },
-  { id: "bacLaver", label: "Bac a laver", type: "EU", du: 0.8, min: 43, pvc: "43,6/50", cuivre: "52/54", fonte: "50" },
-  { id: "grilleSol50", label: "Grille de sol DN50", type: "EU", du: 0.6, min: 43, pvc: "43,6/50", cuivre: "52/54", fonte: "50" },
-  { id: "grilleSol75", label: "Grille de sol DN75", type: "EU", du: 1, min: 75, pvc: "75", cuivre: "---", fonte: "75" },
-  { id: "grilleSol100", label: "Grille de sol DN100", type: "EU", du: 1.3, min: 83, pvc: "84/90", cuivre: "---", fonte: "100" }
-];
 
-const sanitaryEvacUsageFactors = {
-  irregular: { label: "Utilisation irreguliere - maison individuelle / bureau", k: 0.5 },
-  regular: { label: "Utilisation reguliere - habitat collectif / ERP courant", k: 0.7 },
-  frequent: { label: "Utilisation frequente - toilettes / douches publiques", k: 1 },
-  special: { label: "Utilisation speciale - laboratoire / usage intensif", k: 1.2 }
-};
 
-const sanitaryChuteThresholds = {
-  gt45: [
-    { flow: 0.5, diameter: 56 }, { flow: 1.5, diameter: 68 }, { flow: 2, diameter: 73 },
-    { flow: 2.7, diameter: 83 }, { flow: 4, diameter: 93 }, { flow: 5.8, diameter: 117 },
-    { flow: 9.5, diameter: 150 }, { flow: 16, diameter: 191 }
-  ],
-  le45: [
-    { flow: 0.7, diameter: 56 }, { flow: 2, diameter: 68 }, { flow: 2.6, diameter: 73 },
-    { flow: 3.5, diameter: 83 }, { flow: 5.2, diameter: 93 }, { flow: 7.6, diameter: 117 },
-    { flow: 12.4, diameter: 150 }, { flow: 21, diameter: 191 }
-  ]
-};
 
-const sanitaryCollectorCapacity = {
-  fill70: [
-    { slope: 0.5, dn100: 2.9, dn125: 4.8, dn150: 9, dn200: 16.7 },
-    { slope: 1, dn100: 4.2, dn125: 6.8, dn150: 12.8, dn200: 23.7 },
-    { slope: 1.5, dn100: 5.1, dn125: 8.3, dn150: 15.7, dn200: 29.1 },
-    { slope: 2, dn100: 5.9, dn125: 9.6, dn150: 18.2, dn200: 33.6 },
-    { slope: 2.5, dn100: 6.7, dn125: 10.8, dn150: 20.3, dn200: 37.6 },
-    { slope: 3, dn100: 7.3, dn125: 11.8, dn150: 22.3, dn200: 41.2 },
-    { slope: 3.5, dn100: 7.9, dn125: 12.8, dn150: 24.1, dn200: 44.5 },
-    { slope: 4, dn100: 8.4, dn125: 13.7, dn150: 25.8, dn200: 47.6 },
-    { slope: 4.5, dn100: 8.9, dn125: 14.5, dn150: 27.3, dn200: 50.5 },
-    { slope: 5, dn100: 9.4, dn125: 15.3, dn150: 28.8, dn200: 53.3 }
-  ],
-  fill50: [
-    { slope: 1, dn100: 2.5, dn125: 4.1, dn150: 7.7, dn200: 14.2 },
-    { slope: 1.5, dn100: 3.1, dn125: 5, dn150: 9.4, dn200: 17.4 },
-    { slope: 2, dn100: 3.5, dn125: 5.7, dn150: 10.9, dn200: 20.1 },
-    { slope: 2.5, dn100: 4, dn125: 6.4, dn150: 12.2, dn200: 22.5 },
-    { slope: 3, dn100: 4.4, dn125: 7.1, dn150: 13.3, dn200: 24.7 },
-    { slope: 3.5, dn100: 4.7, dn125: 7.6, dn150: 14.4, dn200: 26.6 },
-    { slope: 4, dn100: 5, dn125: 8.2, dn150: 15.4, dn200: 28.5 },
-    { slope: 4.5, dn100: 5.3, dn125: 8.7, dn150: 16.3, dn200: 30.2 },
-    { slope: 5, dn100: 5.6, dn125: 9.1, dn150: 17.2, dn200: 31.9 }
-  ]
-};
 
-const roofDrainEpTable = [
-  { cylNormal: 50, cylMajor: 33, tronNormal: 71, tronMajor: 47, diameter: 8 },
-  { cylNormal: 64, cylMajor: 43, tronNormal: 91, tronMajor: 61, diameter: 9 },
-  { cylNormal: 79, cylMajor: 53, tronNormal: 113, tronMajor: 75, diameter: 10 },
-  { cylNormal: 95, cylMajor: 63, tronNormal: 136, tronMajor: 91, diameter: 11 },
-  { cylNormal: 113, cylMajor: 75, tronNormal: 161, tronMajor: 107, diameter: 12 },
-  { cylNormal: 133, cylMajor: 88, tronNormal: 190, tronMajor: 127, diameter: 13 },
-  { cylNormal: 154, cylMajor: 103, tronNormal: 220, tronMajor: 147, diameter: 14 },
-  { cylNormal: 177, cylMajor: 118, tronNormal: 253, tronMajor: 168, diameter: 15 },
-  { cylNormal: 201, cylMajor: 134, tronNormal: 287, tronMajor: 191, diameter: 16 },
-  { cylNormal: 227, cylMajor: 151, tronNormal: 324, tronMajor: 216, diameter: 17 },
-  { cylNormal: 254, cylMajor: 169, tronNormal: 363, tronMajor: 242, diameter: 18 },
-  { cylNormal: 284, cylMajor: 189, tronNormal: 406, tronMajor: 270, diameter: 19 },
-  { cylNormal: 314, cylMajor: 209, tronNormal: 449, tronMajor: 300, diameter: 20 },
-  { cylNormal: 346, cylMajor: 230, tronNormal: 494, tronMajor: 329, diameter: 21 },
-  { cylNormal: 380, cylMajor: 253, tronNormal: 543, tronMajor: 362, diameter: 22 },
-  { cylNormal: 415, cylMajor: 277, tronNormal: 593, tronMajor: 394, diameter: 23 },
-  { cylNormal: 452, cylMajor: 302, tronNormal: 646, tronMajor: 430, diameter: 24 },
-  { cylNormal: 490, cylMajor: 327, tronNormal: 700, tronMajor: 466, diameter: 25 },
-  { cylNormal: 530, cylMajor: 400, tronNormal: Infinity, tronMajor: 570, diameter: 26 },
-  { cylNormal: 570, cylMajor: 472, tronNormal: Infinity, tronMajor: 680, diameter: 27 },
-  { cylNormal: 615, cylMajor: 550, tronNormal: Infinity, tronMajor: Infinity, diameter: 27 },
-  { cylNormal: 660, cylMajor: 625, tronNormal: Infinity, tronMajor: Infinity, diameter: 29 },
-  { cylNormal: 700, cylMajor: 700, tronNormal: Infinity, tronMajor: Infinity, diameter: 30 }
-];
 
 function renderSanitaryEvac() {
   const fixtureRows = sanitaryEvacFixtures.map((item) => `
@@ -594,37 +303,7 @@ function renderSanitaryEvac() {
 
 
 
-const compressedAirPipes = [
-  { nominal: 15, retained: 20, outer: 21.3, thickness: 2.6, inner: 16.1, inch: '1/2"' },
-  { nominal: 20, retained: 25, outer: 26.9, thickness: 2.6, inner: 21.7, inch: '3/4"' },
-  { nominal: 25, retained: 32, outer: 33.7, thickness: 3.2, inner: 27.3, inch: '1"' },
-  { nominal: 32, retained: 40, outer: 42.4, thickness: 3.2, inner: 36, inch: '1 1/4"' },
-  { nominal: 40, retained: 50, outer: 48.3, thickness: 3.2, inner: 41.9, inch: '1 1/2"' },
-  { nominal: 50, retained: 65, outer: 60.3, thickness: 3.6, inner: 53.1, inch: '2"' },
-  { nominal: 65, retained: 85, outer: 76.1, thickness: 3.6, inner: 68.9, inch: '2 1/2"' },
-  { nominal: 80, retained: 100, outer: 88.9, thickness: 4, inner: 80.9, inch: '3"' },
-  { nominal: 100, retained: 125, outer: 114.3, thickness: 4.5, inner: 105.3, inch: '4"' },
-  { nominal: 125, retained: 150, outer: 139.7, thickness: 4.5, inner: 130.7, inch: '5"' },
-  { nominal: 150, retained: 200, outer: 168.3, thickness: 4.5, inner: 159.3, inch: '6"' },
-  { nominal: 200, retained: 250, outer: 219.1, thickness: 6.3, inner: 206.5, inch: '8"' },
-  { nominal: 250, retained: 300, outer: 273, thickness: 6.3, inner: 260.4, inch: '10"' }
-];
 
-const compressedAirEquivalentLengths = {
-  20: { globe: 0.6, tee: 0.5, elbow: 0.6, longElbow: 0.6, valve: 0.3 },
-  25: { globe: 0.6, tee: 0.6, elbow: 0.5, longElbow: 0.3, valve: 0.3 },
-  32: { globe: 0.9, tee: 0.75, elbow: 0.55, longElbow: 0.4, valve: 0.4 },
-  40: { globe: 1.2, tee: 0.9, elbow: 0.6, longElbow: 0.5, valve: 0.5 },
-  50: { globe: 2, tee: 1.5, elbow: 0.7, longElbow: 0.6, valve: 0.85 },
-  65: { globe: 2.5, tee: 2, elbow: 0.9, longElbow: 0.7, valve: 1.1 },
-  85: { globe: 4.3788, tee: 3.0909, elbow: 1.2364, longElbow: 0.9788, valve: 1.9576 },
-  100: { globe: 6, tee: 4, elbow: 1.5, longElbow: 1.2, valve: 2.7 },
-  125: { globe: 8.5, tee: 5.5, elbow: 1.8, longElbow: 1.5, valve: 4 },
-  150: { globe: 11, tee: 7, elbow: 2.1, longElbow: 1.8, valve: 5 },
-  200: { globe: 16, tee: 10, elbow: 2.7, longElbow: 2.5, valve: 7 },
-  250: { globe: 21, tee: 15, elbow: 3.4, longElbow: 3, valve: 9 },
-  300: { globe: 21, tee: 15, elbow: 3.4, longElbow: 3, valve: 9 }
-};
 
 function renderGas() {
   wrapForm(`
@@ -667,40 +346,6 @@ function renderCompressedAir() {
 
 
 
-const pipeTables = {
-  acier: [
-    { ref: "DN15 - 17.2 x 2", d: 13.2 },
-    { ref: "DN20 - 21.3 x 2.3", d: 16.7 },
-    { ref: "DN25 - 26.9 x 2.3", d: 22.3 },
-    { ref: "DN32 - 33.7 x 2.9", d: 27.9 },
-    { ref: "DN40 - 42.4 x 2.9", d: 36.6 },
-    { ref: "DN50 - 60.3 x 3.2", d: 53.9 },
-    { ref: "DN65 - 76.1 x 3.2", d: 69.7 },
-    { ref: "DN80 - 88.9 x 3.2", d: 82.5 },
-    { ref: "DN100 - 114.3 x 3.6", d: 107.1 }
-  ],
-  cuivre: [
-    { ref: "Cu 12/14", d: 12 },
-    { ref: "Cu 14/16", d: 14 },
-    { ref: "Cu 16/18", d: 16 },
-    { ref: "Cu 20/22", d: 20 },
-    { ref: "Cu 26/28", d: 26 },
-    { ref: "Cu 32/35", d: 32 },
-    { ref: "Cu 40/42", d: 40 },
-    { ref: "Cu 50/52", d: 50 },
-    { ref: "Cu 60/64", d: 60 }
-  ],
-  per: [
-    { ref: "PER 12 x 1.1", d: 9.8 },
-    { ref: "PER 16 x 1.5", d: 13 },
-    { ref: "PER 20 x 1.9", d: 16.2 },
-    { ref: "PER 25 x 2.3", d: 20.4 },
-    { ref: "PER 32 x 2.9", d: 26.2 },
-    { ref: "PER 40 x 3.7", d: 32.6 },
-    { ref: "PER 50 x 4.6", d: 40.8 },
-    { ref: "PER 63 x 5.8", d: 51.4 }
-  ]
-};
 
 function renderDdv() {
   wrapForm(`
@@ -851,7 +496,6 @@ function renderPump() {
 
 
 
-const standardVesselVolumes = [8, 12, 18, 25, 35, 50, 80, 100, 150, 200, 300, 500, 750, 1000];
 
 function renderVessel() {
   wrapForm(`
@@ -885,39 +529,6 @@ function renderVessel() {
 
 
 
-const efEcApparelsData = {
-  apparels: [
-    { name: "évier - timbre office", index: 0.2 },
-    { name: "Lavabo", index: 0.2 },
-    { name: "bidet", index: 0.2 },
-    { name: "baignoire", index: 0.33 },
-    { name: "douche", index: 0.2 },
-    { name: "WC avec réservoir de chasse", index: 0.12 },
-    { name: "urinoir avec robinet individuel", index: 0.15 },
-    { name: "urinoir à action siphonique", index: 0.5 },
-    { name: "lavabo collectif (0,05 l/s par jet)", index: 0.05 },
-    { name: "poste d'eau, robinet 1/2", index: 0.33 },
-    { name: "poste d'eau, robinet 3/4", index: 0.42 },
-    { name: "lave-mains", index: 0.1 },
-    { name: "bac à laver", index: 0.33 },
-    { name: "MAL le linge (Compter pour une MAL)", index: 0.2 },
-    { name: "MAL la vaiselle (Compter pour une MAL)", index: 0.1 },
-    { name: "Equipements Restaurant-cuisine collective", index: 1.08 },
-    { name: "robinet de plonge (mélangeur 3/4)", index: 0.75 },
-    { name: "robinet de plonge (mélangeur1/2 )", index: 0.33 },
-    { name: "MAL semi-automatique 10 à 150 couverts", index: 0.5 },
-    { name: "MAL semi-automatique 151 à 300 couverts", index: 0.5 },
-    { name: "MAL automatique 300 à 1500 couverts", index: 0.7 },
-    { name: "MAL automatique 1500 à 2000 couverts", index: 1 }
-  ],
-  wc_flush: { name: "WC avec robinet de chasse", index: 1.5 }
-};
-
-const efEcDefaultQuantities = {
-  Lavabo: 4,
-  douche: 2,
-  "WC avec réservoir de chasse": 3
-};
 
 
 function renderPlumbing() {
@@ -973,14 +584,7 @@ function renderInsulation() {
 
 
 function renderDuctWeight() {
-  const defaultRows = [
-    { type: "rect", width: 700, height: 400, length: 20 },
-    { type: "rect", width: 400, height: 400, length: 17 },
-    { type: "rect", width: 300, height: 400, length: 15 },
-    { type: "rect", width: 200, height: 300, length: 10 },
-    { type: "rect", width: 0, height: 0, length: 0 },
-    { type: "circ", width: 250, height: 0, length: 0 }
-  ];
+  const defaultRows = uiData.quantitatifs?.ductWeightDefaultRows || [];
 
   wrapForm(`
     <div class="form-grid">
@@ -1015,24 +619,7 @@ function renderDuctWeight() {
 
 
 
-const thermalSolarGains = {
-  ne: { label: "NE", base: 300 },
-  e: { label: "E", base: 510 },
-  se: { label: "SE", base: 515 },
-  s: { label: "S", base: 525 },
-  so: { label: "SO", base: 510 },
-  o: { label: "O", base: 510 },
-  no: { label: "NO", base: 300 },
-  horizontal: { label: "Horizontale", base: 650 }
-};
 
-const thermalSolarTreatments = {
-  none: { label: "Sans traitement", factor: 1 },
-  double: { label: "Double vitrage", factor: 0.8 },
-  solar: { label: "Traitement solaire", factor: 0.6 },
-  interiorBlind: { label: "Store interieur", factor: 0.5 },
-  exteriorBlind: { label: "Store exterieur", factor: 0.3 }
-};
 
 function renderPsychro() {
   wrapForm(`
@@ -1087,12 +674,6 @@ function renderThermal() {
 
 
 
-const smokeZones = [
-  { repere: "Zone 1", surface: 100, enabled: true },
-  { repere: "Zone 2", surface: 0, enabled: false },
-  { repere: "Zone 3", surface: 0, enabled: false },
-  { repere: "Zone 4", surface: 0, enabled: false }
-];
 
 function renderSmoke() {
   wrapForm(`
@@ -1157,241 +738,7 @@ function renderSmoke() {
 
 
 
-const categories = [
-  { id: "overview", label: "Vue d'ensemble" },
-  { id: "hydraulique", label: "Hydraulique" },
-  { id: "aeraulique", label: "Aeraulique" },
-  { id: "plomberie", label: "Plomberie" },
-  { id: "thermique", label: "Thermique" },
-  { id: "ventilation", label: "Ventilation" },
-  { id: "fluides", label: "Gaz, vapeur, air" },
-  { id: "quantitatifs", label: "Quantitatifs" },
-  { id: "utilitaires", label: "Utilitaires" },
-  { id: "bibliotheque", label: "Bibliotheque Excel" }
-];
 
-const modules = [
-  {
-    id: "fluides-ddv",
-    category: "hydraulique",
-    title: "Debit - diametre - vitesse",
-    status: "ready",
-    calculator: "ddv",
-    source: ["Programmes/Chaufferie/Calcul pratique Fluides", "DIM ALIM EF"],
-    description: "Predimensionnement rapide d'une conduite ou d'un reseau par debit, vitesse et diametre.",
-    keywords: ["debit", "débit", "diametre", "diamètre", "vitesse", "tube", "tuyau", "canalisation", "conduite", "section", "hydraulique", "eau", "dimensionnement"]
-  },
-  {
-    id: "reseau-hydraulique",
-    category: "hydraulique",
-    title: "Reseau hydraulique chauffage",
-    status: "ready",
-    calculator: "hydraulic",
-    source: ["Reseau hydraulique/Réseau hydraulique_model_V01", "Programmes/Chaufferie/Calcul pratique Fluides"],
-    description: "Debit d'eau, diametre theorique, reference tube et vitesse reelle a partir de la puissance.",
-    keywords: ["chauffage", "réseau", "reseau", "hydraulique", "puissance", "kw", "delta t", "débit eau", "debit eau", "diametre", "diamètre", "tube", "vitesse", "radiateur", "PAC", "chaudière", "chaudiere", "dimensionnement"]
-  },
-  {
-    id: "circulateur",
-    category: "hydraulique",
-    title: "Point d'equilibre circulateur",
-    status: "ready",
-    calculator: "pump",
-    source: ["Programmes/Chaufferie/circulateur"],
-    description: "Calcul du point d'equilibre d'un circulateur a partir de trois points constructeur et du coefficient Kv du reseau.",
-    keywords: ["pompe", "circulateur", "courbe", "hmt", "perte de charge", "pression", "débit", "debit", "réseau", "reseau", "chauffage", "dimensionnement", "sélection", "selection", "performance", "rendement"]
-  },
-  {
-    id: "vase",
-    category: "hydraulique",
-    title: "Vase d'expansion chauffage",
-    status: "ready",
-    calculator: "vessel",
-    source: ["Programmes/Chaufferie/vase", "Vase d'expansion/Calcul capacité vase d'expension"],
-    description: "Capacite minimale du vase, volume de dilatation, pressions de service/remplissage et rendement du vase.",
-    keywords: ["vase", "expansion", "chauffage", "pression", "gonflage", "soupape", "dilatation", "volume", "installation", "sécurité", "securite" ,"dimensionnement", "selection", "sélection", "selection", "calcul", "capacité", "capacite"]
-  },
-  {
-    id: "gaine-air",
-    category: "aeraulique",
-    title: "Gaine circulaire et rectangulaire",
-    status: "ready",
-    calculator: "duct",
-    source: ["Réseau Aéraulique/Réseau aéraulique_model_V01", "Aéraulique/Réseau aéraulique_model_V01"],
-    description: "Diametre circulaire, largeur rectangulaire et surface d'isolation de gaine.",
-    keywords: ["gaine", "air", "aéraulique", "aeraulique", "ventilation", "diametre", "diamètre", "rectangulaire", "circulaire", "section", "isolation", "calorifuge"]
-  },
-  {
-    id: "debit-air-gaine",
-    category: "aeraulique",
-    title: "Debit d'air dans gaine",
-    status: "ready",
-    calculator: "ductFlow",
-    source: ["Aéraulique/DEBIT D'AIR DANS GAINE"],
-    description: "Debit d'air en fonction du diametre de gaine circulaire et de la vitesse d'air.",
-    keywords: ["débit air", "debit air", "gaine", "ventilation", "vitesse", "diametre", "diamètre", "m3/h", "l/s", "circulaire", "rectangulaire", "aéraulique", "aeraulique"]
-  },
-  {
-    id: "pdc-air",
-    category: "aeraulique",
-    title: "Pertes de charge air",
-    status: "ready",
-    calculator: "ductPressure",
-    source: ["Réseau Aéraulique/Tableur aeraulique vierge", "Réseau Aéraulique/Réseau aéraulique_model_V01"],
-    description: "Calcul par troncons: vitesse, diametre equivalent, j, jL, singularites et perte totale.",
-    keywords: ["perte de charge", "pdc", "pression", "gaine", "air", "aéraulique", "aeraulique", "tronçon", "troncon", "singularité", "singularite", "rugosité", "rugosite", "ventilation"]
-  },
-  {
-    id: "alimentation-ef-simple",
-    category: "plomberie",
-    title: "Alimentation EF simple",
-    status: "ready",
-    calculator: "ddv",
-    source: ["DIM ALIM EF", "Programmes/Chaufferie/Calcul pratique Fluides"],
-    description: "Dimensionnement rapide d'une alimentation d'eau froide par debit, vitesse et diametre de tube.",
-    keywords: ["plomberie", "alimentation", "ef", "eau froide", "débit", "debit", "diametre", "diamètre", "vitesse", "per", "acier", "cuivre", "tube", "simple", "dimensionnement"]
-  },
-  {
-    id: "plomberie-debits",
-    category: "plomberie",
-    title: "Debit probable EF/ECS complet DTU 60.11",
-    status: "ready",
-    calculator: "plumbing",
-    source: ["Programmes/Divers/150106 Calcul débit Pb EF-EC- NEW", "Calcul débit Pb EF-EC- NEW"],
-    description: "Calcul complet des debits probables EF/ECS selon une logique DTU 60.11 simplifiee, avec appareils sanitaires, simultaneite et estimation eau melangee.",
-    keywords: ["plomberie", "sanitaire", "ef", "ec", "ecs", "eau froide", "eau chaude", "débit probable", "debit probable", "simultanéité", "simultaneite", "wc", "lavabo", "douche", "baignoire", "complet"]
-  },
-  {
-    id: "evacuations",
-    category: "plomberie",
-    title: "Evacuations EU/EV/EP",
-    status: "ready",
-    calculator: "sanitaryEvac",
-    source: ["Calcul débit évacuations DTU60"],
-    description: "Predimensionnement des evacuations sanitaires: appareils EU/EV, debit probable, diametre de chute, collecteur et descente EP.",
-    keywords: ["évacuation", "evacuation", "eu", "ev", "ep", "eaux usées", "eaux usees", "eaux vannes", "eaux pluviales", "wc", "chute", "collecteur", "pente", "diametre", "diamètre", "dtu 60.11"]
-  },
-  {
-    id: "psychro",
-    category: "thermique",
-    title: "Psychrometrie air humide",
-    status: "ready",
-    calculator: "psychro",
-    source: ["Programmes/PsychrometricPr", "Programmes/Divers/Psychro annexe"],
-    description: "Humidite specifique, point de rosee, enthalpie et masse volumique approchee.",
-    keywords: ["psychrométrie", "psychrometrie", "air humide", "humidité", "humidite", "point de rosée", "point de rosee", "enthalpie", "masse volumique", "température", "temperature", "hygrométrie", "hygrometrie"]
-  },
-  {
-    id: "deperditions",
-    category: "thermique",
-    title: "Deperditions et bilan chaud/froid",
-    status: "ready",
-    calculator: "thermal",
-    source: ["Déperdition et froid/Déperdition", "Calculs thermiques/Bilan thermique simplifié"],
-    description: "Estimation simplifiee des besoins chaud et froid d'un local avec apports internes, air neuf, vitrages et transmission thermique.",
-    keywords: ["déperdition", "deperdition", "bilan thermique", "chauffage", "froid", "paroi", "mur", "toiture", "fenêtre", "fenetre", "coefficient u", "isolation", "puissance"]
-  },
-  {
-    id: "vmc-hygro",
-    category: "ventilation",
-    title: "VMC hygro collectif",
-    status: "backlog",
-    calculator: "pending",
-    source: ["Ventilation/Dimensionnement hygro", "Ventilation/Rapid_ MI-2.16"],
-    description: "A migrer apres validation des bouches, colonnes et avis techniques sources.",
-    keywords: ["vmc", "hygro", "hygroréglable", "hygroreglable", "ventilation", "bouche", "colonne", "logement", "extraction", "air", "débit", "debit"]
-  },
-  {
-    id: "desenfumage",
-    category: "ventilation",
-    title: "Desenfumage",
-    status: "ready",
-    calculator: "smoke",
-    source: ["Désenfumage/Débit de désenfumage", "Désenfumage/Débit désenfumage"],
-    description: "Calcul des debits d'extraction et de compensation par zone, avec nombre de bouches, debit unitaire et sections indicatives.",
-    keywords: ["désenfumage", "desenfumage", "fumée", "fumee", "sécurité incendie", "securite incendie", "débit", "debit", "surface utile", "extraction", "amenée air", "amenee air", "compensation", "bouche", "zf"]
-  },
-  {
-    id: "gaz",
-    category: "fluides",
-    title: "Debit gaz et puissance",
-    status: "ready",
-    calculator: "gas",
-    source: ["Programmes/Chaufferie/calcul gaz coll", "Gaz/Détermination tuyauterie gaz"],
-    description: "Conversion puissance, PCI, rendement et debit gaz de reference.",
-    keywords: ["gaz", "débit gaz", "debit gaz", "puissance", "pci", "pcs", "rendement", "chaudière", "chaudiere", "brûleur", "bruleur", "m3/h"]
-  },
-  {
-    id: "vapeur",
-    category: "fluides",
-    title: "Vapeur saturee",
-    status: "backlog",
-    calculator: "pending",
-    source: ["Programmes/TechVapor/TechVaporFR", "Vapeur/Détermination tuyauterie Vapeur"],
-    description: "Tables vapeur et dimensionnement a migrer depuis TechVapor.",
-    keywords: ["vapeur", "saturée", "saturee", "pression", "température", "temperature", "condensat", "tuyauterie", "dimensionnement", "débit", "debit", "techvapor"]
-  },
-  {
-    id: "air-comprime",
-    category: "fluides",
-    title: "Tuyauterie air comprime",
-    status: "ready",
-    calculator: "compressedAir",
-    source: ["Air Comprimé/Détermination tuyauterie air comprimé", "Programmes/PdcAirComprimé/Biblio air comprimé"],
-    description: "Diametre conseille, longueur equivalente, vitesse et perte de pression reelle.",
-    keywords: ["air comprimé", "air comprime", "compresseur", "pression", "bar", "perte", "diametre", "diamètre", "tuyauterie", "longueur équivalente", "longueur equivalente", "débit", "debit"]
-  },
-  {
-    id: "calorifuge",
-    category: "quantitatifs",
-    title: "Surface de calorifuge",
-    status: "ready",
-    calculator: "insulation",
-    source: ["Calorifuge/CALORIFUGE", "Surface tuyauteries/Calcul surface"],
-    description: "Surface au metre lineaire, accessoires et quantitatif d'isolant.",
-    keywords: ["calorifuge", "isolation", "isolant", "surface", "m2", "mètre linéaire", "metre lineaire", "tuyauterie", "tube", "épaisseur", "epaisseur", "vanne", "pompe"]
-  },
-  {
-    id: "poids-gaine",
-    category: "quantitatifs",
-    title: "Poids de gaine et metrer",
-    status: "ready",
-    calculator: "ductWeight",
-    source: ["/Feuilles de calcul/Poids gaine rectangulaire"],
-    description: "Poids de gaine rectangulaire, surfaces de calorifuge et flocage avec majoration.",
-    keywords: ["poids", "gaine", "métré", "metre", "métrage", "metrage", "rectangulaire", "circulaire", "calorifuge", "flocage", "surface", "kg", "quantitatif", "ventilation"]
-  },
-  {
-    id: "conversions-unites",
-    category: "utilitaires",
-    title: "Conversions d'unites",
-    status: "ready",
-    calculator: "conversion",
-    source: ["Conversions/tableau de conversion", "Convertisseur", "Programmes/Chaufferie/conversion"],
-    description: "Convertisseur transverse: longueurs, surfaces, volumes, masses, pressions, energies, puissances, angles et temperatures.",
-    keywords: ["conversion", "convertisseur", "unité", "unite", "longueur", "surface", "volume", "masse", "pression", "énergie", "energie", "puissance", "température", "temperature", "angle", "bar", "pa", "kw", "m3", "m2"]
-  },
-  {
-    id: "combustion-pci-pcs",
-    category: "utilitaires",
-    title: "Combustion PCI/PCS",
-    status: "ready",
-    calculator: "combustionPciPcs",
-    source: ["Module ajoute manuellement"],
-    description: "Conversion combustible vers energie PCI/PCS et energie PCI vers quantite combustible.",
-    keywords: ["combustion", "combustible", "pouvoir calorifique", "pci", "pcs", "fioul", "gaz", "propane", "butane", "kwh", "energie", "rendement"]
-  },
-  {
-    id: "bibliotheque",
-    category: "bibliotheque",
-    title: "Catalogue des fichiers Excel",
-    status: "draft",
-    calculator: "library",
-    source: ["Dossier Soft etude JM"],
-    description: "Index vivant des classeurs: outils generiques, notes de calcul, fabricants et archives projet.",
-    keywords: ["bibliothèque", "bibliotheque", "catalogue", "excel", "sources", "classeur", "archive", "notes de calcul", "référentiel", "referentiel", "dtu", "normes"]
-  }
-];
 
 const calculators = {
   ddv: { label: "Debit / diametre / vitesse", render: renderDdv },
@@ -1419,7 +766,7 @@ const calculators = {
 const state = {
   category: "overview",
   query: "",
-  selectedModule: modules[0].id,
+  selectedModule: null,
   currentCalculator: "ddv",
   report: [],
   requestId: 0
@@ -1438,7 +785,66 @@ const escapeHtml = (value) => String(value ?? "").replace(/[&<>"']/g, (char) => 
   "'": "&#39;"
 }[char]));
 
-function init() {
+async function loadAppData() {
+  const [catalogResponse, uiResponse] = await Promise.all([
+    fetch(`${API_BASE_URL}/api/catalog`),
+    fetch(`${API_BASE_URL}/api/data/ui`)
+  ]);
+
+  if (!catalogResponse.ok) throw new Error(`Catalogue API ${catalogResponse.status}`);
+  if (!uiResponse.ok) throw new Error(`Donnees UI API ${uiResponse.status}`);
+
+  const catalog = await catalogResponse.json();
+  uiData = await uiResponse.json();
+
+  categories = catalog.categories || [];
+  modules = catalog.modules || [];
+
+  (catalog.calculators || []).forEach((item) => {
+    if (calculators[item.id]) calculators[item.id].label = item.label;
+  });
+
+  ductPressureDiameters = uiData.aeraulique?.ductPressureDiameters || [];
+  ductPressureMaterials = uiData.aeraulique?.ductPressureMaterials || [];
+  ductPressureRows = uiData.aeraulique?.ductPressureRows || [];
+  combustionFuels = uiData.combustion?.combustionFuels || {};
+  conversionGroups = uiData.conversions?.conversionGroups || {};
+  conversionReferences = uiData.conversions?.conversionReferences || [];
+  sanitaryEvacFixtures = uiData.evacuations?.sanitaryEvacFixtures || [];
+  sanitaryEvacUsageFactors = uiData.evacuations?.sanitaryEvacUsageFactors || {};
+  compressedAirPipes = uiData.fluides?.compressedAirPipes || [];
+  pipeTables = uiData.hydraulique?.pipeTables || {};
+  efEcApparelsData = uiData.plumbing?.efEcApparelsData || efEcApparelsData;
+  efEcDefaultQuantities = uiData.plumbing?.efEcDefaultQuantities || {};
+  thermalSolarGains = uiData.thermique?.thermalSolarGains || {};
+  thermalSolarTreatments = uiData.thermique?.thermalSolarTreatments || {};
+  smokeZones = uiData.ventilation?.smokeZones || [];
+}
+
+function showStartupError(error) {
+  const mount = document.getElementById("calculatorMount");
+  if (mount) {
+    mount.innerHTML = `
+      <div class="empty-state">
+        Impossible de charger les donnees de configuration depuis l'API : ${escapeHtml(error.message)}
+      </div>
+    `;
+  }
+}
+
+async function init() {
+  try {
+    await loadAppData();
+  } catch (error) {
+    showStartupError(error);
+    return;
+  }
+
+  if (!state.selectedModule && modules[0]) {
+    state.selectedModule = modules[0].id;
+    state.currentCalculator = modules[0].calculator;
+  }
+
   renderCategories();
   renderCalculatorSelect();
   bindShellEvents();

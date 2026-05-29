@@ -1,5 +1,5 @@
 const { document, fmt, mm, m3h, lps, value, selectValue, setResults } = require("./runtime");
-const { categories, modules } = require("../routes/catalog-data");
+const { categories, modules } = require("../data/catalog");
 function renderLibrary() {
   const byCategory = categories
     .filter((category) => category.id !== "overview")

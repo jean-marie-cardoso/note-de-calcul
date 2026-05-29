@@ -17,7 +17,20 @@ Architecture du depot local
 │   ├── package.json
 │   ├── routes/
 │   │   ├── calculations.js
-│   │   └── catalog-data.js
+│   │   └── data.js
+│   ├── data/
+│   │   ├── aeraulique.js
+│   │   ├── catalog.js
+│   │   ├── combustion.js
+│   │   ├── conversions.js
+│   │   ├── evacuations.js
+│   │   ├── fluides.js
+│   │   ├── hydraulique.js
+│   │   ├── plumbing.js
+│   │   ├── quantitatifs.js
+│   │   ├── thermique.js
+│   │   ├── ui.js
+│   │   └── ventilation.js
 │   └── calculators/
 │       ├── aeraulique.js
 │       ├── bibliotheque.js
@@ -56,7 +69,9 @@ Principe
 
 Le frontend reste statique et peut etre servi par GitHub Pages ou Nginx.
 Les moteurs de calcul sont dans `backend/calculators/`.
+Les abaques, catalogues, coefficients et tables techniques sont dans `backend/data/`.
 Le navigateur ne charge plus les fichiers calculateurs directement : il appelle l'API avec `fetch()`.
+`frontend/app.js` ne contient plus les gros objets metier ; il charge au demarrage `/api/catalog` et `/api/data/ui`.
 En preproduction, seul le contenu de `frontend/` va dans `/var/www/html/soft-etudes`.
 Le backend Node.js reste hors racine web, dans `/opt/soft-etudes/backend`.
 
@@ -69,14 +84,13 @@ const API_BASE_URL =
   window.location.hostname === "localhost" ||
   window.location.hostname === "127.0.0.1" ||
   window.location.hostname.startsWith("192.168.") ||
-  window.location.hostname === "82.67.215.219" ||
   window.location.hostname.endsWith(".local")
     ? ""
     : "https://api.mon-domaine.fr";
 ```
 
 En local ou preproduction Nginx, `/api` est sur la meme origine.
-En production, remplacer `https://api.mon-domaine.fr` par le domaine API OVH.
+En production GitHub Pages, remplacer `https://api.mon-domaine.fr` par le domaine API OVH.
 
 Installation backend locale
 
@@ -109,6 +123,7 @@ Routes API
 ```text
 GET  /api/health
 GET  /api/catalog
+GET  /api/data/ui
 POST /api/calculate/:calculator
 ```
 

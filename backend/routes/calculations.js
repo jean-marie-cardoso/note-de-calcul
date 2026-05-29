@@ -1,6 +1,6 @@
 const express = require('express');
 const runtime = require('../calculators/runtime');
-const catalog = require('./catalog-data');
+const catalog = require('../data/catalog');
 
 const hydraulique = require('../calculators/hydraulique');
 const aeraulique = require('../calculators/aeraulique');
