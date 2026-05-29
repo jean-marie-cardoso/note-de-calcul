@@ -1,232 +1,52 @@
-Soft Etudes JM App
+# Note de Calcul
 
-Application metier CVC/plomberie organisee en architecture frontend/backend.
+[![Status](https://img.shields.io/badge/Status-Préproduction-orange)]()
+[![Version](https://img.shields.io/badge/Version-0.1-blue)]()
+[![Démo](https://img.shields.io/badge/Démo-En_ligne-success)](http://82.67.215.219)
 
-Architecture du depot local
+---
 
-```text
-.
-├── frontend/
-│   ├── index.html
-│   ├── styles.css
-│   ├── config.js
-│   ├── app.js
-│   └── docs/
-├── backend/
-│   ├── server.js
-│   ├── package.json
-│   ├── routes/
-│   │   ├── calculations.js
-│   │   └── data.js
-│   ├── data/
-│   │   ├── aeraulique.js
-│   │   ├── catalog.js
-│   │   ├── combustion.js
-│   │   ├── conversions.js
-│   │   ├── evacuations.js
-│   │   ├── fluides.js
-│   │   ├── hydraulique.js
-│   │   ├── plumbing.js
-│   │   ├── quantitatifs.js
-│   │   ├── thermique.js
-│   │   ├── ui.js
-│   │   └── ventilation.js
-│   └── calculators/
-│       ├── aeraulique.js
-│       ├── bibliotheque.js
-│       ├── combustion-pci-pcs.js
-│       ├── conversions.js
-│       ├── evacuations.js
-│       ├── fluides.js
-│       ├── hydraulique.js
-│       ├── plumbing.js
-│       ├── quantitatifs.js
-│       ├── runtime.js
-│       ├── thermique.js
-│       └── ventilation.js
-├── README.md
-└── LICENSE
-```
+## Présentation
 
-Architecture de deploiement Debian 12
+Ce dépôt GitHub sert de point d’entrée public vers la version de préproduction du projet.
 
-```text
-/var/www/html/soft-etudes/
-├── index.html
-├── styles.css
-├── config.js
-├── app.js
-└── docs/
+L’application est actuellement hébergée sur une infrastructure dédiée afin de faciliter les tests, les validations fonctionnelles et les déploiements avant la mise en production.
 
-/opt/soft-etudes/backend/
-├── server.js
-├── package.json
-├── routes/
-└── calculators/
-```
+## Objectif du dépôt
 
-Principe
+Ce dépôt a pour but de :
 
-Le frontend reste statique et peut etre servi par GitHub Pages ou Nginx.
-Les moteurs de calcul sont dans `backend/calculators/`.
-Les abaques, catalogues, coefficients et tables techniques sont dans `backend/data/`.
-Le navigateur ne charge plus les fichiers calculateurs directement : il appelle l'API avec `fetch()`.
-`frontend/app.js` ne contient plus les gros objets metier ; il charge au demarrage `/api/catalog` et `/api/data/ui`.
-En preproduction, seul le contenu de `frontend/` va dans `/var/www/html/soft-etudes`.
-Le backend Node.js reste hors racine web, dans `/opt/soft-etudes/backend`.
+- Présenter le projet publiquement
+- Fournir un accès rapide à la version de démonstration
+- Centraliser la documentation et les informations générales
+- Préserver la confidentialité du code source durant la phase de préproduction
 
-Configuration API frontend
+## État du projet
 
-`frontend/config.js` determine automatiquement l'URL API :
+🚧 **En cours de développement**
 
-```js
-const API_BASE_URL =
-  window.location.hostname === "localhost" ||
-  window.location.hostname === "127.0.0.1" ||
-  window.location.hostname.startsWith("192.168.") ||
-  window.location.hostname.endsWith(".local")
-    ? ""
-    : "https://api.mon-domaine.fr";
-```
+Fonctionnalités actuellement en phase de validation :
 
-En local ou preproduction Nginx, `/api` est sur la meme origine.
-En production GitHub Pages, remplacer `https://api.mon-domaine.fr` par le domaine API OVH.
+- Interface utilisateur
+- Fonctionnalités métier
+- Optimisations de performances
+- Tests de sécurité
+- Validation de l’expérience utilisateur
 
-Installation backend locale
+## Architecture
 
-```bash
-cd backend
-npm install
-npm start
-```
+- **Frontend :** Application web accessible via le lien de démonstration
+- **Backend :** Hébergement privé
+- **Déploiement :** Infrastructure dédiée
 
-Commande de demarrage backend :
+## Remarques
 
-```bash
-cd backend
-npm start
-```
+Le code source complet n’est pas publié durant la phase de préproduction.
 
-L'API ecoute par defaut sur `http://localhost:3000`.
+Une version publique du dépôt pourra être mise à disposition ultérieurement selon l’évolution du projet.
 
-Pour servir aussi le frontend depuis Node en developpement ponctuel :
+## Auteur
 
-```bash
-cd backend
-SERVE_FRONTEND=true npm start
-```
+**Jean-Marie Cardoso**
 
-En preproduction, ne pas utiliser `SERVE_FRONTEND=true` : Nginx sert le frontend.
-
-Routes API
-
-```text
-GET  /api/health
-GET  /api/catalog
-GET  /api/data/ui
-POST /api/calculate/:calculator
-```
-
-Le corps JSON de calcul est de la forme :
-
-```json
-{
-  "values": {
-    "convFamily": "pressure",
-    "convValue": "1",
-    "convFrom": "bar",
-    "convTo": "pa"
-  },
-  "datasets": {}
-}
-```
-
-Copie preproduction Debian 12
-
-```bash
-sudo mkdir -p /var/www/html/soft-etudes
-sudo mkdir -p /opt/soft-etudes
-
-sudo rsync -av --delete frontend/ /var/www/html/soft-etudes/
-sudo rsync -av --delete backend/ /opt/soft-etudes/backend/
-
-cd /opt/soft-etudes/backend
-sudo npm install --omit=dev
-sudo chown -R www-data:www-data /opt/soft-etudes/backend
-sudo chown -R www-data:www-data /var/www/html/soft-etudes
-```
-
-Exemple Nginx preproduction Debian 12
-
-```nginx
-server {
-    listen 80;
-    server_name soft-etudes.local;
-
-    root /var/www/html/soft-etudes;
-    index index.html;
-
-    location / {
-        try_files $uri $uri/ /index.html;
-    }
-
-    location /api/ {
-        proxy_pass http://127.0.0.1:3000/api/;
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-}
-```
-
-Service systemd backend
-
-```ini
-[Unit]
-Description=Soft Etudes JM API
-After=network.target
-
-[Service]
-Type=simple
-WorkingDirectory=/opt/soft-etudes/backend
-Environment=NODE_ENV=production
-Environment=PORT=3000
-ExecStart=/usr/bin/node server.js
-Restart=always
-RestartSec=5
-User=www-data
-Group=www-data
-
-[Install]
-WantedBy=multi-user.target
-```
-
-Installation du service :
-
-```bash
-sudo cp deploy/soft-etudes-api.service /etc/systemd/system/soft-etudes-api.service
-sudo systemctl daemon-reload
-sudo systemctl enable --now soft-etudes-api
-sudo systemctl status soft-etudes-api
-```
-
-Activation Nginx :
-
-```bash
-sudo cp deploy/nginx-soft-etudes.conf /etc/nginx/sites-available/soft-etudes.conf
-sudo ln -s /etc/nginx/sites-available/soft-etudes.conf /etc/nginx/sites-enabled/soft-etudes.conf
-sudo nginx -t
-sudo systemctl reload nginx
-```
-
-Validation
-
-Les formules metier sont conservees cote backend.
-Le module `Combustion PCI/PCS` est cale sur le tableau fourni :
-
-* fioul : 3000 litres -> 30240 kWh PCI / 32054,4 kWh PCS
-* gaz : 1000 Nm3 -> 9450 kWh PCI / 10489,5 kWh PCS, et 3000 kWh PCI -> 317,460317 Nm3
-* propane : 3000 kg -> 38640 kWh PCI / 41731,2 kWh PCS, et 3000 kWh PCI -> 232,919255 kg
-* butane : 3000 kg -> 36900 kWh PCI / 40107 kWh PCS, et 3000 kWh PCI -> 243,902439 kg
+Administrateur Réseau Junior | Infrastructure & Systèmes | Développement Web
