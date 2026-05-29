@@ -1,7 +1,7 @@
 # Note de Calcul
 
 [![Status](https://img.shields.io/badge/Status-Préproduction-orange)]()
-[![Version](https://img.shields.io/badge/Version-1.1.1-blue)]()
+[![Version](https://img.shields.io/badge/Version-1.1.2-blue)]()
 [![Démo](https://img.shields.io/badge/Démo-En_ligne-success)](http://82.67.215.219)
 
 ---
