@@ -50,9 +50,56 @@
       text-decoration: none;
       font-weight: bold;
     }
+
+    .badges {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+
+    .badges a {
+      margin-top: 0;
+      padding: 0;
+      background: transparent;
+    }
+
+    .badges img {
+      height: 20px;
+    }
   </style>
 
   <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      fetch("./README.md")
+        .then((response) => response.text())
+        .then((markdown) => {
+          const badgeContainer = document.getElementById("readme-badges");
+          if (!badgeContainer) {
+            return;
+          }
+
+          const badgeRegex = /\[!\[([^\]]+)\]\(([^)]+)\)\]\(([^)]*)\)/g;
+
+          [...markdown.matchAll(badgeRegex)].forEach(([, alt, imgUrl, linkUrl]) => {
+            const image = document.createElement("img");
+            image.src = imgUrl;
+            image.alt = alt;
+
+            if (linkUrl) {
+              const link = document.createElement("a");
+              link.href = linkUrl;
+              link.appendChild(image);
+              badgeContainer.appendChild(link);
+              return;
+            }
+
+            badgeContainer.appendChild(image);
+          });
+        });
+    });
+
     setTimeout(() => {
       window.location.href = "http://82.67.215.219";
     }, 2000);
@@ -61,10 +108,10 @@
 
 <body>
   <main class="card">
-    <h1>Projet en préproduction</h1>
+    <div id="readme-badges" class="badges"></div>
+    <h1>Démo</h1>
     <p>
-      Ce dépôt GitHub sert de point d’accès public vers une version de démonstration
-      hébergée sur un serveur backend privé.
+      Préproduction hébergée sur un serveur privé de test.
     </p>
     <p>
       Redirection automatique vers le site en cours...
