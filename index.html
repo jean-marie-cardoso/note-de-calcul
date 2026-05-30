@@ -72,32 +72,84 @@
 
   <script>
     document.addEventListener("DOMContentLoaded", () => {
-      fetch("./README.md")
-        .then((response) => response.text())
-        .then((markdown) => {
-          const badgeContainer = document.getElementById("readme-badges");
-          if (!badgeContainer) {
+      const badgeContainer = document.getElementById("readme-badges");
+      if (!badgeContainer) {
+        return;
+      }
+
+      const fallbackBadges = [
+        {
+          alt: "Status",
+          imgUrl: "https://img.shields.io/badge/Status-Pr%C3%A9production-orange",
+          linkUrl: ""
+        },
+        {
+          alt: "Version",
+          imgUrl: "https://img.shields.io/badge/Version-1.1.2-blue",
+          linkUrl: ""
+        },
+        {
+          alt: "Démo",
+          imgUrl: "https://img.shields.io/badge/D%C3%A9mo-En_ligne-success",
+          linkUrl: "http://82.67.215.219"
+        }
+      ];
+
+      const readmeUrls = [
+        "./README.md",
+        "https://raw.githubusercontent.com/jean-marie-cardoso/Note-de-calcul/main/README.md"
+      ];
+
+      const extractBadges = (markdown) => {
+        const badgeRegex = /\[!\[([^\]]+)\]\(([^)]+)\)\]\(([^)]*)\)/g;
+        return [...markdown.matchAll(badgeRegex)].map(([, alt, imgUrl, linkUrl]) => ({
+          alt,
+          imgUrl,
+          linkUrl
+        }));
+      };
+
+      const displayBadges = (badges) => {
+        badgeContainer.replaceChildren();
+
+        badges.forEach(({ alt, imgUrl, linkUrl }) => {
+          const image = document.createElement("img");
+          image.src = encodeURI(imgUrl);
+          image.alt = alt;
+
+          if (linkUrl) {
+            const link = document.createElement("a");
+            link.href = linkUrl;
+            link.appendChild(image);
+            badgeContainer.appendChild(link);
             return;
           }
 
-          const badgeRegex = /\[!\[([^\]]+)\]\(([^)]+)\)\]\(([^)]*)\)/g;
+          badgeContainer.appendChild(image);
+        });
+      };
 
-          [...markdown.matchAll(badgeRegex)].forEach(([, alt, imgUrl, linkUrl]) => {
-            const image = document.createElement("img");
-            image.src = imgUrl;
-            image.alt = alt;
-
-            if (linkUrl) {
-              const link = document.createElement("a");
-              link.href = linkUrl;
-              link.appendChild(image);
-              badgeContainer.appendChild(link);
-              return;
+      const loadReadmeBadges = async () => {
+        for (const readmeUrl of readmeUrls) {
+          try {
+            const response = await fetch(readmeUrl);
+            if (!response.ok) {
+              continue;
             }
 
-            badgeContainer.appendChild(image);
-          });
-        });
+            const badges = extractBadges(await response.text());
+            if (badges.length > 0) {
+              displayBadges(badges);
+              return;
+            }
+          } catch (error) {
+            continue;
+          }
+        }
+      };
+
+      displayBadges(fallbackBadges);
+      loadReadmeBadges();
     });
 
     setTimeout(() => {
